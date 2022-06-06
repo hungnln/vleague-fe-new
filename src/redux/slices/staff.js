@@ -232,6 +232,23 @@ export const createStaff = (data) => {
     }
   }
 }
+export const editStaff = (data) => {
+  return async (dispatch) => {
+    dispatch(slice.actions.startLoading());
+    try {
+      const response = await axios.put(`/api/staffs/${data.id}`, data);
+      if (response.data.statusCode === 200) {
+
+        // dispatch(slice.actions.getPlayerListSuccess(response.data.result));
+      } else {
+        console.log('error');
+      }
+    } catch (error) {
+      console.log(error, 'error');
+      dispatch(slice.actions.hasError(error));
+    }
+  }
+}
 export const removeStaff = (id) => {
   return async dispatch => {
     dispatch(slice.actions.startLoading());

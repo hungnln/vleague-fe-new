@@ -17,8 +17,9 @@ import { PATH_DASHBOARD } from '../../../routes/paths';
 import Label from '../../Label';
 import { UploadAvatar } from '../../upload';
 import countries from './countries';
-import { createStaff } from 'src/redux/slices/staff';
+import { createStaff, editStaff } from 'src/redux/slices/staff';
 import { useDispatch } from 'src/redux/store';
+import _ from 'lodash';
 
 // ----------------------------------------------------------------------
 
@@ -28,6 +29,7 @@ StaffNewForm.propTypes = {
 };
 
 export default function StaffNewForm({ isEdit, currentStaff }) {
+  let base64 = ''
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
@@ -70,14 +72,22 @@ export default function StaffNewForm({ isEdit, currentStaff }) {
         //   console.log(toDataURL(value.ImageURL), 'file')
         // }
         let data = ''
-        if (values.ImageURL.base64 == null) {
-          console.log('checked', getBase64Image(currentStaff.imageURL))
-          data = { ...values, ImageURL: getBase64Image(currentStaff.imageURL) }
+        if (isEdit) {
+          if (base64 !== '') {
+            data = { ...values, ImageURL: base64 }
+            console.log(1)
+          } else {
+            data = { ...values, ImageURL: values.ImageURL.base64 }
+            console.log(2)
+
+          }
+          console.log(data, 'data');
+          dispatch(editStaff(data))
         } else {
           data = { ...values, ImageURL: values.ImageURL.base64 }
+
+          dispatch(createStaff(data))
         }
-        console.log("formik", data);
-        dispatch(createStaff(data))
         resetForm();
         setSubmitting(false);
         enqueueSnackbar(!isEdit ? 'Create success' : 'Update success', { variant: 'success' });
@@ -91,7 +101,11 @@ export default function StaffNewForm({ isEdit, currentStaff }) {
   });
 
   const { errors, values, touched, handleSubmit, isSubmitting, setFieldValue, getFieldProps } = formik;
-
+  if (_.includes(formik.values.ImageURL, 'http')) {
+    console.log('check');
+    getBase64Image(currentStaff?.imageURL).then(value =>
+      base64 = value)
+  }
   const handleDrop = useCallback(
     (acceptedFiles) => {
       const file = acceptedFiles[0];
@@ -107,6 +121,7 @@ export default function StaffNewForm({ isEdit, currentStaff }) {
             preview: URL.createObjectURL(file), base64: value
           });
         })
+        base64 = ''
       }
     },
     [setFieldValue]

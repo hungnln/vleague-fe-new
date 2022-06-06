@@ -233,6 +233,23 @@ export const createPlayer = (data) => {
     }
   }
 }
+export const editPlayer = (data) => {
+  return async (dispatch) => {
+    dispatch(slice.actions.startLoading());
+    try {
+      const response = await axios.put(`/api/players/${data.id}`, data);
+      if (response.data.statusCode === 200) {
+
+        // dispatch(slice.actions.getPlayerListSuccess(response.data.result));
+      } else {
+        console.log('error');
+      }
+    } catch (error) {
+      console.log(error, 'error');
+      dispatch(slice.actions.hasError(error));
+    }
+  }
+}
 export const removePlayer = (id) => {
   return async dispatch => {
     dispatch(slice.actions.startLoading());

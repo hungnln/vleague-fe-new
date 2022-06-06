@@ -4,6 +4,8 @@ import firebase from 'firebase/app';
 import 'firebase/auth';
 import 'firebase/firestore';
 import { firebaseConfig } from '../config';
+import { loginToServer } from 'src/redux/slices/user';
+import { useDispatch } from 'src/redux/store';
 
 // ----------------------------------------------------------------------
 
@@ -53,23 +55,24 @@ AuthProvider.propTypes = {
 function AuthProvider({ children }) {
   const [profile, setProfile] = useState(null);
   const [state, dispatch] = useReducer(reducer, initialState);
-
+  const dispatchUser = useDispatch()
   useEffect(
     () =>
       firebase.auth().onAuthStateChanged((user) => {
         if (user) {
-          const docRef = firebase.firestore().collection('users').doc(user.uid);
+          // const docRef = firebase.firestore().collection('users').doc(user.uid);
           user.getIdToken().then((idToken) => localStorage.setItem('accessToken', idToken))
-          docRef
-            .get()
-            .then((doc) => {
-              if (doc.exists) {
-                setProfile(doc.data());
-              }
-            })
-            .catch((error) => {
-              console.error(error);
-            });
+          dispatchUser(loginToServer())
+          // docRef
+          //   .get()
+          //   .then((doc) => {
+          //     if (doc.exists) {
+          //       setProfile(doc.data());
+          //     }
+          //   })
+          //   .catch((error) => {
+          //     console.error(error);
+          //   });
 
           dispatch({
             type: 'INITIALISE',
@@ -118,7 +121,7 @@ function AuthProvider({ children }) {
           });
       });
 
-  const logout = async () => {
+ const logout = async () => {
     await firebase.auth().signOut();
   };
 

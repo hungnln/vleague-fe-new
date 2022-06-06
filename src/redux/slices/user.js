@@ -217,6 +217,19 @@ export function getUserList() {
     }
   };
 }
+export const loginToServer = () => {
+  return async (dispatch) => {
+    dispatch(slice.actions.startLoading());
+    try {
+      const response = await axios.post('/api/login/firebase');
+      console.log(response, 'respone');
+      dispatch(slice.actions.getProfileSuccess(response.data.result));
+    } catch (error) {
+      console.log(error, 'error');
+      dispatch(slice.actions.hasError(error));
+    }
+  };
+}
 
 // ----------------------------------------------------------------------
 
