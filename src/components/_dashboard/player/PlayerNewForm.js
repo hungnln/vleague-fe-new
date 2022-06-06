@@ -17,8 +17,9 @@ import { PATH_DASHBOARD } from '../../../routes/paths';
 import Label from '../../Label';
 import { UploadAvatar } from '../../upload';
 import countries from './countries';
-import { createPlayer } from 'src/redux/slices/player';
+import { createPlayer, editPlayer } from 'src/redux/slices/player';
 import { useDispatch } from 'src/redux/store';
+import _ from 'lodash';
 
 // ----------------------------------------------------------------------
 
@@ -30,6 +31,8 @@ PlayerNewForm.propTypes = {
 export default function PlayerNewForm({ isEdit, currentPlayer }) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  let base64 = ''
+  // const [base64, setBase64] = useState('')
   const { enqueueSnackbar } = useSnackbar();
   const NewPlayerSchema = Yup.object().shape({
     Name: Yup.string().required('Name is required'),
@@ -70,14 +73,19 @@ export default function PlayerNewForm({ isEdit, currentPlayer }) {
         //   console.log(toDataURL(value.ImageURL), 'file')
         // }
         let data = ''
-        if (values.ImageURL.base64 == null) {
-          console.log('checked', getBase64Image(currentPlayer.imageURL))
-          data = { ...values, ImageURL: getBase64Image(currentPlayer.imageURL) }
+        if (isEdit) {
+          if (base64 !== null) {
+            data = { ...values, ImageURL: base64 }
+          } else {
+            data = { ...values, ImageURL: values.ImageURL.base64 }
+          }
+          console.log(data, 'data');
+          dispatch(editPlayer(data))
         } else {
           data = { ...values, ImageURL: values.ImageURL.base64 }
+
+          dispatch(createPlayer(data))
         }
-        console.log("formik", data);
-        dispatch(createPlayer(data))
         resetForm();
         setSubmitting(false);
         enqueueSnackbar(!isEdit ? 'Create success' : 'Update success', { variant: 'success' });
@@ -91,7 +99,11 @@ export default function PlayerNewForm({ isEdit, currentPlayer }) {
   });
 
   const { errors, values, touched, handleSubmit, isSubmitting, setFieldValue, getFieldProps } = formik;
-
+  if (_.includes(formik.values.ImageURL, 'http')) {
+    console.log(1);
+    getBase64Image(currentPlayer?.imageURL).then(value =>
+      base64 = value)
+  }
   const handleDrop = useCallback(
     (acceptedFiles) => {
       const file = acceptedFiles[0];
@@ -107,6 +119,7 @@ export default function PlayerNewForm({ isEdit, currentPlayer }) {
             preview: URL.createObjectURL(file), base64: value
           });
         })
+        base64 = ''
       }
     },
     [setFieldValue]
