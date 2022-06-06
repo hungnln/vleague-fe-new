@@ -7,13 +7,13 @@ export const firebaseConfig = {
   // messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
   // appId: process.env.REACT_APP_FIREBASE_APPID,
   // measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID
-  apiKey: 'AIzaSyAJ6Jg9HhW6lN4hEv6OUZ_0x0eyL2LHgRQ',
+  apiKey: "AIzaSyAJ6Jg9HhW6lN4hEv6OUZ_0x0eyL2LHgRQ",
   authDomain: "v-leagues.firebaseapp.com",
-  databaseURL: "v-leagues",
   projectId: "v-leagues",
   storageBucket: "v-leagues.appspot.com",
+  messagingSenderId: "883654767893",
   appId: "1:883654767893:web:a3f78c749302005ce2251c",
-  measurementIdD: "G-4KBGV5R57T"
+  measurementId: "G-4KBGV5R57T"
 };
 
 export const cognitoConfig = {
