@@ -4,8 +4,8 @@ import axios from '../utils/axios';
 
 // ----------------------------------------------------------------------
 
-const axiosMockAdapter = new AxiosMockAdapter(axios, {
-  delayResponse: 0
-});
+// const axiosMockAdapter = new AxiosMockAdapter(axios, {
+//   delayResponse: 0
+// });
 
-export default axiosMockAdapter;
+// export default axiosMockAdapter;

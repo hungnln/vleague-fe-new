@@ -8,6 +8,7 @@ import { Form, FormikProvider, useFormik } from 'formik';
 import { LoadingButton } from '@mui/lab';
 import { Box, Card, Grid, Stack, Switch, TextField, Typography, FormHelperText, FormControlLabel } from '@mui/material';
 // utils
+import { toBase64 } from 'src/utils/base64/base64';
 import { fData } from '../../../utils/formatNumber';
 import fakeRequest from '../../../utils/fakeRequest';
 // routes
@@ -31,37 +32,40 @@ export default function UserNewForm({ isEdit, currentUser }) {
   const NewUserSchema = Yup.object().shape({
     name: Yup.string().required('Name is required'),
     email: Yup.string().required('Email is required').email(),
-    phoneNumber: Yup.string().required('Phone number is required'),
-    address: Yup.string().required('Address is required'),
-    country: Yup.string().required('country is required'),
-    company: Yup.string().required('Company is required'),
-    state: Yup.string().required('State is required'),
-    city: Yup.string().required('City is required'),
-    role: Yup.string().required('Role Number is required'),
-    avatarUrl: Yup.mixed().required('Avatar is required')
+    // phoneNumber: Yup.string().required('Phone number is required'),
+    // address: Yup.string().required('Address is required'),
+    // country: Yup.string().required('country is required'),
+    // company: Yup.string().required('Company is required'),
+    // state: Yup.string().required('State is required'),
+    // city: Yup.string().required('City is required'),
+    // role: Yup.string().required('Role Number is required'),
+    ImageURL: Yup.mixed().required('Avatar is required')
   });
 
   const formik = useFormik({
     enableReinitialize: true,
     initialValues: {
+      id: currentUser?.id || '',
       name: currentUser?.name || '',
       email: currentUser?.email || '',
-      phoneNumber: currentUser?.phoneNumber || '',
-      address: currentUser?.address || '',
-      country: currentUser?.country || '',
-      state: currentUser?.state || '',
-      city: currentUser?.city || '',
-      zipCode: currentUser?.zipCode || '',
-      avatarUrl: currentUser?.avatarUrl || null,
-      isVerified: currentUser?.isVerified || true,
-      status: currentUser?.status,
-      company: currentUser?.company || '',
-      role: currentUser?.role || ''
+      // phoneNumber: currentUser?.phoneNumber || '',
+      // address: currentUser?.address || '',
+      // country: currentUser?.country || '',
+      // state: currentUser?.state || '',
+      // city: currentUser?.city || '',
+      // zipCode: currentUser?.zipCode || '',
+      ImageURL: currentUser?.ImageURL || null,
+      // isVerified: currentUser?.isVerified || true,
+      // status: currentUser?.status,
+      // company: currentUser?.company || '',
+      // role: currentUser?.role || ''
     },
     validationSchema: NewUserSchema,
     onSubmit: async (values, { setSubmitting, resetForm, setErrors }) => {
       try {
         await fakeRequest(500);
+        const data = { ...values, ImageURL: values.ImageURL.base64 }
+        console.log("formik", data);
         resetForm();
         setSubmitting(false);
         enqueueSnackbar(!isEdit ? 'Create success' : 'Update success', { variant: 'success' });
@@ -80,8 +84,9 @@ export default function UserNewForm({ isEdit, currentUser }) {
     (acceptedFiles) => {
       const file = acceptedFiles[0];
       if (file) {
-        setFieldValue('avatarUrl', {
+        setFieldValue('ImageURL', {
           ...file,
+          base64: toBase64(file),
           preview: URL.createObjectURL(file)
         });
       }
@@ -107,10 +112,10 @@ export default function UserNewForm({ isEdit, currentUser }) {
               <Box sx={{ mb: 5 }}>
                 <UploadAvatar
                   accept="image/*"
-                  file={values.avatarUrl}
+                  file={values.ImageURL}
                   maxSize={3145728}
                   onDrop={handleDrop}
-                  error={Boolean(touched.avatarUrl && errors.avatarUrl)}
+                  error={Boolean(touched.ImageURL && errors.ImageURL)}
                   caption={
                     <Typography
                       variant="caption"
@@ -128,11 +133,11 @@ export default function UserNewForm({ isEdit, currentUser }) {
                   }
                 />
                 <FormHelperText error sx={{ px: 2, textAlign: 'center' }}>
-                  {touched.avatarUrl && errors.avatarUrl}
+                  {touched.ImageURL && errors.ImageURL}
                 </FormHelperText>
               </Box>
 
-              {isEdit && (
+              {/* {isEdit && (
                 <FormControlLabel
                   labelPlacement="start"
                   control={
@@ -153,7 +158,7 @@ export default function UserNewForm({ isEdit, currentUser }) {
                   }
                   sx={{ mx: 0, mb: 3, width: 1, justifyContent: 'space-between' }}
                 />
-              )}
+              )} */}
 
               {/* <FormControlLabel
                 labelPlacement="start"
@@ -173,10 +178,10 @@ export default function UserNewForm({ isEdit, currentUser }) {
             </Card>
           </Grid>
 
-          <Grid item xs={12} md={8}>
+          <Grid item xs={12} md={6}>
             <Card sx={{ p: 3 }}>
               <Stack spacing={3}>
-                <Stack direction={{ xs: 'column', sm: 'row' }} spacing={{ xs: 3, sm: 2 }}>
+                <Stack direction={{ xs: 'column', }} spacing={{ xs: 3, sm: 1 }}>
                   <TextField
                     fullWidth
                     label="Full Name"
@@ -193,7 +198,7 @@ export default function UserNewForm({ isEdit, currentUser }) {
                   />
                 </Stack>
 
-                <Stack direction={{ xs: 'column', sm: 'row' }} spacing={{ xs: 3, sm: 2 }}>
+                {/* <Stack direction={{ xs: 'column', sm: 'row' }} spacing={{ xs: 3, sm: 2 }}>
                   <TextField
                     fullWidth
                     label="Phone Number"
@@ -263,7 +268,7 @@ export default function UserNewForm({ isEdit, currentUser }) {
                     error={Boolean(touched.role && errors.role)}
                     helperText={touched.role && errors.role}
                   />
-                </Stack>
+                </Stack> */}
 
                 <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
                   <LoadingButton type="submit" variant="contained" loading={isSubmitting}>

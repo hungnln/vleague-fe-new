@@ -67,8 +67,26 @@ export const PATH_DASHBOARD = {
     cards: path(ROOTS_DASHBOARD, '/player/cards'),
     list: path(ROOTS_DASHBOARD, '/player/list'),
     newPlayer: path(ROOTS_DASHBOARD, '/player/new'),
-    editById: path(ROOTS_DASHBOARD, `/player/reece-chung/edit`),
+    // editById: path(ROOTS_DASHBOARD, `/player/reece-chung/edit`),
     account: path(ROOTS_DASHBOARD, '/player/account')
+  },
+  staff: {
+    root: path(ROOTS_DASHBOARD, '/staff'),
+    profile: path(ROOTS_DASHBOARD, '/staff/profile'),
+    cards: path(ROOTS_DASHBOARD, '/staff/cards'),
+    list: path(ROOTS_DASHBOARD, '/staff/list'),
+    newStaff: path(ROOTS_DASHBOARD, '/staff/new'),
+    // editById: path(ROOTS_DASHBOARD, `/staff/reece-chung/edit`),
+    account: path(ROOTS_DASHBOARD, '/staff/account')
+  },
+  club: {
+    root: path(ROOTS_DASHBOARD, '/club'),
+    profile: path(ROOTS_DASHBOARD, '/club/profile'),
+    cards: path(ROOTS_DASHBOARD, '/club/cards'),
+    list: path(ROOTS_DASHBOARD, '/club/list'),
+    newCLub: path(ROOTS_DASHBOARD, '/club/new'),
+    // editById: path(ROOTS_DASHBOARD, `/club/reece-chung/edit`),
+    account: path(ROOTS_DASHBOARD, '/club/account')
   },
   eCommerce: {
     root: path(ROOTS_DASHBOARD, '/e-commerce'),

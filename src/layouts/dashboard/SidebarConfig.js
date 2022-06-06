@@ -65,19 +65,19 @@ const sidebarConfig = [
           { title: 'account', path: PATH_DASHBOARD.user.account }
         ]
       },
-      {
-        title: 'player',
-        path: PATH_DASHBOARD.player.root,
-        icon: ICONS.user,
-        children: [
-          { title: 'profile', path: PATH_DASHBOARD.player.profile },
-          { title: 'cards', path: PATH_DASHBOARD.player.cards },
-          { title: 'list', path: PATH_DASHBOARD.player.list },
-          { title: 'create', path: PATH_DASHBOARD.player.newPlayer },
-          { title: 'edit', path: PATH_DASHBOARD.player.editById },
-          { title: 'account', path: PATH_DASHBOARD.player.account }
-        ]
-      },
+      // {
+      //   title: 'player',
+      //   path: PATH_DASHBOARD.player.root,
+      //   icon: ICONS.user,
+      //   children: [
+      //     { title: 'profile', path: PATH_DASHBOARD.player.profile },
+      //     { title: 'cards', path: PATH_DASHBOARD.player.cards },
+      //     { title: 'list', path: PATH_DASHBOARD.player.list },
+      //     { title: 'create', path: PATH_DASHBOARD.player.newPlayer },
+      //     { title: 'edit', path: PATH_DASHBOARD.player.editById },
+      //     { title: 'account', path: PATH_DASHBOARD.player.account }
+      //   ]
+      // },
 
       // MANAGEMENT : E-COMMERCE
       {
@@ -109,6 +109,54 @@ const sidebarConfig = [
     ]
   },
 
+  // CLUB
+  // -------------------------------------------------------------------------
+  {
+    subheader: 'club',
+    items: [
+      // CLUB : PLAYER,CLUB,STAFF
+      {
+        title: 'club',
+        path: PATH_DASHBOARD.club.root,
+        icon: ICONS.user,
+        children: [
+          // { title: 'profile', path: PATH_DASHBOARD.player.profile },
+          // { title: 'cards', path: PATH_DASHBOARD.player.cards },
+          { title: 'list', path: PATH_DASHBOARD.club.list },
+          { title: 'create', path: PATH_DASHBOARD.club.newCLub },
+          // { title: 'edit', path: PATH_DASHBOARD.player.editById },
+          // { title: 'account', path: PATH_DASHBOARD.player.account }
+        ]
+      },
+      {
+        title: 'player',
+        path: PATH_DASHBOARD.player.root,
+        icon: ICONS.user,
+        children: [
+          // { title: 'profile', path: PATH_DASHBOARD.player.profile },
+          // { title: 'cards', path: PATH_DASHBOARD.player.cards },
+          { title: 'list', path: PATH_DASHBOARD.player.list },
+          { title: 'create', path: PATH_DASHBOARD.player.newPlayer },
+          // { title: 'edit', path: PATH_DASHBOARD.player.editById },
+          // { title: 'account', path: PATH_DASHBOARD.player.account }
+        ]
+      },
+      {
+        title: 'staff',
+        path: PATH_DASHBOARD.staff.root,
+        icon: ICONS.user,
+        children: [
+          // { title: 'profile', path: PATH_DASHBOARD.player.profile },
+          // { title: 'cards', path: PATH_DASHBOARD.player.cards },
+          { title: 'list', path: PATH_DASHBOARD.staff.list },
+          { title: 'create', path: PATH_DASHBOARD.staff.newStaff },
+          // { title: 'edit', path: PATH_DASHBOARD.player.editById },
+          // { title: 'account', path: PATH_DASHBOARD.player.account }
+        ]
+      }
+
+    ]
+  },
   // APP
   // ----------------------------------------------------------------------
   {

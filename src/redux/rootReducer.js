@@ -6,6 +6,10 @@ import mailReducer from './slices/mail';
 import chatReducer from './slices/chat';
 import blogReducer from './slices/blog';
 import userReducer from './slices/user';
+import playerReducer from './slices/player';
+import staffReducer from './slices/staff';
+import clubReducer from './slices/club';
+
 import productReducer from './slices/product';
 import calendarReducer from './slices/calendar';
 import kanbanReducer from './slices/kanban';
@@ -31,6 +35,11 @@ const rootReducer = combineReducers({
   chat: chatReducer,
   blog: blogReducer,
   user: userReducer,
+  player: playerReducer,
+  staff: staffReducer,
+  club: clubReducer,
+
+
   calendar: calendarReducer,
   kanban: kanbanReducer,
   product: persistReducer(productPersistConfig, productReducer)

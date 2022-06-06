@@ -10,6 +10,12 @@ import AuthGuard from '../guards/AuthGuard';
 // import RoleBasedGuard from '../guards/RoleBasedGuard';
 // components
 import LoadingScreen from '../components/LoadingScreen';
+import PlayerList from 'src/pages/dashboard/Player/PlayerList';
+import PlayerCreate from '../pages/dashboard/Player/PlayerCreate';
+import StaffList from 'src/pages/dashboard/Staff/StaffList';
+import StaffCreate from 'src/pages/dashboard/Staff/StaffCreate';
+import ClubList from 'src/pages/dashboard/CLub/ClubList';
+import ClubCreate from 'src/pages/dashboard/CLub/ClubCreate';
 
 // ----------------------------------------------------------------------
 
@@ -114,9 +120,33 @@ export default function Router() {
             { element: <Navigate to="/dashboard/player/profile" replace /> },
             { path: 'profile', element: <UserProfile /> },
             { path: 'cards', element: <UserCards /> },
-            { path: 'list', element: <UserList /> },
-            { path: 'new', element: <UserCreate /> },
-            { path: ':name/edit', element: <UserCreate /> },
+            { path: 'list', element: <PlayerList /> },
+            { path: 'new', element: <PlayerCreate /> },
+            { path: 'edit/:id', element: <PlayerCreate /> },
+            { path: 'account', element: <UserAccount /> }
+          ]
+        },
+        {
+          path: 'staff',
+          children: [
+            { element: <Navigate to="/dashboard/staff/profile" replace /> },
+            { path: 'profile', element: <UserProfile /> },
+            { path: 'cards', element: <UserCards /> },
+            { path: 'list', element: <StaffList /> },
+            { path: 'new', element: <StaffCreate /> },
+            { path: 'edit/:id', element: <StaffCreate /> },
+            { path: 'account', element: <UserAccount /> }
+          ]
+        },
+        {
+          path: 'club',
+          children: [
+            { element: <Navigate to="/dashboard/club/profile" replace /> },
+            { path: 'profile', element: <UserProfile /> },
+            { path: 'cards', element: <UserCards /> },
+            { path: 'list', element: <ClubList /> },
+            { path: 'new', element: <ClubCreate /> },
+            { path: 'edit/:id', element: <ClubCreate /> },
             { path: 'account', element: <UserAccount /> }
           ]
         },
