@@ -16,6 +16,8 @@ import StaffList from 'src/pages/dashboard/Staff/StaffList';
 import StaffCreate from 'src/pages/dashboard/Staff/StaffCreate';
 import ClubList from 'src/pages/dashboard/CLub/ClubList';
 import ClubCreate from 'src/pages/dashboard/CLub/ClubCreate';
+import StadiumCreate from 'src/pages/dashboard/Stadium/StadiumCreate';
+import StadiumList from 'src/pages/dashboard/Stadium/StadiumList';
 
 // ----------------------------------------------------------------------
 
@@ -147,6 +149,18 @@ export default function Router() {
             { path: 'list', element: <ClubList /> },
             { path: 'new', element: <ClubCreate /> },
             { path: 'edit/:id', element: <ClubCreate /> },
+            { path: 'account', element: <UserAccount /> }
+          ]
+        },
+        {
+          path: 'stadium',
+          children: [
+            { element: <Navigate to="/dashboard/stadium/profile" replace /> },
+            { path: 'profile', element: <UserProfile /> },
+            { path: 'cards', element: <UserCards /> },
+            { path: 'list', element: <StadiumList /> },
+            { path: 'new', element: <StadiumCreate /> },
+            { path: 'edit/:id', element: <StadiumCreate /> },
             { path: 'account', element: <UserAccount /> }
           ]
         },

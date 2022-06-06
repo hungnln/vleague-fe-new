@@ -23,7 +23,7 @@ import {
 } from '@mui/material';
 // redux
 import { useDispatch, useSelector } from '../../../redux/store';
-import { getClubList, removeClub } from '../../../redux/slices/club';
+import { getStadiumList, removeStadium } from '../../../redux/slices/stadium';
 // routes
 import { PATH_DASHBOARD } from '../../../routes/paths';
 // hooks
@@ -35,7 +35,7 @@ import Scrollbar from '../../../components/Scrollbar';
 import SearchNotFound from '../../../components/SearchNotFound';
 import HeaderBreadcrumbs from '../../../components/HeaderBreadcrumbs';
 // import { UserListHead, UserListToolbar, UserMoreMenu } from '../../components/_dashboard/user/list';
-import { ClubMoreMenu, ClubListHead, ClubListToolbar } from 'src/components/_dashboard/club/list';
+import { StadiumMoreMenu, StadiumListHead, StadiumListToolbar } from 'src/components/_dashboard/stadium/list';
 import { ModeComment } from '@mui/icons-material';
 import moment from 'moment';
 
@@ -43,8 +43,8 @@ import moment from 'moment';
 
 const TABLE_HEAD = [
   { id: 'name', label: 'Name', alignRight: false },
-  { id: 'headQuarter', label: 'Head Quarter', alignRight: false },
-  { id: 'stadiumID', label: 'Stadium', alignRight: false },
+  { id: 'address', label: 'Address', alignRight: false },
+  // { id: 'role', label: 'Role', alignRight: false },
   // { id: 'isVerified', label: 'Verified', alignRight: false },
   // { id: 'status', label: 'Status', alignRight: false },
   { id: '', label: 'Action', alignRight: true }
@@ -76,16 +76,16 @@ function applySortFilter(array, comparator, query) {
     return a[1] - b[1];
   });
   if (query) {
-    return filter(array, (_club) => _club.name.toLowerCase().indexOf(query.toLowerCase()) !== -1);
+    return filter(array, (_stadium) => _stadium.name.toLowerCase().indexOf(query.toLowerCase()) !== -1);
   }
   return stabilizedThis.map((el) => el[0]);
 }
 
-export default function ClubList() {
+export default function StadiumList() {
   const { themeStretch } = useSettings();
   const theme = useTheme();
   const dispatch = useDispatch();
-  const { clubList } = useSelector((state) => state.club);
+  const { stadiumList } = useSelector((state) => state.stadium);
   const [page, setPage] = useState(0);
   const [order, setOrder] = useState('asc');
   const [selected, setSelected] = useState([]);
@@ -94,7 +94,7 @@ export default function ClubList() {
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
   useEffect(() => {
-    dispatch(getClubList());
+    dispatch(getStadiumList());
   }, [dispatch]);
 
   const handleRequestSort = (event, property) => {
@@ -105,7 +105,7 @@ export default function ClubList() {
 
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelecteds = clubList.map((n) => n.name);
+      const newSelecteds = stadiumList.map((n) => n.name);
       setSelected(newSelecteds);
       return;
     }
@@ -140,58 +140,58 @@ export default function ClubList() {
     setFilterName(event.target.value);
   };
 
-  const handleDeleteClub = (clubId) => {
-    // dispatch(deleteClub(clubId));
-    dispatch(removeClub(clubId))
+  const handleDeleteStadium = (stadiumId) => {
+    // dispatch(deleteStadium(stadiumId));
+    dispatch(removeStadium(stadiumId))
 
   };
 
-  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - clubList.length) : 0;
+  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - stadiumList.length) : 0;
 
-  const filteredClubs = applySortFilter(clubList, getComparator(order, orderBy), filterName);
+  const filteredStadiums = applySortFilter(stadiumList, getComparator(order, orderBy), filterName);
 
-  const isClubNotFound = filteredClubs.length === 0;
+  const isStadiumNotFound = filteredStadiums.length === 0;
 
   return (
-    <Page title="Club: List | V League">
+    <Page title="Stadium: List | V League">
       <Container maxWidth={themeStretch ? false : 'lg'}>
         <HeaderBreadcrumbs
-          heading="Club List"
+          heading="Stadium List"
           links={[
             { name: 'Dashboard', href: PATH_DASHBOARD.root },
-            { name: 'Club', href: PATH_DASHBOARD.club.root },
+            { name: 'Stadium', href: PATH_DASHBOARD.stadium.root },
             { name: 'List' }
           ]}
           action={
             <Button
               variant="contained"
               component={RouterLink}
-              to={PATH_DASHBOARD.club.newCLub}
+              to={PATH_DASHBOARD.stadium.newStadium}
               startIcon={<Icon icon={plusFill} />}
             >
-              New Club
+              New Stadium
             </Button>
           }
         />
 
         <Card>
-          <ClubListToolbar numSelected={selected.length} filterName={filterName} onFilterName={handleFilterByName} />
+          <StadiumListToolbar numSelected={selected.length} filterName={filterName} onFilterName={handleFilterByName} />
 
           <Scrollbar>
             <TableContainer sx={{ minWidth: 800 }}>
               <Table>
-                <ClubListHead
+                <StadiumListHead
                   order={order}
                   orderBy={orderBy}
                   headLabel={TABLE_HEAD}
-                  rowCount={clubList.length}
+                  rowCount={stadiumList.length}
                   numSelected={selected.length}
                   onRequestSort={handleRequestSort}
                   onSelectAllClick={handleSelectAllClick}
                 />
                 <TableBody>
-                  {filteredClubs.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
-                    const { id, name, headQuarter, imageURL, stadiumID } = row;
+                  {filteredStadiums.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
+                    const { id, name, address, imageURL, isVerified } = row;
                     const isItemSelected = selected.indexOf(name) !== -1;
 
                     return (
@@ -214,16 +214,8 @@ export default function ClubList() {
                             </Typography>
                           </Stack>
                         </TableCell>
-                        <TableCell align="left">{headQuarter}</TableCell>
-                        <TableCell component="th" scope="row" padding="none">
-                          <Stack direction="row" alignItems="center" spacing={2}>
-                            <Avatar alt={name} src={imageURL} />
-                            <Typography variant="subtitle2" noWrap>
-                              {name}
-                            </Typography>
-                          </Stack>
-                        </TableCell>
-                        {/* <TableCell align="left">{stadiumID}</TableCell> */}
+                        <TableCell align="left">{address}</TableCell>
+                        {/* <TableCell align="left">{role}</TableCell> */}
                         {/* <TableCell align="left">{isVerified ? 'Yes' : 'No'}</TableCell> */}
                         {/* <TableCell align="left">
                           <Label
@@ -235,7 +227,7 @@ export default function ClubList() {
                         </TableCell> */}
 
                         <TableCell align="right">
-                          <ClubMoreMenu onDelete={() => handleDeleteClub(id)} clubName={name} clubId={id} />
+                          <StadiumMoreMenu onDelete={() => handleDeleteStadium(id)} stadiumName={name} stadiumId={id} />
                         </TableCell>
                       </TableRow>
                     );
@@ -246,7 +238,7 @@ export default function ClubList() {
                     </TableRow>
                   )}
                 </TableBody>
-                {isClubNotFound && (
+                {isStadiumNotFound && (
                   <TableBody>
                     <TableRow>
                       <TableCell align="center" colSpan={6} sx={{ py: 3 }}>
@@ -262,7 +254,7 @@ export default function ClubList() {
           <TablePagination
             rowsPerPageOptions={[5, 10, 25]}
             component="div"
-            count={clubList.length}
+            count={stadiumList.length}
             rowsPerPage={rowsPerPage}
             page={page}
             onPageChange={handleChangePage}

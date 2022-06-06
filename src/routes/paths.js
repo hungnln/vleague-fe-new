@@ -88,6 +88,15 @@ export const PATH_DASHBOARD = {
     // editById: path(ROOTS_DASHBOARD, `/club/reece-chung/edit`),
     account: path(ROOTS_DASHBOARD, '/club/account')
   },
+  stadium: {
+    root: path(ROOTS_DASHBOARD, '/stadium'),
+    profile: path(ROOTS_DASHBOARD, '/stadium/profile'),
+    cards: path(ROOTS_DASHBOARD, '/stadium/cards'),
+    list: path(ROOTS_DASHBOARD, '/stadium/list'),
+    newStadium: path(ROOTS_DASHBOARD, '/stadium/new'),
+    // editById: path(ROOTS_DASHBOARD, `/stadium/reece-chung/edit`),
+    account: path(ROOTS_DASHBOARD, '/stadium/account')
+  },
   eCommerce: {
     root: path(ROOTS_DASHBOARD, '/e-commerce'),
     shop: path(ROOTS_DASHBOARD, '/e-commerce/shop'),

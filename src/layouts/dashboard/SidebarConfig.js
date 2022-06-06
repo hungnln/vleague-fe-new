@@ -129,6 +129,24 @@ const sidebarConfig = [
         ]
       },
       {
+        title: 'stadium',
+        path: PATH_DASHBOARD.stadium.root,
+        icon: ICONS.user,
+        children: [
+          // { title: 'profile', path: PATH_DASHBOARD.player.profile },
+          // { title: 'cards', path: PATH_DASHBOARD.player.cards },
+          { title: 'list', path: PATH_DASHBOARD.stadium.list },
+          { title: 'create', path: PATH_DASHBOARD.stadium.newStadium },
+          // { title: 'edit', path: PATH_DASHBOARD.player.editById },
+          // { title: 'account', path: PATH_DASHBOARD.player.account }
+        ]
+      }
+    ]
+  },
+  {
+    subheader: 'member',
+    items: [
+      {
         title: 'player',
         path: PATH_DASHBOARD.player.root,
         icon: ICONS.user,
@@ -154,7 +172,6 @@ const sidebarConfig = [
           // { title: 'account', path: PATH_DASHBOARD.player.account }
         ]
       }
-
     ]
   },
   // APP

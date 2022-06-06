@@ -9,6 +9,8 @@ import userReducer from './slices/user';
 import playerReducer from './slices/player';
 import staffReducer from './slices/staff';
 import clubReducer from './slices/club';
+import stadiumReducer from './slices/stadium';
+
 
 import productReducer from './slices/product';
 import calendarReducer from './slices/calendar';
@@ -38,8 +40,7 @@ const rootReducer = combineReducers({
   player: playerReducer,
   staff: staffReducer,
   club: clubReducer,
-
-
+  stadium: stadiumReducer,
   calendar: calendarReducer,
   kanban: kanbanReducer,
   product: persistReducer(productPersistConfig, productReducer)
