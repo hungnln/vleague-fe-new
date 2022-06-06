@@ -209,9 +209,10 @@ export function getUserList() {
   return async (dispatch) => {
     dispatch(slice.actions.startLoading());
     try {
-      const response = await axios.get('/api/user/manage-users');
-      dispatch(slice.actions.getUserListSuccess(response.data.users));
+      const response = await axios.get('/api/accounts');
+      dispatch(slice.actions.getUserListSuccess(response.data.result));
     } catch (error) {
+      console.log(error, 'error');
       dispatch(slice.actions.hasError(error));
     }
   };
