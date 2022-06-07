@@ -168,7 +168,7 @@ const sidebarConfig = [
           // { title: 'cards', path: PATH_DASHBOARD.player.cards },
           { title: 'list', path: PATH_DASHBOARD.staff.list },
           { title: 'create', path: PATH_DASHBOARD.staff.newStaff },
-          // { title: 'edit', path: PATH_DASHBOARD.player.editById },
+          { title: 'contract', path: PATH_DASHBOARD.staff.contract },
           // { title: 'account', path: PATH_DASHBOARD.player.account }
         ]
       }

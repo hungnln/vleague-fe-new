@@ -18,7 +18,10 @@ const initialState = {
   cards: null,
   addressBook: [],
   invoices: [],
-  notifications: null
+  notifications: null,
+  contractList: [],
+  staffContracts: [],
+  staffDetail: null
 };
 
 const slice = createSlice({
@@ -58,6 +61,15 @@ const slice = createSlice({
     deleteStaff(state, action) {
       const deleteStaff = filter(state.staffList, (staff) => staff.id !== action.payload);
       state.staffList = deleteStaff;
+    },
+
+    getStaffContracts(state, action) {
+      state.isLoading = false;
+      state.staffContracts = action.payload;
+    },
+    getStaffDetail(state, action) {
+      state.isLoading = false;
+      state.staffDetail = action.payload;
     },
 
     // GET FOLLOWERS
@@ -255,6 +267,30 @@ export const removeStaff = (id) => {
     try {
       const response = await axios.delete(`/api/staffs/${id}`);
       dispatch(slice.actions.deleteStaff(id))
+    } catch (error) {
+      console.log(error, 'error');
+      dispatch(slice.actions.hasError(error));
+    }
+  }
+}
+export const getStaffContracts = (id, include) => {
+  return async dispatch => {
+    dispatch(slice.actions.startLoading());
+    try {
+      const response = await axios.get(`/api/staff-contracts/${id}?Include=${include}`);
+      dispatch(slice.actions.getStaffContracts(response.data.result))
+    } catch (error) {
+      console.log(error, 'error');
+      dispatch(slice.actions.hasError(error));
+    }
+  }
+}
+export const getStaffDetail = (id) => {
+  return async dispatch => {
+    dispatch(slice.actions.startLoading());
+    try {
+      const response = await axios.get(`/api/staffs/${id}`);
+      dispatch(slice.actions.getStaffDetail(response.data.result))
     } catch (error) {
       console.log(error, 'error');
       dispatch(slice.actions.hasError(error));

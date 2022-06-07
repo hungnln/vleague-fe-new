@@ -77,7 +77,8 @@ export const PATH_DASHBOARD = {
     list: path(ROOTS_DASHBOARD, '/staff/list'),
     newStaff: path(ROOTS_DASHBOARD, '/staff/new'),
     // editById: path(ROOTS_DASHBOARD, `/staff/reece-chung/edit`),
-    account: path(ROOTS_DASHBOARD, '/staff/account')
+    account: path(ROOTS_DASHBOARD, '/staff/account'),
+    contract: path(ROOTS_DASHBOARD, '/staff/contract')
   },
   club: {
     root: path(ROOTS_DASHBOARD, '/club'),

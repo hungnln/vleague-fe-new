@@ -74,7 +74,7 @@ export default function PlayerNewForm({ isEdit, currentPlayer }) {
         // }
         let data = ''
         if (isEdit) {
-          if (base64 !== null) {
+          if (base64 !== '') {
             data = { ...values, ImageURL: base64 }
           } else {
             data = { ...values, ImageURL: values.ImageURL.base64 }
@@ -124,7 +124,7 @@ export default function PlayerNewForm({ isEdit, currentPlayer }) {
     },
     [setFieldValue]
   );
-  const [value, setValue] = useState(new Date(values.DateOfBirth));
+  // const [value, setValue] = useState(new Date(values.DateOfBirth));
 
   return (
     <FormikProvider value={formik}>

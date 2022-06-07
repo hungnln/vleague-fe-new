@@ -16,8 +16,8 @@ export default function Logo({ sx }) {
   const PRIMARY_DARK = theme.palette.primary.dark;
 
   return (
-    <Box sx={{ width: 40, height: 40, ...sx }}>
-      <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 512 512">
+    <Box sx={{ width: 60, height: 60, ...sx }}>
+      {/* <svg xmlns="%PUBLIC_URL%/favicon/logo-mini.png" width="100%" height="100%" viewBox="0 0 512 512">
         <defs>
           <linearGradient id="BG1" x1="100%" x2="50%" y1="9.946%" y2="50%">
             <stop offset="0%" stopColor={PRIMARY_DARK} />
@@ -46,7 +46,8 @@ export default function Logo({ sx }) {
             d="M450 384c26.509 0 48-21.491 48-48s-21.491-48-48-48-48 21.491-48 48 21.491 48 48 48"
           />
         </g>
-      </svg>
+      </svg> */}
+      <img src='/favicon/logo-removebg.png' alt='logo' />
     </Box>
   );
 }
