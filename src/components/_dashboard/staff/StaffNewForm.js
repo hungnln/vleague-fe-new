@@ -126,7 +126,7 @@ export default function StaffNewForm({ isEdit, currentStaff }) {
     },
     [setFieldValue]
   );
-  const [value, setValue] = useState(new Date(values.DateOfBirth));
+  // const [value, setValue] = useState(new Date(values.DateOfBirth));
 
   return (
     <FormikProvider value={formik}>
@@ -324,6 +324,8 @@ export default function StaffNewForm({ isEdit, currentStaff }) {
               </Stack>
             </Card>
           </Grid>
+          
+          
         </Grid>
       </Form>
     </FormikProvider>

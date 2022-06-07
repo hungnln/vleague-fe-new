@@ -6,6 +6,7 @@ import editFill from '@iconify/icons-eva/edit-fill';
 import { Link as RouterLink } from 'react-router-dom';
 import trash2Outline from '@iconify/icons-eva/trash-2-outline';
 import moreVerticalFill from '@iconify/icons-eva/more-vertical-fill';
+import BusinessCenterIcon from '@mui/icons-material/BusinessCenter';
 // material
 import { Menu, MenuItem, IconButton, ListItemIcon, ListItemText } from '@mui/material';
 // routes
@@ -54,6 +55,16 @@ export default function StaffMoreMenu({ onDelete, staffName, staffId }) {
             <Icon icon={editFill} width={24} height={24} />
           </ListItemIcon>
           <ListItemText primary="Edit" primaryTypographyProps={{ variant: 'body2' }} />
+        </MenuItem>
+        <MenuItem
+          component={RouterLink}
+          to={`${PATH_DASHBOARD.staff.root}/contract/${staffId}`}
+          sx={{ color: 'text.secondary' }}
+        >
+          <ListItemIcon>
+            <BusinessCenterIcon icon={editFill} width={24} height={24} />
+          </ListItemIcon>
+          <ListItemText primary="View contract" primaryTypographyProps={{ variant: 'body2' }} />
         </MenuItem>
       </Menu>
     </>
