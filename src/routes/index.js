@@ -19,6 +19,7 @@ import ClubCreate from 'src/pages/dashboard/CLub/ClubCreate';
 import StadiumCreate from 'src/pages/dashboard/Stadium/StadiumCreate';
 import StadiumList from 'src/pages/dashboard/Stadium/StadiumList';
 import StaffConTract from 'src/pages/dashboard/Staff/StaffContract';
+import StaffContractCreate from 'src/pages/dashboard/Staff/StaffContractCreate';
 
 // ----------------------------------------------------------------------
 
@@ -138,10 +139,11 @@ export default function Router() {
             { path: 'list', element: <StaffList /> },
             { path: 'new', element: <StaffCreate /> },
             { path: 'edit/:id', element: <StaffCreate /> },
-            { path: 'account', element: <UserAccount /> },
-            { path: 'contract', element: <StaffConTract /> },
-            { path: 'contract/:id', element: <StaffConTract /> },
-            // { path: 'contract/edit/:id', element: <StaffConTract /> }
+            { path: 'account', element: <UserAccount /> },     
+            { path: 'contract', element: <StaffConTract /> },           
+            { path: 'contract/:id', element: <StaffConTract /> },          
+            { path: 'contract/new', element: <StaffContractCreate /> },
+            { path: 'contract/edit/:id', element: <StaffContractCreate /> }
 
           ]
         },

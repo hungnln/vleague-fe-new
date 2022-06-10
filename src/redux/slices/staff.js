@@ -21,7 +21,8 @@ const initialState = {
   notifications: null,
   contractList: [],
   staffContracts: [],
-  staffDetail: null
+  staffDetail: null,
+  currentContract: {},
 };
 
 const slice = createSlice({
@@ -62,10 +63,29 @@ const slice = createSlice({
       const deleteStaff = filter(state.staffList, (staff) => staff.id !== action.payload);
       state.staffList = deleteStaff;
     },
-
-    getStaffContracts(state, action) {
+    getContractList(state, action) {
       state.isLoading = false;
-      state.staffContracts = action.payload;
+      state.contractList = action.payload;
+    },
+    addContract(state, action) {
+      state.isLoading = false;
+      const newContractList = [...state.contractList, action.payload]
+      state.contractList = newContractList
+    },
+    editContract(state, action) {
+      state.isLoading = false;
+      const newContractList = state.contractList.map(contract => {
+        if (Number(contract.id) === Number(action.payload.id)) {
+          return action.payload
+        }
+        return contract
+      })
+      state.contractList = newContractList
+    },
+
+    getCurrentContract(state, action) {
+      state.isLoading = false;
+      state.currentContract = action.payload;
     },
     getStaffDetail(state, action) {
       state.isLoading = false;
@@ -261,6 +281,41 @@ export const editStaff = (data) => {
     }
   }
 }
+export const createContract = (data) => {
+  return async (dispatch) => {
+    dispatch(slice.actions.startLoading());
+    try {
+      const response = await axios.post('/api/staff-contracts', data);
+      if (response.data.statusCode === 200) {
+        const contractResponse = await axios.get(`/api/staff-contracts/${response.data.result.id}?Include=staff, club`);
+        // console.log('test data',response.data.result);
+        dispatch(slice.actions.addContract(contractResponse.data.result));
+      } else {
+        console.log(response.data.message);
+      }
+    } catch (error) {
+      console.log(error, 'error1');
+      dispatch(slice.actions.hasError(error));
+    }
+  }
+}
+export const editContract = (id, data) => {
+  return async (dispatch) => {
+    dispatch(slice.actions.startLoading());
+    try {
+      const response = await axios.put(`/api/staff-contracts/${id}`, data);
+      if (response.data.statusCode === 200) {
+
+        dispatch(slice.actions.editContract(response.data.result));
+      } else {
+        console.log('error');
+      }
+    } catch (error) {
+      console.log(error, 'error');
+      dispatch(slice.actions.hasError(error));
+    }
+  }
+}
 export const removeStaff = (id) => {
   return async dispatch => {
     dispatch(slice.actions.startLoading());
@@ -273,12 +328,36 @@ export const removeStaff = (id) => {
     }
   }
 }
-export const getStaffContracts = (id, include) => {
+export const removeContract = (id) => {
+  return async dispatch => {
+    dispatch(slice.actions.startLoading());
+    try {
+      const response = await axios.delete(`/api/staff-contracts/${id}`);
+      dispatch(getContractList('', 'staff, club'))
+    } catch (error) {
+      console.log(error, 'error');
+      dispatch(slice.actions.hasError(error));
+    }
+  }
+}
+export const getContract = (id, include) => {
   return async dispatch => {
     dispatch(slice.actions.startLoading());
     try {
       const response = await axios.get(`/api/staff-contracts/${id}?Include=${include}`);
-      dispatch(slice.actions.getStaffContracts(response.data.result))
+      dispatch(slice.actions.getCurrentContract(response.data.result))
+    } catch (error) {
+      console.log(error, 'error');
+      dispatch(slice.actions.hasError(error));
+    }
+  }
+}
+export const getContractList = (id, include) => {
+  return async dispatch => {
+    dispatch(slice.actions.startLoading());
+    try {
+      const response = await axios.get(`/api/staff-contracts?StaffID=${id}&Include=${include}`);
+      dispatch(slice.actions.getContractList(response.data.result))
     } catch (error) {
       console.log(error, 'error');
       dispatch(slice.actions.hasError(error));

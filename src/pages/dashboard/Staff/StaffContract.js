@@ -1,6 +1,9 @@
 import { useEffect, useState } from 'react';
 import { paramCase } from 'change-case';
-import { useParams, useLocation } from 'react-router-dom';
+import { useParams, useLocation, Link as RouterLink } from 'react-router-dom';
+import { Icon } from '@iconify/react';
+import plusFill from '@iconify/icons-eva/plus-fill';
+
 // material
 import {
   Card,
@@ -30,10 +33,13 @@ import Scrollbar from '../../../components/Scrollbar';
 import SearchNotFound from '../../../components/SearchNotFound';
 import HeaderBreadcrumbs from '../../../components/HeaderBreadcrumbs';
 import { StaffMoreMenu, StaffListHead, StaffListToolbar } from 'src/components/_dashboard/staff/list';
-import { getStaffContracts, getStaffDetail, removeStaff } from 'src/redux/slices/staff';
+import { getContractList, getStaffContracts, getStaffDetail, removeContract, removeStaff } from 'src/redux/slices/staff';
 import StaffNewForm from 'src/components/_dashboard/staff/StaffNewForm';
 import _, { filter } from 'lodash';
-
+import moment from 'moment';
+import { fCurrency } from 'src/utils/formatNumber';
+import StaffContractMoreMenu from 'src/components/_dashboard/staff/contract/StaffContractMoreMenu';
+import StaffContractNewForm from 'src/components/_dashboard/staff/StaffContractNewForm';
 // ----------------------------------------------------------------------
 
 export default function StaffConTract() {
@@ -41,7 +47,9 @@ export default function StaffConTract() {
   const dispatch = useDispatch();
   const { pathname } = useLocation();
   const { id } = useParams();
-  const { staffContracts } = useSelector((state) => state.staff);
+  // const { staffContracts } = useSelector((state) => state.staff);
+  const { contractList } = useSelector((state) => state.staff);
+
   const isEdit = _.isNil(id) ? 0 : 1;
   const { staffDetail } = useSelector((state) => state.staff)
   const [page, setPage] = useState(0);
@@ -50,10 +58,16 @@ export default function StaffConTract() {
   const [orderBy, setOrderBy] = useState('name');
   const [filterName, setFilterName] = useState('');
   const [rowsPerPage, setRowsPerPage] = useState(5);
-  console.log(id, "check");
+  // const contractList = !_.isNil(staffContracts) ? [staffContracts] : [contractList]
   useEffect(() => {
-    dispatch(getStaffDetail(id))
-    dispatch(getStaffContracts(id, 'staff, club'));
+    if (isEdit) {
+      dispatch(getStaffDetail(id))
+      dispatch(getContractList(id, 'staff, club'));
+    }
+    else {
+      dispatch(getContractList('', 'staff, club'))
+    }
+
   }, [dispatch]);
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -63,17 +77,26 @@ export default function StaffConTract() {
 
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelecteds = staffContracts.map((n) => n.name);
+      const newSelecteds = contractList.map((n) => n.name);
       setSelected(newSelecteds);
       return;
     }
     setSelected([]);
   };
   const TABLE_HEAD = [
-    { id: 'name', label: 'Name', alignRight: false },
-    // { id: 'birthday', label: 'Birthday', alignRight: false },
-    // { id: 'role', label: 'Role', alignRight: false },
-    // { id: 'isVerified', label: 'Verified', alignRight: false },
+    { id: 'staff', label: 'Staff', alignRight: false },
+    { id: 'club', label: 'Club', alignRight: false },
+    { id: 'salary', label: 'Salary', alignRight: false },
+    { id: 'start', label: 'Start', alignRight: false },
+    { id: 'end', label: 'End', alignRight: false },
+    // { id: 'status', label: 'Status', alignRight: false },
+    { id: '', label: 'Action', alignRight: true }
+  ];
+  const TABLE_HEAD_EDIT = [
+    { id: 'club', label: 'Club', alignRight: false },
+    { id: 'salary', label: 'Salary', alignRight: false },
+    { id: 'start', label: 'Start', alignRight: false },
+    { id: 'end', label: 'End', alignRight: false },
     // { id: 'status', label: 'Status', alignRight: false },
     { id: '', label: 'Action', alignRight: true }
   ];
@@ -105,9 +128,9 @@ export default function StaffConTract() {
     return stabilizedThis.map((el) => el[0]);
   }
 
-  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - staffContracts.length) : 0;
+  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - contractList.length) : 0;
 
-  const filteredStaffs = applySortFilter(staffContracts, getComparator(order, orderBy), filterName);
+  const filteredStaffs = applySortFilter(contractList, getComparator(order, orderBy), filterName);
 
   const isStaffNotFound = filteredStaffs.length === 0;
   const handleChangePage = (event, newPage) => {
@@ -128,6 +151,11 @@ export default function StaffConTract() {
     dispatch(removeStaff(staffId))
 
   };
+  const handleDeleteContract = (staffId) => {
+    // dispatch(deleteStaff(staffId));
+    dispatch(removeContract(staffId))
+
+  };
   return (
     <Page title="Staff: View contract | V League">
       <Container maxWidth={themeStretch ? false : 'lg'}>
@@ -138,9 +166,19 @@ export default function StaffConTract() {
             { name: 'Staff', href: PATH_DASHBOARD.staff.root },
             { name: !isEdit ? 'View all contracts' : staffDetail?.name, href: `${PATH_DASHBOARD.staff.root}/edit/${staffDetail?.id}` }
           ]}
+          action={
+            <Button
+              variant="contained"
+              component={RouterLink}
+              to={`${PATH_DASHBOARD.staff.contract}/new`}
+              startIcon={<Icon icon={plusFill} />}
+            >
+              New contract
+            </Button>
+          }
         />
         <Card>
-          <StaffListToolbar numSelected={selected.length} filterName={filterName} onFilterName={handleFilterByName} />
+          {/* <StaffListToolbar numSelected={selected.length} filterName={filterName} onFilterName={handleFilterByName} /> */}
 
           <Scrollbar>
             <TableContainer sx={{ minWidth: 800 }}>
@@ -148,16 +186,16 @@ export default function StaffConTract() {
                 <StaffListHead
                   order={order}
                   orderBy={orderBy}
-                  headLabel={TABLE_HEAD}
-                  rowCount={staffContracts.length}
+                  headLabel={isEdit ? TABLE_HEAD_EDIT : TABLE_HEAD}
+                  rowCount={contractList.length}
                   numSelected={selected.length}
                   onRequestSort={handleRequestSort}
                   onSelectAllClick={handleSelectAllClick}
                 />
                 <TableBody>
                   {filteredStaffs.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
-                    const { id, name, dateOfBirth, imageURL, isVerified } = row;
-                    const isItemSelected = selected.indexOf(name) !== -1;
+                    const { id, staff, club, salary, start, end } = row;
+                    const isItemSelected = selected.indexOf(id) !== -1;
 
                     return (
                       <TableRow
@@ -168,19 +206,29 @@ export default function StaffConTract() {
                         selected={isItemSelected}
                         aria-checked={isItemSelected}
                       >
+                        {isEdit ? '' : <TableCell component="th" scope="row" padding="none">
+                          <Stack direction="row" alignItems="center" spacing={2}>
+                            <Avatar alt={staff.name} src={staff?.imageURL} />
+                            <Typography variant="subtitle2" noWrap>
+                              {staff?.name}
+                            </Typography>
+                          </Stack>
+                        </TableCell>}
                         {/* <TableCell padding="checkbox">
                           <Checkbox checked={isItemSelected} onChange={(event) => handleClick(event, name)} />
                         </TableCell> */}
                         <TableCell component="th" scope="row" padding="none">
                           <Stack direction="row" alignItems="center" spacing={2}>
-                            <Avatar alt={name} src={imageURL} />
+                            <Avatar alt={club} src={club?.imageURL} />
                             <Typography variant="subtitle2" noWrap>
-                              {name}
+                              {club?.name}
                             </Typography>
                           </Stack>
                         </TableCell>
-                        {/* <TableCell align="left">{moment(dateOfBirth).format('DD-MM-YYYY')}</TableCell> */}
-                        {/* <TableCell align="left">{role}</TableCell> */}
+                        <TableCell align="left">{fCurrency(salary)}</TableCell>
+                        <TableCell align="left">{moment(start).format('DD-MM-YYYY')}</TableCell>
+                        <TableCell align="left">{moment(end).format('DD-MM-YYYY')}</TableCell>
+
                         {/* <TableCell align="left">{isVerified ? 'Yes' : 'No'}</TableCell> */}
                         {/* <TableCell align="left">
                           <Label
@@ -192,7 +240,7 @@ export default function StaffConTract() {
                         </TableCell> */}
 
                         <TableCell align="right">
-                          <StaffMoreMenu onDelete={() => handleDeleteStaff(id)} staffName={name} staffId={id} />
+                          <StaffContractMoreMenu onDelete={() => handleDeleteContract(id)} contractId={id} />
                         </TableCell>
                       </TableRow>
                     );
@@ -219,14 +267,14 @@ export default function StaffConTract() {
           <TablePagination
             rowsPerPageOptions={[5, 10, 25]}
             component="div"
-            count={staffContracts.length}
+            count={contractList.length}
             rowsPerPage={rowsPerPage}
             page={page}
             onPageChange={handleChangePage}
             onRowsPerPageChange={handleChangeRowsPerPage}
           />
         </Card>
-        <StaffNewForm isEdit={isEdit} staffDetail={staffDetail} />
+        {/* <StaffContractNewForm isEdit={isEdit} currentContract={currentContract} /> */}
         {/* <StaffNewForm isEdit={isEdit} staffDetail={staffDetail} /> */}
 
       </Container>
