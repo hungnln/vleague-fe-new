@@ -6,7 +6,6 @@ import axios from './axios';
 // ----------------------------------------------------------------------
 
 const isValidToken = (accessToken) => {
-  console.log('exp', accessToken);
   if (!accessToken) {
 
     return false;

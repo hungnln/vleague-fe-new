@@ -160,7 +160,7 @@ export default function DashboardSidebar({ isOpenSidebar, onCloseSidebar }) {
 
       <Box sx={{ flexGrow: 1 }} />
 
-      {!isCollapse && (
+      {/* {!isCollapse && (
         <Stack spacing={3} alignItems="center" sx={{ px: 5, pb: 5, mt: 10, width: 1, textAlign: 'center' }}>
           <DocIllustration sx={{ width: 1 }} />
 
@@ -177,7 +177,7 @@ export default function DashboardSidebar({ isOpenSidebar, onCloseSidebar }) {
             Documentation
           </Button>
         </Stack>
-      )}
+      )} */}
     </Scrollbar>
   );
 
