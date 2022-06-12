@@ -14,6 +14,7 @@ import Page from '../../../components/Page';
 import HeaderBreadcrumbs from '../../../components/HeaderBreadcrumbs';
 import { getContract } from 'src/redux/slices/staff';
 import StaffContractNewForm from 'src/components/_dashboard/staff/StaffContractNewForm';
+import _ from 'lodash';
 
 // ----------------------------------------------------------------------
 
@@ -27,8 +28,11 @@ export default function StaffContractCreate() {
   // const currentContract = contractList.find((contract) => contract.id === Number(id));
 
   useEffect(() => {
-    console.log(id, 'id');
-    dispatch(getContract(id, 'staff, club'));
+    if (_.isNil(id)) {
+      console.log(1);
+    } else {
+      dispatch(getContract(id, 'staff, club'));
+    }
   }, [dispatch]);
 
   return (
@@ -38,12 +42,12 @@ export default function StaffContractCreate() {
           heading={!isEdit ? 'Create a new contract' : 'Edit contract'}
           links={[
             { name: 'Dashboard', href: PATH_DASHBOARD.root },
-            { name: 'Staff', href: PATH_DASHBOARD.staff.root },
+            { name: 'Contract', href: PATH_DASHBOARD.staff.contract },
             { name: !isEdit ? 'New contract' : `Edit ${currentContract.staff?.name} contract` }
           ]}
         />
 
-        <StaffContractNewForm isEdit={isEdit} currentContract={currentContract} />
+        <StaffContractNewForm isEdit={isEdit} currentContract={isEdit ? currentContract : {}} />
         {/* <StaffNewForm isEdit={isEdit} currentStaff={currentStaff} /> */}
 
       </Container>

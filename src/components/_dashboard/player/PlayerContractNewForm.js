@@ -17,7 +17,7 @@ import { PATH_DASHBOARD } from '../../../routes/paths';
 import Label from '../../Label';
 import { UploadAvatar } from '../../upload';
 import countries from './countries';
-import { createContract, createStaff, editContract, editStaff, getStaffList } from 'src/redux/slices/staff';
+import { createContract, createPlayer, editContract, editPlayer, getPlayerList } from 'src/redux/slices/player';
 import { useDispatch, useSelector } from 'src/redux/store';
 import _ from 'lodash';
 import Badge from '@mui/material/Badge';
@@ -26,33 +26,35 @@ import { getClubList } from 'src/redux/slices/club';
 
 // ----------------------------------------------------------------------
 
-StaffContractNewForm.propTypes = {
+PlayerContractNewForm.propTypes = {
   isEdit: PropTypes.bool,
   currentContract: PropTypes.object
 };
 
-export default function StaffContractNewForm({ isEdit, currentContract }) {
+export default function PlayerContractNewForm({ isEdit, currentContract }) {
   // let base64 = ''
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
   const { clubList } = useSelector((state) => state.club);
-  const [staff] = useState(currentContract.staff)
-  const { staffList, error } = useSelector((state) => state.staff);
+  const [player] = useState(currentContract.player)
+  const { playerList, error } = useSelector((state) => state.player);
   const [errorState, setErrorState] = useState()
   // const [submit, setSubmit] = useState(false)
-  const NewStaffSchema = Yup.object().shape({
+  const NewPlayerSchema = Yup.object().shape({
     Club: Yup.mixed().required('Club is required'),
-    Staff: Yup.mixed().required('Staff is required'),
+    Player: Yup.mixed().required('Player is required'),
     Salary: Yup.number().required('Salary is required'),
     Start: Yup.mixed().required('Start date is required'),
     End: Yup.mixed().required('End date is required'),
-    Description: Yup.mixed().required('Description is required')
+    Description: Yup.mixed().required('Description is required'),
+    Number: Yup.number().required('Number is required').min(Number(1))
+
 
   });
   useEffect(() => {
     dispatch(getClubList())
-    dispatch(getStaffList())
+    dispatch(getPlayerList())
 
   }, [dispatch])
   const formik = useFormik({
@@ -63,26 +65,29 @@ export default function StaffContractNewForm({ isEdit, currentContract }) {
       Start: currentContract?.start || '',
       End: currentContract?.end || '',
       Description: currentContract?.description || '',
-      Staff: currentContract?.staff || null,
-      Club: currentContract?.club || null
+      Player: currentContract?.player || null,
+      Club: currentContract?.club || null,
+      Number: currentContract?.number || ''
 
 
     },
-    validationSchema: NewStaffSchema,
+    validationSchema: NewPlayerSchema,
     onSubmit: async (values, { setSubmitting, resetForm, setErrors }) => {
       try {
         let data = ''
         if (isEdit) {
           data = {
+            Number: values.Number,
             Salary: values.Salary,
             End: values.End,
             Description: values.Description
           }
-          dispatch(editContract(values.id, data,(value) => { setErrorState(value); console.log(value, 'check state value')}))
+          dispatch(editContract(values.id, data, (value) => { setErrorState(value); console.log(value, 'check state value') }))
         } else {
           data = {
-            StaffID: values.Staff.id,
+            PlayerID: values.Player.id,
             ClubID: values.Club.id,
+            Number: values.Number,
             Salary: values.Salary,
             Start: values.Start,
             End: values.End,
@@ -90,7 +95,7 @@ export default function StaffContractNewForm({ isEdit, currentContract }) {
           }
           dispatch(createContract(data, (value) => { setErrorState(value); console.log(value, 'check state value') }))
         }
-       
+
       } catch (error) {
         console.error(error);
         setSubmitting(false);
@@ -102,11 +107,11 @@ export default function StaffContractNewForm({ isEdit, currentContract }) {
     if (!_.isEmpty(errorState)) {
       console.log('check state', errorState);
 
-      if (!errorState.IsError) {
+      if (!errorState.isError) {
         console.log('ko error');
         formik.resetForm();
         enqueueSnackbar(!isEdit ? 'Create success' : 'Update success', { variant: 'success' });
-        navigate(PATH_DASHBOARD.staff.contract);
+        navigate(PATH_DASHBOARD.player.contract);
       } else {
         console.log('bị error');
       }
@@ -145,7 +150,7 @@ export default function StaffContractNewForm({ isEdit, currentContract }) {
                     <SmallAvatar alt="Remy Sharp" src={values.Club?.imageURL} sx={{ width: 56.7, height: 56.7 }} />
                   }
                 >
-                  <Avatar alt="Travis Howard" src={values.Staff?.imageURL} sx={{ width: 126, height: 126 }} />
+                  <Avatar alt="Travis Howard" src={values.Player?.imageURL} sx={{ width: 126, height: 126 }} />
                 </Badge>
               </Box>
             </Card>
@@ -158,12 +163,12 @@ export default function StaffContractNewForm({ isEdit, currentContract }) {
                   <Autocomplete
                     // isOptionEqualToValue={(option, value) => option.name === value.name}
                     fullWidth
-                    options={staffList}
+                    options={playerList}
                     autoHighlight
-                    {...isEdit ? { value: formik.values.Staff, disabled: 'true' } : {}}
+                    {...isEdit ? { value: formik.values.Player, disabled: 'true' } : {}}
                     getOptionLabel={(option) => option.name}
                     onChange={(event, newValue) => {
-                      setFieldValue('Staff', newValue);
+                      setFieldValue('Player', newValue);
                     }}
                     renderOption={(props, option) => (
                       <Box component="li" sx={{ '& > img': { mr: 2, flexShrink: 0 } }} {...props}>
@@ -173,10 +178,10 @@ export default function StaffContractNewForm({ isEdit, currentContract }) {
                     )}
                     renderInput={(params) => (
                       <TextField
-                        helperText={touched.Staff && errors.Staff}
-                        error={Boolean(touched.Staff && errors.Staff)}
+                        helperText={touched.Player && errors.Player}
+                        error={Boolean(touched.Player && errors.Player)}
                         {...params}
-                        label="Staff"
+                        label="Player"
                         inputProps={{
                           ...params.inputProps,
                           autoComplete: 'new-password', // disable autocomplete and autofill
@@ -243,13 +248,24 @@ export default function StaffContractNewForm({ isEdit, currentContract }) {
                   </Stack>
 
 
-                  <TextField
-                    width={50}
-                    label="Salary"
-                    {...getFieldProps('Salary')}
-                    error={Boolean(touched.Salary && errors.Salary)}
-                    helperText={touched.Salary && errors.Salary}
-                  />
+                  <Stack direction={{ xs: 'row' }} spacing={3}>
+                    <TextField
+                      width={80}
+                      label="Salary"
+                      {...getFieldProps('Salary')}
+                      error={Boolean(touched.Salary && errors.Salary)}
+                      helperText={touched.Salary && errors.Salary}
+                    />
+                    <TextField
+                      type="number"
+                      width={20}
+                      label="Number"
+                      InputLabelProps={{ shrink: true }}
+                      {...getFieldProps('Number')}
+                      error={Boolean(touched.Number && errors.Number)}
+                      helperText={touched.Number && errors.Number}
+                    />
+                  </Stack>
                 </Stack>
                 <Stack direction={{ xs: 'column', md: 'row' }} spacing={3}>
                   <TextField

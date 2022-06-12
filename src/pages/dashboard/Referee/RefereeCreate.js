@@ -12,40 +12,37 @@ import useSettings from '../../../hooks/useSettings';
 // components
 import Page from '../../../components/Page';
 import HeaderBreadcrumbs from '../../../components/HeaderBreadcrumbs';
-import { getStaffList } from 'src/redux/slices/staff';
-import StaffNewForm from 'src/components/_dashboard/staff/StaffNewForm';
+import { getRefereeList } from 'src/redux/slices/referee';
+import RefereeNewForm from 'src/components/_dashboard/referee/RefereeNewForm';
 
 // ----------------------------------------------------------------------
 
-export default function StaffCreate() {
+export default function RefereeCreate() {
   const { themeStretch } = useSettings();
   const dispatch = useDispatch();
   const { pathname } = useLocation();
   const { id } = useParams();
-  const { staffList } = useSelector((state) => state.staff);
+  const { refereeList } = useSelector((state) => state.referee);
   const isEdit = pathname.includes('edit');
-  const currentStaff = staffList.find((staff) => staff.id === Number(id));
+  const currentReferee = refereeList.find((referee) => referee.id === Number(id));
 
   useEffect(() => {
-    dispatch(getStaffList());
+    dispatch(getRefereeList());
   }, [dispatch]);
-  
 
   return (
-    <Page title="Staff: Create a new staff | V League">
+    <Page title="Referee: Create a new referee | V League">
       <Container maxWidth={themeStretch ? false : 'lg'}>
         <HeaderBreadcrumbs
-          heading={!isEdit ? 'Create a new staff' : 'Edit staff'}
+          heading={!isEdit ? 'Create a new referee' : 'Edit referee'}
           links={[
             { name: 'Dashboard', href: PATH_DASHBOARD.root },
-            { name: 'Staff', href: PATH_DASHBOARD.staff.root },
-            { name: !isEdit ? 'New staff' : currentStaff?.name }
+            { name: 'Referee', href: PATH_DASHBOARD.referee.root },
+            { name: !isEdit ? 'New referee' : currentReferee?.name }
           ]}
         />
 
-        <StaffNewForm isEdit={isEdit} currentStaff={currentStaff} />
-        {/* <StaffNewForm isEdit={isEdit} currentStaff={currentStaff} /> */}
-
+        <RefereeNewForm isEdit={isEdit} currentReferee={isEdit ? currentReferee : {}} />
       </Container>
     </Page>
   );

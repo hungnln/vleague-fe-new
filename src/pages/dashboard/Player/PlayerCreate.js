@@ -42,7 +42,7 @@ export default function PlayerCreate() {
           ]}
         />
 
-        <PlayerNewForm isEdit={isEdit} currentPlayer={currentPlayer} />
+        <PlayerNewForm isEdit={isEdit} currentPlayer={isEdit ? currentPlayer : {}} />
       </Container>
     </Page>
   );

@@ -18,7 +18,11 @@ const initialState = {
   cards: null,
   addressBook: [],
   invoices: [],
-  notifications: null
+  notifications: null,
+  contractList: [],
+  playerContracts: [],
+  playerDetail: null,
+  currentContract: {},
 };
 
 const slice = createSlice({
@@ -53,11 +57,59 @@ const slice = createSlice({
       state.isLoading = false;
       state.players = action.payload;
     },
+    addPlayer(state, action) {
+      state.isLoading = false;
+      const newPlayerList = [...state.playerList, action.payload]
+      state.playerList = newPlayerList
+    },
+    editPlayer(state, action) {
+      state.isLoading = false;
+      const newPlayerList = state.playerList.map(player => {
+        if (Number(player.id) === Number(action.payload.id)) {
+          return action.payload
+        }
+        return player
+      })
+      state.playerList = newPlayerList
+    },
+    getPlayerDetail(state, action) {
+      state.isLoading = false;
+      state.playerDetail = action.payload;
+    },
 
     // DELETE USERS
     deletePlayer(state, action) {
       const deletePlayer = filter(state.playerList, (player) => player.id !== action.payload);
       state.playerList = deletePlayer;
+    },
+    getContractList(state, action) {
+      state.error = false;
+      state.isLoading = false;
+      state.contractList = action.payload;
+    },
+    addContract(state, action) {
+      state.isLoading = false;
+      const newContractList = [...state.contractList, action.payload]
+      state.contractList = newContractList
+    },
+    editContract(state, action) {
+      state.isLoading = false;
+      const newContractList = state.contractList.map(contract => {
+        if (Number(contract.id) === Number(action.payload.id)) {
+          return action.payload
+        }
+        return contract
+      })
+      state.contractList = newContractList
+    },
+    deleteContract(state, action) {
+      const deleteContract = filter(state.contractList, (contract) => contract.id !== action.payload);
+      state.contractList = deleteContract;
+    },
+
+    getCurrentContract(state, action) {
+      state.isLoading = false;
+      state.currentContract = action.payload;
     },
 
     // GET FOLLOWERS
@@ -216,36 +268,49 @@ export function getPlayerList() {
     }
   };
 }
-export const createPlayer = (data) => {
-  return async (dispatch) => {
+export const getPlayerDetail = (id) => {
+  return async dispatch => {
     dispatch(slice.actions.startLoading());
     try {
-      const response = await axios.post('/api/players', data);
-      if (response.data.statusCode === 200) {
-
-        // dispatch(slice.actions.getPlayerListSuccess(response.data.result));
-      } else {
-        console.log('error');
-      }
+      const response = await axios.get(`/api/players/${id}`);
+      dispatch(slice.actions.getPlayerDetail(response.data.result))
     } catch (error) {
       console.log(error, 'error');
       dispatch(slice.actions.hasError(error));
     }
   }
 }
-export const editPlayer = (data) => {
+export const createPlayer = (data, callback) => {
+  return async (dispatch) => {
+    dispatch(slice.actions.startLoading());
+    try {
+      const response = await axios.post('/api/players', data);
+      if (response.data.statusCode === 200) {
+        dispatch(slice.actions.addPlayer(response.data.result));
+        callback({ IsError: response.data.IsError })
+
+      }
+    } catch (error) {
+      console.log(error, 'error');
+      callback(error.response.data)
+
+
+      dispatch(slice.actions.hasError(error));
+    }
+  }
+}
+export const editPlayer = (data, callback) => {
   return async (dispatch) => {
     dispatch(slice.actions.startLoading());
     try {
       const response = await axios.put(`/api/players/${data.id}`, data);
       if (response.data.statusCode === 200) {
-
-        // dispatch(slice.actions.getPlayerListSuccess(response.data.result));
-      } else {
-        console.log('error');
+        dispatch(slice.actions.editPlayer(response.data.result));
+        callback({ IsError: response.data.IsError })
       }
     } catch (error) {
       console.log(error, 'error');
+      callback(error.response.data)
       dispatch(slice.actions.hasError(error));
     }
   }
@@ -263,72 +328,155 @@ export const removePlayer = (id) => {
   }
 }
 
-// ----------------------------------------------------------------------
 
-export function getCards() {
+
+
+
+export const createContract = (data, callback) => {
   return async (dispatch) => {
     dispatch(slice.actions.startLoading());
     try {
-      const response = await axios.get('/api/player/account/cards');
-      dispatch(slice.actions.getCardsSuccess(response.data.cards));
+      const response = await axios.post('/api/player-contracts', data);
+      if (response.data.statusCode === 200) {
+        const contractResponse = await axios.get(`/api/player-contracts/${response.data.result.id}?Include=player, club`);
+        dispatch(slice.actions.addContract(contractResponse.data.result));
+        console.log('response contract', response);
+        callback({ IsError: response.data.IsError })
+
+      }
     } catch (error) {
+      console.log(error.response.data, 'error1');
+      dispatch(slice.actions.hasError(error.response.data));
+      callback(error.response.data)
+    }
+  }
+}
+export const editContract = (id, data, callback) => {
+  return async (dispatch) => {
+    dispatch(slice.actions.startLoading());
+    try {
+      const response = await axios.put(`/api/player-contracts/${id}`, data);
+      if (response.data.statusCode === 200) {
+        const contractResponse = await axios.get(`/api/player-contracts/${response.data.result.id}?Include=player, club`);
+        dispatch(slice.actions.editContract(contractResponse.data.result));
+        callback({ IsError: response.data.IsError })
+
+      }
+    } catch (error) {
+      console.log(error, 'error');
+      dispatch(slice.actions.hasError(error.response.data));
+      callback(error.response.data)
+
+
+    }
+  }
+}
+export const removeContract = (id) => {
+  return async dispatch => {
+    dispatch(slice.actions.startLoading());
+    try {
+      const response = await axios.delete(`/api/player-contracts/${id}`);
+      dispatch(getContractList('', 'player, club'))
+
+    } catch (error) {
+      console.log(error, 'error');
+      dispatch(slice.actions.hasError(error.response.data));
+
+    }
+  }
+}
+export const getContract = (id, include) => {
+  return async dispatch => {
+    dispatch(slice.actions.startLoading());
+    try {
+      const response = await axios.get(`/api/player-contracts/${id}?Include=${include}`);
+      dispatch(slice.actions.getCurrentContract(response.data.result))
+    } catch (error) {
+      console.log(error, 'error');
+      dispatch(slice.actions.hasError(error.response.data));
+
+    }
+  }
+}
+export const getContractList = (id, include) => {
+  return async dispatch => {
+    dispatch(slice.actions.startLoading());
+    try {
+      const response = await axios.get(`/api/player-contracts?PlayerID=${id}&Include=${include}`);
+      dispatch(slice.actions.getContractList(response.data.result))
+    } catch (error) {
+      console.log(error, 'error');
       dispatch(slice.actions.hasError(error));
     }
-  };
+  }
 }
 
 // ----------------------------------------------------------------------
 
-export function getAddressBook() {
-  return async (dispatch) => {
-    dispatch(slice.actions.startLoading());
-    try {
-      const response = await axios.get('/api/player/account/address-book');
-      dispatch(slice.actions.getAddressBookSuccess(response.data.addressBook));
-    } catch (error) {
-      dispatch(slice.actions.hasError(error));
-    }
-  };
-}
+// export function getCards() {
+//   return async (dispatch) => {
+//     dispatch(slice.actions.startLoading());
+//     try {
+//       const response = await axios.get('/api/player/account/cards');
+//       dispatch(slice.actions.getCardsSuccess(response.data.cards));
+//     } catch (error) {
+//       dispatch(slice.actions.hasError(error));
+//     }
+//   };
+// }
 
-// ----------------------------------------------------------------------
+// // ----------------------------------------------------------------------
 
-export function getInvoices() {
-  return async (dispatch) => {
-    dispatch(slice.actions.startLoading());
-    try {
-      const response = await axios.get('/api/player/account/invoices');
-      dispatch(slice.actions.getInvoicesSuccess(response.data.invoices));
-    } catch (error) {
-      dispatch(slice.actions.hasError(error));
-    }
-  };
-}
+// export function getAddressBook() {
+//   return async (dispatch) => {
+//     dispatch(slice.actions.startLoading());
+//     try {
+//       const response = await axios.get('/api/player/account/address-book');
+//       dispatch(slice.actions.getAddressBookSuccess(response.data.addressBook));
+//     } catch (error) {
+//       dispatch(slice.actions.hasError(error));
+//     }
+//   };
+// }
 
-// ----------------------------------------------------------------------
+// // ----------------------------------------------------------------------
 
-export function getNotifications() {
-  return async (dispatch) => {
-    dispatch(slice.actions.startLoading());
-    try {
-      const response = await axios.get('/api/player/account/notifications-settings');
-      dispatch(slice.actions.getNotificationsSuccess(response.data.notifications));
-    } catch (error) {
-      dispatch(slice.actions.hasError(error));
-    }
-  };
-}
+// export function getInvoices() {
+//   return async (dispatch) => {
+//     dispatch(slice.actions.startLoading());
+//     try {
+//       const response = await axios.get('/api/player/account/invoices');
+//       dispatch(slice.actions.getInvoicesSuccess(response.data.invoices));
+//     } catch (error) {
+//       dispatch(slice.actions.hasError(error));
+//     }
+//   };
+// }
 
-// ----------------------------------------------------------------------
+// // ----------------------------------------------------------------------
 
-export function getPlayers() {
-  return async (dispatch) => {
-    dispatch(slice.actions.startLoading());
-    try {
-      const response = await axios.get('/api/player/all');
-      dispatch(slice.actions.getPlayersSuccess(response.data.players));
-    } catch (error) {
-      dispatch(slice.actions.hasError(error));
-    }
-  };
-}
+// export function getNotifications() {
+//   return async (dispatch) => {
+//     dispatch(slice.actions.startLoading());
+//     try {
+//       const response = await axios.get('/api/player/account/notifications-settings');
+//       dispatch(slice.actions.getNotificationsSuccess(response.data.notifications));
+//     } catch (error) {
+//       dispatch(slice.actions.hasError(error));
+//     }
+//   };
+// }
+
+// // ----------------------------------------------------------------------
+
+// export function getPlayers() {
+//   return async (dispatch) => {
+//     dispatch(slice.actions.startLoading());
+//     try {
+//       const response = await axios.get('/api/player/all');
+//       dispatch(slice.actions.getPlayersSuccess(response.data.players));
+//     } catch (error) {
+//       dispatch(slice.actions.hasError(error));
+//     }
+//   };
+// }

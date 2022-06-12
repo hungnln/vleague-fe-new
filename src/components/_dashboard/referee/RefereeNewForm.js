@@ -17,18 +17,18 @@ import { PATH_DASHBOARD } from '../../../routes/paths';
 import Label from '../../Label';
 import { UploadAvatar } from '../../upload';
 import countries from './countries';
-import { createPlayer, editPlayer } from 'src/redux/slices/player';
+import { createReferee, editReferee } from 'src/redux/slices/referee';
 import { useDispatch } from 'src/redux/store';
 import _ from 'lodash';
 
 // ----------------------------------------------------------------------
 
-PlayerNewForm.propTypes = {
+RefereeNewForm.propTypes = {
   isEdit: PropTypes.bool,
-  currentPlayer: PropTypes.object
+  currentReferee: PropTypes.object
 };
 
-export default function PlayerNewForm({ isEdit, currentPlayer }) {
+export default function RefereeNewForm({ isEdit, currentReferee }) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [errorState, setErrorState] = useState()
@@ -36,9 +36,9 @@ export default function PlayerNewForm({ isEdit, currentPlayer }) {
   let base64 = ''
   // const [base64, setBase64] = useState('')
   const { enqueueSnackbar } = useSnackbar();
-  const NewPlayerSchema = Yup.object().shape({
+  const NewRefereeSchema = Yup.object().shape({
     Name: Yup.string().required('Name is required'),
-    DateOfBirth: Yup.string().required('Birthday is required'),
+    // DateOfBirth: Yup.string().required('Birthday is required'),
     ImageURL: Yup.mixed().required('Avatar is required')
   });
   useEffect(() => {
@@ -56,16 +56,16 @@ export default function PlayerNewForm({ isEdit, currentPlayer }) {
     }
 
   }, [errorState])
-
   const formik = useFormik({
     enableReinitialize: true,
     initialValues: {
-      id: currentPlayer?.id || '',
-      Name: currentPlayer?.name || '',
-      DateOfBirth: currentPlayer?.dateOfBirth || '',
-      ImageURL: currentPlayer?.imageURL || null,
+      id: currentReferee?.id || '',
+      Name: currentReferee?.name || '',
+      // DateOfBirth: currentReferee?.dateOfBirth || '',
+      ImageURL: currentReferee?.imageURL || null,
+
     },
-    validationSchema: NewPlayerSchema,
+    validationSchema: NewRefereeSchema,
     onSubmit: async (values, { setSubmitting, resetForm, setErrors }) => {
       try {
         let data = ''
@@ -75,15 +75,17 @@ export default function PlayerNewForm({ isEdit, currentPlayer }) {
           } else {
             data = { ...values, ImageURL: values.ImageURL.base64 }
           }
-          dispatch(editPlayer(data, value => setErrorState(value)))
+          console.log(data, 'data');
+          dispatch(editReferee(data, value => setErrorState(value)))
         } else {
           data = { ...values, ImageURL: values.ImageURL.base64 }
-          dispatch(createPlayer(data, value => setErrorState(value)))
+
+          dispatch(createReferee(data, value => setErrorState(value)))
         }
-        // resetForm();
-        // setSubmitting(false);
-        // enqueueSnackbar(!isEdit ? 'Create success' : 'Update success', { variant: 'success' });
-        // navigate(PATH_DASHBOARD.player.list);
+        resetForm();
+        setSubmitting(false);
+        enqueueSnackbar(!isEdit ? 'Create success' : 'Update success', { variant: 'success' });
+        navigate(PATH_DASHBOARD.referee.list);
       } catch (error) {
         console.error(error);
         setSubmitting(false);
@@ -95,13 +97,18 @@ export default function PlayerNewForm({ isEdit, currentPlayer }) {
   const { errors, values, touched, handleSubmit, isSubmitting, setFieldValue, getFieldProps } = formik;
   if (_.includes(formik.values.ImageURL, 'http')) {
     console.log(1);
-    getBase64Image(currentPlayer?.imageURL).then(value =>
+    getBase64Image(currentReferee?.imageURL).then(value =>
       base64 = value)
   }
   const handleDrop = useCallback(
     (acceptedFiles) => {
       const file = acceptedFiles[0];
       if (file) {
+        // setFieldValue('ImageURL', {
+        //   ...file,
+        //   base64: await toBase64(file),
+        //   preview: URL.createObjectURL(file)
+        // });
         toBase64(file).then(value => {
           setFieldValue('ImageURL', {
             ...file,
@@ -190,7 +197,7 @@ export default function PlayerNewForm({ isEdit, currentPlayer }) {
                       DateOfBirth Verified
                     </Typography>
                     <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                      Disabling this will automatically send the Player a verification DateOfBirth
+                      Disabling this will automatically send the Referee a verification DateOfBirth
                     </Typography>
                   </>
                 }
@@ -217,7 +224,7 @@ export default function PlayerNewForm({ isEdit, currentPlayer }) {
                     error={Boolean(touched.DateOfBirth && errors.DateOfBirth)}
                     helperText={touched.DateOfBirth && errors.DateOfBirth}
                   /> */}
-                  <DatePicker
+                  {/* <DatePicker
                     disableFuture
                     label="Birthday"
                     openTo="year"
@@ -228,7 +235,7 @@ export default function PlayerNewForm({ isEdit, currentPlayer }) {
                     }}
                     renderInput={(params) => <TextField {...params} error={Boolean(touched.DateOfBirth && errors.DateOfBirth)}
                       helperText={touched.DateOfBirth && errors.DateOfBirth} />}
-                  />
+                  /> */}
                 </Stack>
 
                 {/* <Stack direction={{ xs: 'column', sm: 'row' }} spacing={{ xs: 3, sm: 2 }}>
@@ -305,7 +312,7 @@ export default function PlayerNewForm({ isEdit, currentPlayer }) {
 
                 <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
                   <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
-                    {!isEdit ? 'Create Player' : 'Save Changes'}
+                    {!isEdit ? 'Create Referee' : 'Save Changes'}
                   </LoadingButton>
                 </Box>
               </Stack>

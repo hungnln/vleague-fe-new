@@ -20,6 +20,10 @@ import StadiumCreate from 'src/pages/dashboard/Stadium/StadiumCreate';
 import StadiumList from 'src/pages/dashboard/Stadium/StadiumList';
 import StaffConTract from 'src/pages/dashboard/Staff/StaffContract';
 import StaffContractCreate from 'src/pages/dashboard/Staff/StaffContractCreate';
+import RefereeList from 'src/pages/dashboard/Referee/RefereeList';
+import RefereeCreate from 'src/pages/dashboard/Referee/RefereeCreate';
+import PlayerConTract from 'src/pages/dashboard/Player/PlayerContract';
+import PlayerContractCreate from 'src/pages/dashboard/Player/PlayerContractCreate';
 
 // ----------------------------------------------------------------------
 
@@ -127,6 +131,22 @@ export default function Router() {
             { path: 'list', element: <PlayerList /> },
             { path: 'new', element: <PlayerCreate /> },
             { path: 'edit/:id', element: <PlayerCreate /> },
+            { path: 'account', element: <UserAccount /> },
+            { path: 'contract', element: <PlayerConTract /> },
+            { path: 'contract/:id', element: <PlayerConTract /> },
+            { path: 'contract/new', element: <PlayerContractCreate /> },
+            { path: 'contract/edit/:id', element: <PlayerContractCreate /> }
+          ]
+        },
+        {
+          path: 'referee',
+          children: [
+            { element: <Navigate to="/dashboard/referee/profile" replace /> },
+            { path: 'profile', element: <UserProfile /> },
+            { path: 'cards', element: <UserCards /> },
+            { path: 'list', element: <RefereeList /> },
+            { path: 'new', element: <RefereeCreate /> },
+            { path: 'edit/:id', element: <RefereeCreate /> },
             { path: 'account', element: <UserAccount /> }
           ]
         },
@@ -139,9 +159,9 @@ export default function Router() {
             { path: 'list', element: <StaffList /> },
             { path: 'new', element: <StaffCreate /> },
             { path: 'edit/:id', element: <StaffCreate /> },
-            { path: 'account', element: <UserAccount /> },     
-            { path: 'contract', element: <StaffConTract /> },           
-            { path: 'contract/:id', element: <StaffConTract /> },          
+            { path: 'account', element: <UserAccount /> },
+            { path: 'contract', element: <StaffConTract /> },
+            { path: 'contract/:id', element: <StaffConTract /> },
             { path: 'contract/new', element: <StaffContractCreate /> },
             { path: 'contract/edit/:id', element: <StaffContractCreate /> }
 
