@@ -155,6 +155,7 @@ const sidebarConfig = [
           // { title: 'cards', path: PATH_DASHBOARD.player.cards },
           { title: 'list', path: PATH_DASHBOARD.player.list },
           { title: 'create', path: PATH_DASHBOARD.player.newPlayer },
+          { title: 'contract', path: PATH_DASHBOARD.player.contract },
           // { title: 'edit', path: PATH_DASHBOARD.player.editById },
           // { title: 'account', path: PATH_DASHBOARD.player.account }
         ]
@@ -169,6 +170,19 @@ const sidebarConfig = [
           { title: 'list', path: PATH_DASHBOARD.staff.list },
           { title: 'create', path: PATH_DASHBOARD.staff.newStaff },
           { title: 'contract', path: PATH_DASHBOARD.staff.contract },
+          // { title: 'account', path: PATH_DASHBOARD.player.account }
+        ]
+      },
+      {
+        title: 'referee',
+        path: PATH_DASHBOARD.referee.root,
+        icon: ICONS.user,
+        children: [
+          // { title: 'profile', path: PATH_DASHBOARD.player.profile },
+          // { title: 'cards', path: PATH_DASHBOARD.player.cards },
+          { title: 'list', path: PATH_DASHBOARD.referee.list },
+          { title: 'create', path: PATH_DASHBOARD.referee.newReferee },
+          // { title: 'contract', path: PATH_DASHBOARD.referee.contract },
           // { title: 'account', path: PATH_DASHBOARD.player.account }
         ]
       }

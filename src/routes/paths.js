@@ -68,7 +68,17 @@ export const PATH_DASHBOARD = {
     list: path(ROOTS_DASHBOARD, '/player/list'),
     newPlayer: path(ROOTS_DASHBOARD, '/player/new'),
     // editById: path(ROOTS_DASHBOARD, `/player/reece-chung/edit`),
-    account: path(ROOTS_DASHBOARD, '/player/account')
+    account: path(ROOTS_DASHBOARD, '/player/account'),
+    contract: path(ROOTS_DASHBOARD, '/player/contract')
+  },
+  referee: {
+    root: path(ROOTS_DASHBOARD, '/referee'),
+    profile: path(ROOTS_DASHBOARD, '/referee/profile'),
+    cards: path(ROOTS_DASHBOARD, '/referee/cards'),
+    list: path(ROOTS_DASHBOARD, '/referee/list'),
+    newReferee: path(ROOTS_DASHBOARD, '/referee/new'),
+    // editById: path(ROOTS_DASHBOARD, `/referee/reece-chung/edit`),
+    account: path(ROOTS_DASHBOARD, '/referee/account')
   },
   staff: {
     root: path(ROOTS_DASHBOARD, '/staff'),

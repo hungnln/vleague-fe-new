@@ -7,6 +7,8 @@ import chatReducer from './slices/chat';
 import blogReducer from './slices/blog';
 import userReducer from './slices/user';
 import playerReducer from './slices/player';
+import refereeReducer from './slices/referee';
+
 import staffReducer from './slices/staff';
 import clubReducer from './slices/club';
 import stadiumReducer from './slices/stadium';
@@ -38,6 +40,8 @@ const rootReducer = combineReducers({
   blog: blogReducer,
   user: userReducer,
   player: playerReducer,
+  referee: refereeReducer,
+
   staff: staffReducer,
   club: clubReducer,
   stadium: stadiumReducer,

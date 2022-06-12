@@ -12,39 +12,43 @@ import useSettings from '../../../hooks/useSettings';
 // components
 import Page from '../../../components/Page';
 import HeaderBreadcrumbs from '../../../components/HeaderBreadcrumbs';
-import { getStaffList } from 'src/redux/slices/staff';
-import StaffNewForm from 'src/components/_dashboard/staff/StaffNewForm';
+import { getContract } from 'src/redux/slices/player';
+import PlayerContractNewForm from 'src/components/_dashboard/player/PlayerContractNewForm';
+import _ from 'lodash';
 
 // ----------------------------------------------------------------------
 
-export default function StaffCreate() {
+export default function PlayerContractCreate() {
   const { themeStretch } = useSettings();
   const dispatch = useDispatch();
   const { pathname } = useLocation();
   const { id } = useParams();
-  const { staffList } = useSelector((state) => state.staff);
+  const { currentContract } = useSelector((state) => state.player);
   const isEdit = pathname.includes('edit');
-  const currentStaff = staffList.find((staff) => staff.id === Number(id));
+  // const currentContract = contractList.find((contract) => contract.id === Number(id));
 
   useEffect(() => {
-    dispatch(getStaffList());
+    if (_.isNil(id)) {
+      console.log(1);
+    } else {
+      dispatch(getContract(id, 'player, club'));
+    }
   }, [dispatch]);
-  
 
   return (
-    <Page title="Staff: Create a new staff | V League">
+    <Page title="Player: Create a new contract | V League">
       <Container maxWidth={themeStretch ? false : 'lg'}>
         <HeaderBreadcrumbs
-          heading={!isEdit ? 'Create a new staff' : 'Edit staff'}
+          heading={!isEdit ? 'Create a new contract' : 'Edit contract'}
           links={[
             { name: 'Dashboard', href: PATH_DASHBOARD.root },
-            { name: 'Staff', href: PATH_DASHBOARD.staff.root },
-            { name: !isEdit ? 'New staff' : currentStaff?.name }
+            { name: 'Contract', href: PATH_DASHBOARD.player.contract },
+            { name: !isEdit ? 'New contract' : `Edit ${currentContract.player?.name} contract` }
           ]}
         />
 
-        <StaffNewForm isEdit={isEdit} currentStaff={currentStaff} />
-        {/* <StaffNewForm isEdit={isEdit} currentStaff={currentStaff} /> */}
+        <PlayerContractNewForm isEdit={isEdit} currentContract={isEdit ? currentContract : {}} />
+        {/* <PlayerNewForm isEdit={isEdit} currentPlayer={currentPlayer} /> */}
 
       </Container>
     </Page>
