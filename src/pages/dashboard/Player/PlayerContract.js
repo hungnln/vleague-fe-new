@@ -123,7 +123,7 @@ export default function PlayerConTract() {
       return a[1] - b[1];
     });
     if (query) {
-      return filter(array, (_contract) =>  _.includes(_contract, query.toLowerCase));
+      return filter(array, (_contract) => _.includes(_contract, query.toLowerCase));
     }
     return stabilizedThis.map((el) => el[0]);
   }
@@ -167,14 +167,25 @@ export default function PlayerConTract() {
             { name: !isEdit ? 'View all contracts' : playerDetail?.name, href: `${PATH_DASHBOARD.player.root}/edit/${playerDetail?.id}` }
           ]}
           action={
-            <Button
-              variant="contained"
-              component={RouterLink}
-              to={`${PATH_DASHBOARD.player.contract}/new`}
-              startIcon={<Icon icon={plusFill} />}
-            >
-              New contract
-            </Button>
+            <>
+              <Button
+                variant="contained"
+                component={RouterLink}
+                to={`${PATH_DASHBOARD.player.list}`}
+                startIcon={<Icon icon={plusFill} />}
+              >
+                View players
+              </Button>
+              <Button
+                variant="contained"
+                component={RouterLink}
+                to={`${PATH_DASHBOARD.player.contract}/new`}
+                startIcon={<Icon icon={plusFill} />}
+                sx={{ ml: 2 }}
+              >
+                New contract
+              </Button>
+            </>
           }
         />
         <Card>

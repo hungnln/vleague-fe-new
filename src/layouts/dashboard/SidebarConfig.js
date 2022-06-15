@@ -119,27 +119,23 @@ const sidebarConfig = [
         title: 'club',
         path: PATH_DASHBOARD.club.root,
         icon: ICONS.user,
-        children: [
-          // { title: 'profile', path: PATH_DASHBOARD.player.profile },
-          // { title: 'cards', path: PATH_DASHBOARD.player.cards },
-          { title: 'list', path: PATH_DASHBOARD.club.list },
-          { title: 'create', path: PATH_DASHBOARD.club.newCLub },
-          // { title: 'edit', path: PATH_DASHBOARD.player.editById },
-          // { title: 'account', path: PATH_DASHBOARD.player.account }
-        ]
+        // children: [
+        //   { title: 'list', path: PATH_DASHBOARD.club.list },
+        //   { title: 'contract', path: PATH_DASHBOARD.club.contract },
+        // ]
       },
       {
         title: 'stadium',
         path: PATH_DASHBOARD.stadium.root,
         icon: ICONS.user,
-        children: [
-          // { title: 'profile', path: PATH_DASHBOARD.player.profile },
-          // { title: 'cards', path: PATH_DASHBOARD.player.cards },
-          { title: 'list', path: PATH_DASHBOARD.stadium.list },
-          { title: 'create', path: PATH_DASHBOARD.stadium.newStadium },
-          // { title: 'edit', path: PATH_DASHBOARD.player.editById },
-          // { title: 'account', path: PATH_DASHBOARD.player.account }
-        ]
+        // children: [
+        //   // { title: 'profile', path: PATH_DASHBOARD.player.profile },
+        //   // { title: 'cards', path: PATH_DASHBOARD.player.cards },
+        //   { title: 'list', path: PATH_DASHBOARD.stadium.list },
+        //   // { title: 'create', path: PATH_DASHBOARD.stadium.newStadium },
+        //   // { title: 'edit', path: PATH_DASHBOARD.player.editById },
+        //   // { title: 'account', path: PATH_DASHBOARD.player.account }
+        // ]
       }
     ]
   },
@@ -150,41 +146,37 @@ const sidebarConfig = [
         title: 'player',
         path: PATH_DASHBOARD.player.root,
         icon: ICONS.user,
-        children: [
-          // { title: 'profile', path: PATH_DASHBOARD.player.profile },
-          // { title: 'cards', path: PATH_DASHBOARD.player.cards },
-          { title: 'list', path: PATH_DASHBOARD.player.list },
-          { title: 'create', path: PATH_DASHBOARD.player.newPlayer },
-          { title: 'contract', path: PATH_DASHBOARD.player.contract },
-          // { title: 'edit', path: PATH_DASHBOARD.player.editById },
-          // { title: 'account', path: PATH_DASHBOARD.player.account }
-        ]
+        // children: [
+        //   // { title: 'profile', path: PATH_DASHBOARD.player.profile },
+        //   // { title: 'cards', path: PATH_DASHBOARD.player.cards },
+        //   { title: 'list', path: PATH_DASHBOARD.player.list },
+        //   // { title: 'create', path: PATH_DASHBOARD.player.newPlayer },
+        //   { title: 'contract', path: PATH_DASHBOARD.player.contract },
+        //   // { title: 'edit', path: PATH_DASHBOARD.player.editById },
+        //   // { title: 'account', path: PATH_DASHBOARD.player.account }
+        // ]
       },
       {
         title: 'staff',
         path: PATH_DASHBOARD.staff.root,
         icon: ICONS.user,
-        children: [
-          // { title: 'profile', path: PATH_DASHBOARD.player.profile },
-          // { title: 'cards', path: PATH_DASHBOARD.player.cards },
-          { title: 'list', path: PATH_DASHBOARD.staff.list },
-          { title: 'create', path: PATH_DASHBOARD.staff.newStaff },
-          { title: 'contract', path: PATH_DASHBOARD.staff.contract },
-          // { title: 'account', path: PATH_DASHBOARD.player.account }
-        ]
+        // children: [   
+        //   { title: 'list', path: PATH_DASHBOARD.staff.list },        
+        //   { title: 'contract', path: PATH_DASHBOARD.staff.contract },
+        // ]
       },
       {
         title: 'referee',
         path: PATH_DASHBOARD.referee.root,
         icon: ICONS.user,
-        children: [
-          // { title: 'profile', path: PATH_DASHBOARD.player.profile },
-          // { title: 'cards', path: PATH_DASHBOARD.player.cards },
-          { title: 'list', path: PATH_DASHBOARD.referee.list },
-          { title: 'create', path: PATH_DASHBOARD.referee.newReferee },
-          // { title: 'contract', path: PATH_DASHBOARD.referee.contract },
-          // { title: 'account', path: PATH_DASHBOARD.player.account }
-        ]
+        // children: [
+        //   // { title: 'profile', path: PATH_DASHBOARD.player.profile },
+        //   // { title: 'cards', path: PATH_DASHBOARD.player.cards },
+        //   { title: 'list', path: PATH_DASHBOARD.referee.list },
+        //   // { title: 'create', path: PATH_DASHBOARD.referee.newReferee },
+        //   // { title: 'contract', path: PATH_DASHBOARD.referee.contract },
+        //   // { title: 'account', path: PATH_DASHBOARD.player.account }
+        // ]
       }
     ]
   },

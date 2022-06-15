@@ -96,8 +96,17 @@ export const PATH_DASHBOARD = {
     cards: path(ROOTS_DASHBOARD, '/club/cards'),
     list: path(ROOTS_DASHBOARD, '/club/list'),
     newCLub: path(ROOTS_DASHBOARD, '/club/new'),
-    // editById: path(ROOTS_DASHBOARD, `/club/reece-chung/edit`),
+    contract: path(ROOTS_DASHBOARD, '/club/contract'),
     account: path(ROOTS_DASHBOARD, '/club/account')
+  },
+  tournament: {
+    root: path(ROOTS_DASHBOARD, '/tournament'),
+    profile: path(ROOTS_DASHBOARD, '/tournament/profile'),
+    cards: path(ROOTS_DASHBOARD, '/tournament/cards'),
+    list: path(ROOTS_DASHBOARD, '/tournament/list'),
+    newTournament: path(ROOTS_DASHBOARD, '/tournament/new'),
+    // editById: path(ROOTS_DASHBOARD, `/tournament/reece-chung/edit`),
+    account: path(ROOTS_DASHBOARD, '/tournament/account')
   },
   stadium: {
     root: path(ROOTS_DASHBOARD, '/stadium'),

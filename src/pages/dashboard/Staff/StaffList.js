@@ -163,14 +163,26 @@ export default function StaffList() {
             { name: 'List' }
           ]}
           action={
-            <Button
-              variant="contained"
-              component={RouterLink}
-              to={PATH_DASHBOARD.staff.newStaff}
-              startIcon={<Icon icon={plusFill} />}
-            >
-              New Staff
-            </Button>
+            <>
+              <Button
+                variant="contained"
+                component={RouterLink}
+                to={PATH_DASHBOARD.staff.contract}
+                startIcon={<Icon icon={plusFill} />}
+              >
+                View Contracts
+              </Button>
+              <Button
+
+                variant="contained"
+                component={RouterLink}
+                to={PATH_DASHBOARD.staff.newStaff}
+                startIcon={<Icon icon={plusFill} />}
+                sx={{ ml: 2 }}
+              >
+                New Staff
+              </Button></>
+
           }
         />
 

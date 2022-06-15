@@ -194,7 +194,7 @@ export default function ClubList() {
                 />
                 <TableBody>
                   {filteredClubs.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
-                    const { id, name, headQuarter, imageURL, stadiumID } = row;
+                    const { id, name, headQuarter, imageURL, stadium } = row;
                     const isItemSelected = selected.indexOf(name) !== -1;
 
                     return (
@@ -206,9 +206,6 @@ export default function ClubList() {
                         selected={isItemSelected}
                         aria-checked={isItemSelected}
                       >
-                        {/* <TableCell padding="checkbox">
-                          <Checkbox checked={isItemSelected} onChange={(event) => handleClick(event, name)} />
-                        </TableCell> */}
                         <TableCell component="th" scope="row" padding="none">
                           <Stack direction="row" alignItems="center" spacing={2}>
                             <Avatar alt={name} src={imageURL} />
@@ -220,23 +217,12 @@ export default function ClubList() {
                         <TableCell align="left">{headQuarter}</TableCell>
                         <TableCell component="th" scope="row" padding="none">
                           <Stack direction="row" alignItems="center" spacing={2}>
-                            <Avatar alt={name} src={imageURL} />
+                            <Avatar alt={stadium.name} src={stadium.imageURL} />
                             <Typography variant="subtitle2" noWrap>
-                              {name}
+                              {stadium.name}
                             </Typography>
                           </Stack>
                         </TableCell>
-                        {/* <TableCell align="left">{stadiumID}</TableCell> */}
-                        {/* <TableCell align="left">{isVerified ? 'Yes' : 'No'}</TableCell> */}
-                        {/* <TableCell align="left">
-                          <Label
-                            variant={theme.palette.mode === 'light' ? 'ghost' : 'filled'}
-                            color={(status === 'banned' && 'error') || 'success'}
-                          >
-                            {sentenceCase(status)}
-                          </Label>
-                        </TableCell> */}
-
                         <TableCell align="right">
                           <ClubMoreMenu onDelete={() => handleDeleteClub(id)} clubName={name} clubId={id} />
                         </TableCell>

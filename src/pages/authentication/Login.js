@@ -14,7 +14,7 @@ import Page from '../../components/Page';
 import { MHidden } from '../../components/@material-extend';
 import { LoginForm } from '../../components/authentication/login';
 import AuthFirebaseSocials from '../../components/authentication/AuthFirebaseSocial';
-
+import Slider from "react-slick";
 // ----------------------------------------------------------------------
 
 const RootStyle = styled(Page)(({ theme }) => ({
@@ -46,7 +46,13 @@ const ContentStyle = styled('div')(({ theme }) => ({
 
 export default function Login() {
   const { method, login } = useAuth();
-
+  const settings = {
+    dots: false,
+    infinite: true,
+    speed: 500,
+    slidesToShow: 1,
+    slidesToScroll: 1
+  };
   const handleLoginAuth0 = async () => {
     try {
       await login();
@@ -56,7 +62,7 @@ export default function Login() {
   };
 
   return (
-    <RootStyle title="Login | Minimal-UI">
+    <RootStyle title="Login | Minimal-UI" sx={{ maxHeight: '100vh' }}>
       {/* <AuthLayout>
         Don’t have an account? &nbsp;
         <Link underline="none" variant="subtitle2" component={RouterLink} to={PATH_AUTH.register}>
@@ -70,7 +76,7 @@ export default function Login() {
             Hi, Welcome Back
           </Typography> */}
           <img src="/static/illustrations/login-image.png" alt="login" />
-          <img src="/static/illustrations/login-second.png" alt="login" />
+          {/* <img src="/static/illustrations/login-second.png" alt="login" /> */}
 
         </SectionStyle>
       </MHidden>
@@ -80,7 +86,7 @@ export default function Login() {
           <Stack direction="row" alignItems="center" sx={{ mb: 5 }}>
             <Box sx={{ flexGrow: 1 }}>
               <Typography variant="h4" gutterBottom>
-                Sign in to V League 
+                Sign in to V League
               </Typography>
               <Typography sx={{ color: 'text.secondary' }}>Enter your details below.</Typography>
             </Box>
