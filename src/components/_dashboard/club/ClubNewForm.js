@@ -1,12 +1,12 @@
 import * as Yup from 'yup';
 import PropTypes from 'prop-types';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useSnackbar } from 'notistack';
 import { useNavigate } from 'react-router-dom';
 import { Form, FormikProvider, useFormik } from 'formik';
 // material
 import { DatePicker, LoadingButton } from '@mui/lab';
-import { Box, Card, Grid, Stack, Switch, TextField, Typography, FormHelperText, FormControlLabel } from '@mui/material';
+import { Box, Card, Grid, Stack, Switch, TextField, Typography, FormHelperText, FormControlLabel, Autocomplete, Avatar, Alert } from '@mui/material';
 // utils
 import { getBase64FromUrl, getBase64Image, toBase64 } from 'src/utils/base64/base64';
 import { fData } from '../../../utils/formatNumber';
@@ -17,8 +17,11 @@ import { PATH_DASHBOARD } from '../../../routes/paths';
 import Label from '../../Label';
 import { UploadAvatar } from '../../upload';
 import countries from './countries';
-import { createClub } from 'src/redux/slices/club';
+import { createClub, editClub } from 'src/redux/slices/club';
 import { useDispatch } from 'src/redux/store';
+import { useSelector } from 'react-redux';
+import { getStadiumList } from 'src/redux/slices/stadium';
+import _ from 'lodash';
 
 // ----------------------------------------------------------------------
 
@@ -28,60 +31,54 @@ ClubNewForm.propTypes = {
 };
 
 export default function ClubNewForm({ isEdit, currentClub }) {
+  let base64 = ''
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
+  const [errorState, setErrorState] = useState();
+  const { stadiumList } = useSelector(state => state.stadium)
   const NewClubSchema = Yup.object().shape({
     Name: Yup.string().required('Name is required'),
-    // DateOfBirth: Yup.string().required('Birthday is required'),
-    // phoneNumber: Yup.string().required('Phone number is required'),
-    // address: Yup.string().required('Address is required'),
-    // country: Yup.string().required('country is required'),
-    // company: Yup.string().required('Company is required'),
-    // state: Yup.string().required('State is required'),
-    // city: Yup.string().required('City is required'),
-    // role: Yup.string().required('Role Number is required'),
-    ImageURL: Yup.mixed().required('Avatar is required')
+    Stadium: Yup.mixed().required('Stadium is required'),
+    ImageURL: Yup.mixed().required('Avatar is required'),
+    HeadQuarter: Yup.mixed().required('HeadQuarter is required')
   });
-
+  useEffect(() => {
+    dispatch(getStadiumList())
+  }, [dispatch])
   const formik = useFormik({
     enableReinitialize: true,
     initialValues: {
       id: currentClub?.id || '',
       Name: currentClub?.name || '',
-      // DateOfBirth: currentClub?.dateOfBirth || '',
-      // phoneNumber: currentClub?.phoneNumber || '',
-      // address: currentClub?.address || '',
-      // country: currentClub?.country || '',
-      // state: currentClub?.state || '',
-      // city: currentClub?.city || '',
-      // zipCode: currentClub?.zipCode || '',
-      ImageURL: currentClub?.imageURL || null,
-      // isVerified: currentClub?.isVerified || true,
-      // status: currentClub?.status,
-      // company: currentClub?.company || '',
-      // role: currentClub?.role || ''
+      Stadium: currentClub?.stadium || null,
+      ImageURL: currentClub?.imageURL || '',
+      HeadQuarter: currentClub?.headQuarter || ''
     },
     validationSchema: NewClubSchema,
     onSubmit: async (values, { setSubmitting, resetForm, setErrors }) => {
       try {
-        await fakeRequest(500);
-        // if (values.ImageURL?.base64 == null) {
-        //   console.log(toDataURL(value.ImageURL), 'file')
-        // }
         let data = ''
-        if (values.ImageURL.base64 == null) {
+        if (base64 !== '') {
           console.log('checked', getBase64Image(currentClub.imageURL))
-          data = { ...values, ImageURL: getBase64Image(currentClub.imageURL) }
+          data = { id: values.id, Name: values.Name, HeadQuarter: values.HeadQuarter, ImageURL: base64, StadiumId: values.Stadium.id }
         } else {
-          data = { ...values, ImageURL: values.ImageURL.base64 }
+          console.log('ko update', values.ImageURL);
+          data = { id: values.id, Name: values.Name, HeadQuarter: values.HeadQuarter, ImageURL: values.ImageURL.base64, StadiumId: values.Stadium.id }
+
+        }
+        if (isEdit) {
+          dispatch(editClub(data, error => setErrorState(error)))
+        } else {
+          dispatch(createClub(data, error => setErrorState(error)))
+
         }
         console.log("formik", data);
-        dispatch(createClub(data))
-        resetForm();
-        setSubmitting(false);
-        enqueueSnackbar(!isEdit ? 'Create success' : 'Update success', { variant: 'success' });
-        navigate(PATH_DASHBOARD.club.list);
+
+        // resetForm();
+        // setSubmitting(false);
+        // enqueueSnackbar(!isEdit ? 'Create success' : 'Update success', { variant: 'success' });
+        // navigate(PATH_DASHBOARD.club.list);
       } catch (error) {
         console.error(error);
         setSubmitting(false);
@@ -89,24 +86,38 @@ export default function ClubNewForm({ isEdit, currentClub }) {
       }
     }
   });
+  useEffect(() => {
+    if (!_.isEmpty(errorState)) {
+      console.log('check state', errorState);
+
+      if (!errorState.isError) {
+        console.log('ko error');
+        formik.resetForm();
+        enqueueSnackbar(!isEdit ? 'Create success' : 'Update success', { variant: 'success' });
+        navigate(PATH_DASHBOARD.club.list);
+      } else {
+        console.log('bị error');
+      }
+    }
+  }, [errorState])
 
   const { errors, values, touched, handleSubmit, isSubmitting, setFieldValue, getFieldProps } = formik;
-
+  if (_.includes(formik.values.ImageURL, 'http')) {
+    console.log(1);
+    getBase64Image(currentClub?.imageURL).then(value =>
+      base64 = value)
+  }
   const handleDrop = useCallback(
     (acceptedFiles) => {
       const file = acceptedFiles[0];
       if (file) {
-        // setFieldValue('ImageURL', {
-        //   ...file,
-        //   base64: await toBase64(file),
-        //   preview: URL.createObjectURL(file)
-        // });
         toBase64(file).then(value => {
           setFieldValue('ImageURL', {
             ...file,
             preview: URL.createObjectURL(file), base64: value
           });
         })
+        base64 = ''
       }
     },
     [setFieldValue]
@@ -155,45 +166,6 @@ export default function ClubNewForm({ isEdit, currentClub }) {
                   {touched.ImageURL && errors.ImageURL}
                 </FormHelperText>
               </Box>
-
-              {/* {isEdit && (
-                <FormControlLabel
-                  labelPlacement="start"
-                  control={
-                    <Switch
-                      onChange={(event) => setFieldValue('status', event.target.checked ? 'banned' : 'active')}
-                      checked={values.status !== 'active'}
-                    />
-                  }
-                  label={
-                    <>
-                      <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
-                        Banned
-                      </Typography>
-                      <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                        Apply disable account
-                      </Typography>
-                    </>
-                  }
-                  sx={{ mx: 0, mb: 3, width: 1, justifyContent: 'space-between' }}
-                />
-              )} */}
-
-              {/* <FormControlLabel
-                labelPlacement="start"
-                control={<Switch {...getFieldProps('isVerified')} checked={values.isVerified} />}
-                label={
-                  <>
-                    <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
-                      DateOfBirth Verified
-                    </Typography>
-                    <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                      Disabling this will automatically send the Club a verification DateOfBirth
-                    </Typography>
-                  </>
-                }
-                sx={{ mx: 0, width: 1, justifyContent: 'space-between' }}
-              /> */}
             </Card>
           </Grid>
 
@@ -208,104 +180,49 @@ export default function ClubNewForm({ isEdit, currentClub }) {
                     error={Boolean(touched.Name && errors.Name)}
                     helperText={touched.Name && errors.Name}
                   />
-                  {/* <TextField
+                  <TextField
                     fullWidth
-                    label="Birthday"
-                    {...getFieldProps('DateOfBirth')}
-                    error={Boolean(touched.DateOfBirth && errors.DateOfBirth)}
-                    helperText={touched.DateOfBirth && errors.DateOfBirth}
-                  /> */}
-                  {/* <DatePicker
-                    disableFuture
-                    label="Birthday"
-                    openTo="year"
-                    views={['year', 'month', 'day']}
-                    value={values.DateOfBirth}
-                    onChange={(newValue) => {
-                      setFieldValue('DateOfBirth', newValue);
+                    label="HeadQuarter"
+                    {...getFieldProps('HeadQuarter')}
+                    error={Boolean(touched.HeadQuarter && errors.HeadQuarter)}
+                    helperText={touched.HeadQuarter && errors.HeadQuarter}
+                  />
+                  <Autocomplete
+                    // isOptionEqualToValue={(option, value) => option.name === value.name}
+                    fullWidth
+                    options={stadiumList}
+                    autoHighlight
+                    {...isEdit ? { value: formik.values.Stadium, disabled: 'true' } : {}}
+                    getOptionLabel={(option) => option.name}
+                    onChange={(event, newValue) => {
+                      setFieldValue('Stadium', newValue);
                     }}
-                    renderInput={(params) => <TextField {...params} error={Boolean(touched.DateOfBirth && errors.DateOfBirth)}
-                      helperText={touched.DateOfBirth && errors.DateOfBirth} />}
-                  /> */}
-                </Stack>
-
-                {/* <Stack direction={{ xs: 'column', sm: 'row' }} spacing={{ xs: 3, sm: 2 }}>
-                  <TextField
-                    fullWidth
-                    label="Phone Number"
-                    {...getFieldProps('phoneNumber')}
-                    error={Boolean(touched.phoneNumber && errors.phoneNumber)}
-                    helperText={touched.phoneNumber && errors.phoneNumber}
-                  />
-                  <TextField
-                    select
-                    fullWidth
-                    label="Country"
-                    placeholder="Country"
-                    {...getFieldProps('country')}
-                    SelectProps={{ native: true }}
-                    error={Boolean(touched.country && errors.country)}
-                    helperText={touched.country && errors.country}
-                  >
-                    <option value="" />
-                    {countries.map((option) => (
-                      <option key={option.code} value={option.label}>
-                        {option.label}
-                      </option>
-                    ))}
-                  </TextField>
-                </Stack>
-
-                <Stack direction={{ xs: 'column', sm: 'row' }} spacing={{ xs: 3, sm: 2 }}>
-                  <TextField
-                    fullWidth
-                    label="State/Region"
-                    {...getFieldProps('state')}
-                    error={Boolean(touched.state && errors.state)}
-                    helperText={touched.state && errors.state}
-                  />
-                  <TextField
-                    fullWidth
-                    label="City"
-                    {...getFieldProps('city')}
-                    error={Boolean(touched.city && errors.city)}
-                    helperText={touched.city && errors.city}
+                    renderOption={(props, option) => (
+                      <Box component="li" sx={{ '& > img': { mr: 2, flexShrink: 0 } }} {...props}>
+                        <Avatar alt="Travis Howard" src={option?.imageURL} sx={{ width: 20, height: 20, marginRight: '5px' }} />
+                        {option.name}
+                      </Box>
+                    )}
+                    renderInput={(params) => (
+                      <TextField
+                        helperText={touched.Stadium && errors.Stadium}
+                        error={Boolean(touched.Stadium && errors.Stadium)}
+                        {...params}
+                        label="Stadium"
+                        inputProps={{
+                          ...params.inputProps,
+                          autoComplete: 'new-password', // disable autocomplete and autofill
+                        }}
+                      />
+                    )}
                   />
                 </Stack>
-
-                <Stack direction={{ xs: 'column', sm: 'row' }} spacing={{ xs: 3, sm: 2 }}>
-                  <TextField
-                    fullWidth
-                    label="Address"
-                    {...getFieldProps('address')}
-                    error={Boolean(touched.address && errors.address)}
-                    helperText={touched.address && errors.address}
-                  />
-                  <TextField fullWidth label="Zip/Code" {...getFieldProps('zipCode')} />
-                </Stack>
-
-                <Stack direction={{ xs: 'column', sm: 'row' }} spacing={{ xs: 3, sm: 2 }}>
-                  <TextField
-                    fullWidth
-                    label="Company"
-                    {...getFieldProps('company')}
-                    error={Boolean(touched.company && errors.company)}
-                    helperText={touched.company && errors.company}
-                  />
-                  <TextField
-                    fullWidth
-                    label="Role"
-                    {...getFieldProps('role')}
-                    error={Boolean(touched.role && errors.role)}
-                    helperText={touched.role && errors.role}
-                  />
-                </Stack> */}
-
                 <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
                   <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
                     {!isEdit ? 'Create Club' : 'Save Changes'}
                   </LoadingButton>
                 </Box>
+                {errorState?.isError ? <Alert severity="warning">{errorState.Message}</Alert> : ''}
               </Stack>
             </Card>
           </Grid>

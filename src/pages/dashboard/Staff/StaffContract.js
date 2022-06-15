@@ -167,14 +167,25 @@ export default function StaffConTract() {
             { name: !isEdit ? 'View all contracts' : staffDetail?.name, href: `${PATH_DASHBOARD.staff.root}/edit/${staffDetail?.id}` }
           ]}
           action={
-            <Button
-              variant="contained"
-              component={RouterLink}
-              to={`${PATH_DASHBOARD.staff.contract}/new`}
-              startIcon={<Icon icon={plusFill} />}
-            >
-              New contract
-            </Button>
+            <>
+              <Button
+                variant="contained"
+                component={RouterLink}
+                to={`${PATH_DASHBOARD.staff.list}`}
+                startIcon={<Icon icon={plusFill} />}
+              >
+                View staffs
+              </Button>
+              <Button
+                variant="contained"
+                component={RouterLink}
+                to={`${PATH_DASHBOARD.staff.contract}/new`}
+                startIcon={<Icon icon={plusFill} />}
+                sx={{ ml: 2 }}
+              >
+                New contract
+              </Button>
+            </>
           }
         />
         <Card>

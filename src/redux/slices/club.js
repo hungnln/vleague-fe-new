@@ -18,7 +18,11 @@ const initialState = {
   cards: null,
   addressBook: [],
   invoices: [],
-  notifications: null
+  notifications: null,
+  clubDetail: {},
+  staffContractList: [],
+  playerContractList: [],
+
 };
 
 const slice = createSlice({
@@ -58,6 +62,20 @@ const slice = createSlice({
     deleteClub(state, action) {
       const deleteClub = filter(state.clubList, (club) => club.id !== action.payload);
       state.clubList = deleteClub;
+    },
+    getClubDetail(state, action) {
+      state.isLoading = false;
+      state.clubDetail = action.payload;
+    },
+    getStaffContractList(state, action) {
+      state.error = false;
+      state.isLoading = false;
+      state.staffContractList = action.payload;
+    },
+    getPlayerContractList(state, action) {
+      state.error = false;
+      state.isLoading = false;
+      state.playerContractList = action.payload;
     },
 
     // GET FOLLOWERS
@@ -208,7 +226,7 @@ export function getClubList() {
   return async (dispatch) => {
     dispatch(slice.actions.startLoading());
     try {
-      const response = await axios.get('/api/clubs');
+      const response = await axios.get('/api/clubs?Include=stadium');
       dispatch(slice.actions.getClubListSuccess(response.data.result));
     } catch (error) {
       console.log(error, 'error');
@@ -216,19 +234,35 @@ export function getClubList() {
     }
   };
 }
-export const createClub = (data) => {
+export const createClub = (data, callback) => {
   return async (dispatch) => {
     dispatch(slice.actions.startLoading());
     try {
       const response = await axios.post('/api/clubs', data);
       if (response.data.statusCode === 200) {
         dispatch(getClubList());
-      } else {
-        console.log('error');
+        callback({ IsError: response.data.isError })
       }
     } catch (error) {
       console.log(error, 'error');
       dispatch(slice.actions.hasError(error));
+      callback(error.response.IsError)
+    }
+  }
+}
+export const editClub = (data, callback) => {
+  return async (dispatch) => {
+    dispatch(slice.actions.startLoading());
+    try {
+      const response = await axios.put(`/api/clubs/${data.id}`, data);
+      if (response.data.statusCode === 200) {
+        dispatch(getClubList());
+        callback({ IsError: response.data.isError })
+      }
+    } catch (error) {
+      console.log(error, 'error');
+      dispatch(slice.actions.hasError(error));
+      callback(error.response.data)
     }
   }
 }
@@ -238,6 +272,42 @@ export const removeClub = (id) => {
     try {
       const response = await axios.delete(`/api/clubs/${id}`);
       dispatch(slice.actions.deleteClub(id))
+    } catch (error) {
+      console.log(error, 'error');
+      dispatch(slice.actions.hasError(error));
+    }
+  }
+}
+export const getClubDetail = (id) => {
+  return async dispatch => {
+    dispatch(slice.actions.startLoading());
+    try {
+      const response = await axios.get(`/api/clubs/${id}`);
+      dispatch(slice.actions.getClubDetail(response.data.result))
+    } catch (error) {
+      console.log(error, 'error');
+      dispatch(slice.actions.hasError(error));
+    }
+  }
+}
+export const getStaffContractList = (id, include) => {
+  return async dispatch => {
+    dispatch(slice.actions.startLoading());
+    try {
+      const response = await axios.get(`/api/staff-contracts?ClubID=${id}&Include=${include}`);
+      dispatch(slice.actions.getStaffContractList(response.data.result))
+    } catch (error) {
+      console.log(error, 'error');
+      dispatch(slice.actions.hasError(error));
+    }
+  }
+}
+export const getPlayerContractList = (id, include) => {
+  return async dispatch => {
+    dispatch(slice.actions.startLoading());
+    try {
+      const response = await axios.get(`/api/player-contracts?ClubID=${id}&Include=${include}`);
+      dispatch(slice.actions.getPlayerContractList(response.data.result))
     } catch (error) {
       console.log(error, 'error');
       dispatch(slice.actions.hasError(error));

@@ -22,8 +22,11 @@ import StaffConTract from 'src/pages/dashboard/Staff/StaffContract';
 import StaffContractCreate from 'src/pages/dashboard/Staff/StaffContractCreate';
 import RefereeList from 'src/pages/dashboard/Referee/RefereeList';
 import RefereeCreate from 'src/pages/dashboard/Referee/RefereeCreate';
-import PlayerConTract from 'src/pages/dashboard/Player/PlayerContract';
 import PlayerContractCreate from 'src/pages/dashboard/Player/PlayerContractCreate';
+import ClubConTract from 'src/pages/dashboard/CLub/ClubContract';
+import PlayerConTract from 'src/pages/dashboard/Player/PlayerContract';
+import ClubContractPlayerCreate from 'src/pages/dashboard/CLub/ClubContractPlayerCreate';
+import ClubContractStaffCreate from 'src/pages/dashboard/CLub/ClubContractStaffCreate';
 
 // ----------------------------------------------------------------------
 
@@ -125,7 +128,7 @@ export default function Router() {
         {
           path: 'player',
           children: [
-            { element: <Navigate to="/dashboard/player/profile" replace /> },
+            { element: <Navigate to="/dashboard/player/list" replace /> },
             { path: 'profile', element: <UserProfile /> },
             { path: 'cards', element: <UserCards /> },
             { path: 'list', element: <PlayerList /> },
@@ -141,7 +144,7 @@ export default function Router() {
         {
           path: 'referee',
           children: [
-            { element: <Navigate to="/dashboard/referee/profile" replace /> },
+            { element: <Navigate to="/dashboard/referee/list" replace /> },
             { path: 'profile', element: <UserProfile /> },
             { path: 'cards', element: <UserCards /> },
             { path: 'list', element: <RefereeList /> },
@@ -153,7 +156,7 @@ export default function Router() {
         {
           path: 'staff',
           children: [
-            { element: <Navigate to="/dashboard/staff/profile" replace /> },
+            { element: <Navigate to="/dashboard/staff/list" replace /> },
             { path: 'profile', element: <UserProfile /> },
             { path: 'cards', element: <UserCards /> },
             { path: 'list', element: <StaffList /> },
@@ -170,19 +173,27 @@ export default function Router() {
         {
           path: 'club',
           children: [
-            { element: <Navigate to="/dashboard/club/profile" replace /> },
+            { element: <Navigate to="/dashboard/club/list" replace /> },
             { path: 'profile', element: <UserProfile /> },
             { path: 'cards', element: <UserCards /> },
             { path: 'list', element: <ClubList /> },
             { path: 'new', element: <ClubCreate /> },
             { path: 'edit/:id', element: <ClubCreate /> },
-            { path: 'account', element: <UserAccount /> }
+            { path: 'account', element: <UserAccount /> },
+            { path: 'contract/:id', element: <ClubConTract /> },
+            { path: 'contract/:clubId/player/new', element: <ClubContractPlayerCreate /> },
+            { path: 'contract/:clubId/player/edit/:id', element: <ClubContractPlayerCreate /> },
+            { path: 'contract/:clubId/staff/new', element: <ClubContractStaffCreate /> },
+            { path: 'contract/:clubId/staff/edit/:id', element: <ClubContractStaffCreate /> },
+
+
+
           ]
         },
         {
           path: 'stadium',
           children: [
-            { element: <Navigate to="/dashboard/stadium/profile" replace /> },
+            { element: <Navigate to="/dashboard/stadium/list" replace /> },
             { path: 'profile', element: <UserProfile /> },
             { path: 'cards', element: <UserCards /> },
             { path: 'list', element: <StadiumList /> },

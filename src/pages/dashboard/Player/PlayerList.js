@@ -3,7 +3,7 @@ import { Icon } from '@iconify/react';
 import { sentenceCase } from 'change-case';
 import { useState, useEffect } from 'react';
 import plusFill from '@iconify/icons-eva/plus-fill';
-import { Link as RouterLink } from 'react-router-dom';
+import { Link as RouterLink, Navigate, NavLink, useNavigate } from 'react-router-dom';
 // material
 import { useTheme } from '@mui/material/styles';
 import {
@@ -82,6 +82,7 @@ function applySortFilter(array, comparator, query) {
 }
 
 export default function PlayerList() {
+  const navigate = useNavigate();
   const { themeStretch } = useSettings();
   const theme = useTheme();
   const dispatch = useDispatch();
@@ -163,14 +164,25 @@ export default function PlayerList() {
             { name: 'List' }
           ]}
           action={
-            <Button
-              variant="contained"
-              component={RouterLink}
-              to={PATH_DASHBOARD.player.newPlayer}
-              startIcon={<Icon icon={plusFill} />}
-            >
-              New Player
-            </Button>
+            <>
+              <Button
+                variant="contained"
+                component={RouterLink}
+                to={PATH_DASHBOARD.player.contract}
+                startIcon={<Icon icon={plusFill} />}
+              >
+                View Contracts
+              </Button>
+              <Button
+                variant="contained"
+                component={RouterLink}
+                to={PATH_DASHBOARD.player.newPlayer}
+                startIcon={<Icon icon={plusFill} />}
+                sx={{ ml: 2 }}
+              >
+                New Player
+              </Button>
+            </>
           }
         />
 
