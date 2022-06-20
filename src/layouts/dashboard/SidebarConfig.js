@@ -29,7 +29,7 @@ const sidebarConfig = [
   // GENERAL
   // ----------------------------------------------------------------------
   {
-    subheader: 'general',
+    subheader: 'dashboard',
     items: [
       {
         title: 'app',
@@ -48,6 +48,77 @@ const sidebarConfig = [
 
   // MANAGEMENT
   // ----------------------------------------------------------------------
+ 
+  {
+    subheader: 'tournament',
+    items: [
+      {
+        title:'tournament',
+        path: PATH_DASHBOARD.tournament.root,
+        icon: ICONS.user,
+      },
+      {
+        title: 'referee',
+        path: PATH_DASHBOARD.referee.root,
+        icon: ICONS.user,
+      }
+      
+    ]
+  },
+
+  // CLUB
+  // -------------------------------------------------------------------------
+  {
+    subheader: 'club',
+    items: [
+      // CLUB : PLAYER,CLUB,STAFF
+      {
+        title: 'club',
+        path: PATH_DASHBOARD.club.root,
+        icon: ICONS.user,
+        // children: [
+        //   { title: 'list', path: PATH_DASHBOARD.club.list },
+        //   { title: 'contract', path: PATH_DASHBOARD.club.contract },
+        // ]
+      },
+      {
+        title: 'player',
+        path: PATH_DASHBOARD.player.root,
+        icon: ICONS.user,
+        // children: [
+        //   // { title: 'profile', path: PATH_DASHBOARD.player.profile },
+        //   // { title: 'cards', path: PATH_DASHBOARD.player.cards },
+        //   { title: 'list', path: PATH_DASHBOARD.player.list },
+        //   // { title: 'create', path: PATH_DASHBOARD.player.newPlayer },
+        //   { title: 'contract', path: PATH_DASHBOARD.player.contract },
+        //   // { title: 'edit', path: PATH_DASHBOARD.player.editById },
+        //   // { title: 'account', path: PATH_DASHBOARD.player.account }
+        // ]
+      },
+      {
+        title: 'staff',
+        path: PATH_DASHBOARD.staff.root,
+        icon: ICONS.user,
+        // children: [   
+        //   { title: 'list', path: PATH_DASHBOARD.staff.list },        
+        //   { title: 'contract', path: PATH_DASHBOARD.staff.contract },
+        // ]
+      },
+      {
+        title: 'stadium',
+        path: PATH_DASHBOARD.stadium.root,
+        icon: ICONS.user,
+        // children: [
+        //   // { title: 'profile', path: PATH_DASHBOARD.player.profile },
+        //   // { title: 'cards', path: PATH_DASHBOARD.player.cards },
+        //   { title: 'list', path: PATH_DASHBOARD.stadium.list },
+        //   // { title: 'create', path: PATH_DASHBOARD.stadium.newStadium },
+        //   // { title: 'edit', path: PATH_DASHBOARD.player.editById },
+        //   // { title: 'account', path: PATH_DASHBOARD.player.account }
+        // ]
+      }
+    ]
+  },
   {
     subheader: 'management',
     items: [
@@ -108,98 +179,26 @@ const sidebarConfig = [
       // }
     ]
   },
-
-  // CLUB
-  // -------------------------------------------------------------------------
-  {
-    subheader: 'club',
-    items: [
-      // CLUB : PLAYER,CLUB,STAFF
-      {
-        title: 'club',
-        path: PATH_DASHBOARD.club.root,
-        icon: ICONS.user,
-        // children: [
-        //   { title: 'list', path: PATH_DASHBOARD.club.list },
-        //   { title: 'contract', path: PATH_DASHBOARD.club.contract },
-        // ]
-      },
-      {
-        title: 'stadium',
-        path: PATH_DASHBOARD.stadium.root,
-        icon: ICONS.user,
-        // children: [
-        //   // { title: 'profile', path: PATH_DASHBOARD.player.profile },
-        //   // { title: 'cards', path: PATH_DASHBOARD.player.cards },
-        //   { title: 'list', path: PATH_DASHBOARD.stadium.list },
-        //   // { title: 'create', path: PATH_DASHBOARD.stadium.newStadium },
-        //   // { title: 'edit', path: PATH_DASHBOARD.player.editById },
-        //   // { title: 'account', path: PATH_DASHBOARD.player.account }
-        // ]
-      }
-    ]
-  },
-  {
-    subheader: 'member',
-    items: [
-      {
-        title: 'player',
-        path: PATH_DASHBOARD.player.root,
-        icon: ICONS.user,
-        // children: [
-        //   // { title: 'profile', path: PATH_DASHBOARD.player.profile },
-        //   // { title: 'cards', path: PATH_DASHBOARD.player.cards },
-        //   { title: 'list', path: PATH_DASHBOARD.player.list },
-        //   // { title: 'create', path: PATH_DASHBOARD.player.newPlayer },
-        //   { title: 'contract', path: PATH_DASHBOARD.player.contract },
-        //   // { title: 'edit', path: PATH_DASHBOARD.player.editById },
-        //   // { title: 'account', path: PATH_DASHBOARD.player.account }
-        // ]
-      },
-      {
-        title: 'staff',
-        path: PATH_DASHBOARD.staff.root,
-        icon: ICONS.user,
-        // children: [   
-        //   { title: 'list', path: PATH_DASHBOARD.staff.list },        
-        //   { title: 'contract', path: PATH_DASHBOARD.staff.contract },
-        // ]
-      },
-      {
-        title: 'referee',
-        path: PATH_DASHBOARD.referee.root,
-        icon: ICONS.user,
-        // children: [
-        //   // { title: 'profile', path: PATH_DASHBOARD.player.profile },
-        //   // { title: 'cards', path: PATH_DASHBOARD.player.cards },
-        //   { title: 'list', path: PATH_DASHBOARD.referee.list },
-        //   // { title: 'create', path: PATH_DASHBOARD.referee.newReferee },
-        //   // { title: 'contract', path: PATH_DASHBOARD.referee.contract },
-        //   // { title: 'account', path: PATH_DASHBOARD.player.account }
-        // ]
-      }
-    ]
-  },
   // APP
   // ----------------------------------------------------------------------
-  // {
-  //   subheader: 'app',
-  //   items: [
-  //     {
-  //       title: 'mail',
-  //       path: PATH_DASHBOARD.mail.root,
-  //       icon: ICONS.mail,
-  //       info: <Label color="error">2</Label>
-  //     },
-  //     { title: 'chat', path: PATH_DASHBOARD.chat.root, icon: ICONS.chat },
-  //     { title: 'calendar', path: PATH_DASHBOARD.calendar, icon: ICONS.calendar },
-  //     {
-  //       title: 'kanban',
-  //       path: PATH_DASHBOARD.kanban,
-  //       icon: ICONS.kanban
-  //     }
-  //   ]
-  // }
+  {
+    subheader: 'app',
+    items: [
+      {
+        title: 'mail',
+        path: PATH_DASHBOARD.mail.root,
+        icon: ICONS.mail,
+        info: <Label color="error">2</Label>
+      },
+      { title: 'chat', path: PATH_DASHBOARD.chat.root, icon: ICONS.chat },
+      { title: 'calendar', path: PATH_DASHBOARD.calendar, icon: ICONS.calendar },
+      {
+        title: 'kanban',
+        path: PATH_DASHBOARD.kanban,
+        icon: ICONS.kanban
+      }
+    ]
+  }
 ];
 
 export default sidebarConfig;

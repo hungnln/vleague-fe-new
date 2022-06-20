@@ -12,6 +12,11 @@ import refereeReducer from './slices/referee';
 import staffReducer from './slices/staff';
 import clubReducer from './slices/club';
 import stadiumReducer from './slices/stadium';
+import tournamentReducer from './slices/tournament';
+import roundReducer from './slices/round';
+import matchReducer from './slices/match';
+
+
 
 
 import productReducer from './slices/product';
@@ -41,8 +46,11 @@ const rootReducer = combineReducers({
   user: userReducer,
   player: playerReducer,
   referee: refereeReducer,
-
+  tournament: tournamentReducer,
+  round: roundReducer,
   staff: staffReducer,
+  match: matchReducer,
+
   club: clubReducer,
   stadium: stadiumReducer,
   calendar: calendarReducer,

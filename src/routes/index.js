@@ -14,8 +14,8 @@ import PlayerList from 'src/pages/dashboard/Player/PlayerList';
 import PlayerCreate from '../pages/dashboard/Player/PlayerCreate';
 import StaffList from 'src/pages/dashboard/Staff/StaffList';
 import StaffCreate from 'src/pages/dashboard/Staff/StaffCreate';
-import ClubList from 'src/pages/dashboard/CLub/ClubList';
-import ClubCreate from 'src/pages/dashboard/CLub/ClubCreate';
+// import ClubList from 'src/pages/dashboard/CLub/ClubList';
+// import ClubCreate from 'src/pages/dashboard/CLub/ClubCreate';
 import StadiumCreate from 'src/pages/dashboard/Stadium/StadiumCreate';
 import StadiumList from 'src/pages/dashboard/Stadium/StadiumList';
 import StaffConTract from 'src/pages/dashboard/Staff/StaffContract';
@@ -23,10 +23,11 @@ import StaffContractCreate from 'src/pages/dashboard/Staff/StaffContractCreate';
 import RefereeList from 'src/pages/dashboard/Referee/RefereeList';
 import RefereeCreate from 'src/pages/dashboard/Referee/RefereeCreate';
 import PlayerContractCreate from 'src/pages/dashboard/Player/PlayerContractCreate';
-import ClubConTract from 'src/pages/dashboard/CLub/ClubContract';
+// import ClubConTract from 'src/pages/dashboard/CLub/ClubContract';
 import PlayerConTract from 'src/pages/dashboard/Player/PlayerContract';
 import ClubContractPlayerCreate from 'src/pages/dashboard/CLub/ClubContractPlayerCreate';
 import ClubContractStaffCreate from 'src/pages/dashboard/CLub/ClubContractStaffCreate';
+import RoundList from 'src/pages/dashboard/Round/RoundList';
 
 // ----------------------------------------------------------------------
 
@@ -203,6 +204,19 @@ export default function Router() {
           ]
         },
         {
+          path: 'tournament',
+          children: [
+            { element: <Navigate to="/dashboard/tournament/list" replace /> },
+            { path: 'profile', element: <UserProfile /> },
+            { path: 'cards', element: <UserCards /> },
+            { path: 'list', element: <TournamentList /> },
+            { path: 'new', element: <TournamentCreate /> },
+            { path: 'edit/:id', element: <TournamentCreate /> },
+            { path: 'account', element: <UserAccount /> },
+            { path: ':id/round', element: <RoundList /> }
+          ]
+        },
+        {
           path: 'blog',
           children: [
             { element: <Navigate to="/dashboard/blog/posts" replace /> },
@@ -348,6 +362,17 @@ const Chat = Loadable(lazy(() => import('../pages/dashboard/Chat')));
 const Mail = Loadable(lazy(() => import('../pages/dashboard/Mail')));
 const Calendar = Loadable(lazy(() => import('../pages/dashboard/Calendar')));
 const Kanban = Loadable(lazy(() => import('../pages/dashboard/Kanban')));
+const ClubList = Loadable(lazy(() => import('../pages/dashboard/CLub/ClubList')));
+const ClubConTract = Loadable(lazy(() => import('../pages/dashboard/CLub/ClubContract')));
+const ClubCreate = Loadable(lazy(() => import('../pages/dashboard/CLub/ClubCreate')));
+
+
+const TournamentCreate = Loadable(lazy(() => import('../pages/dashboard/Tournament/TournamentCreate')));
+const TournamentList = Loadable(lazy(() => import('../pages/dashboard/Tournament/TournamentList')));
+// const TournamentCreate = Loadable(lazy(() => import('../pages/dashboard/Tournament/TournamentCreate')));
+
+
+
 // Main
 const LandingPage = Loadable(lazy(() => import('../pages/LandingPage')));
 const About = Loadable(lazy(() => import('../pages/About')));

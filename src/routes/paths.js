@@ -106,7 +106,8 @@ export const PATH_DASHBOARD = {
     list: path(ROOTS_DASHBOARD, '/tournament/list'),
     newTournament: path(ROOTS_DASHBOARD, '/tournament/new'),
     // editById: path(ROOTS_DASHBOARD, `/tournament/reece-chung/edit`),
-    account: path(ROOTS_DASHBOARD, '/tournament/account')
+    account: path(ROOTS_DASHBOARD, '/tournament/account'),
+    round: path(ROOTS_DASHBOARD, '/tournament/round')
   },
   stadium: {
     root: path(ROOTS_DASHBOARD, '/stadium'),
