@@ -1,0 +1,246 @@
+import * as Yup from 'yup';
+import PropTypes from 'prop-types';
+import { useCallback, useEffect, useState } from 'react';
+import { useSnackbar } from 'notistack';
+import { useNavigate } from 'react-router-dom';
+import { Form, FormikProvider, useFormik } from 'formik';
+// material
+import { DatePicker, LoadingButton, MobileDateTimePicker } from '@mui/lab';
+import { Box, Card, Grid, Stack, Switch, TextField, Typography, FormHelperText, FormControlLabel, Button, DialogActions, Autocomplete, Avatar } from '@mui/material';
+// utils
+import { getBase64FromUrl, getBase64Image, toBase64 } from 'src/utils/base64/base64';
+import { fData } from '../../../utils/formatNumber';
+import fakeRequest from '../../../utils/fakeRequest';
+// routes
+import { PATH_DASHBOARD } from '../../../routes/paths';
+//
+import Label from '../../Label';
+import { UploadAvatar } from '../../upload';
+import countries from './countries';
+import { createMatch, editMatch } from 'src/redux/slices/match';
+import { useDispatch } from 'src/redux/store';
+import _ from 'lodash';
+import { getClubList } from 'src/redux/slices/club';
+import { getStadiumList } from 'src/redux/slices/stadium';
+import { useSelector } from 'react-redux';
+
+// ----------------------------------------------------------------------
+
+MatchNewForm.propTypes = {
+  isEdit: PropTypes.bool,
+  currentMatch: PropTypes.object,
+  onCancel: PropTypes.func
+};
+
+export default function MatchNewForm({ tournamentID, currentMatch, onCancel, roundSelected }) {
+  const dispatch = useDispatch();
+  // const navigate = useNavigate();
+  const [errorState, setErrorState] = useState();
+  const { enqueueSnackbar } = useSnackbar();
+  const { clubList } = useSelector((state) => state.club);
+  const { stadiumList } = useSelector((state) => state.stadium);
+  const { roundList } = useSelector((state) => state.round);
+
+  const NewMatchSchema = Yup.object().shape({
+    StartDate: Yup.string().required('StartDate is required'),
+    HomeClub: Yup.mixed().required('HomeClub is required'),
+    AwayClub: Yup.mixed().required('AwayClub is required'),
+    Stadium: Yup.mixed().required('Stadium is required'),
+    Round: Yup.mixed().required('Round is required'),
+
+  });
+  const isEdit = !_.isEmpty(currentMatch) ? 1 : 0
+  useEffect(() => {
+    dispatch(getClubList())
+    dispatch(getStadiumList())
+
+  }, [dispatch])
+  const formik = useFormik({
+    enableReinitialize: true,
+    initialValues: {
+      id: currentMatch?.id || '',
+      StartDate: currentMatch?.startDate || '',
+      HomeClub: currentMatch?.homeClub || null,
+      AwayClub: currentMatch?.awayClub || null,
+      Stadium: currentMatch?.stadium || null,
+      Round: currentMatch?.roundID || roundSelected,
+    },
+    validationSchema: NewMatchSchema,
+    onSubmit: async (values, { setSubmitting, resetForm, setErrors }) => {
+      try {
+        if (isEdit) {
+          dispatch(editMatch(values, (value) => setErrorState(value)))
+        } else {
+          const data = {
+            StartDate: values.StartDate,
+            HomeClubID: values.HomeClub.id,
+            AwayClubID: values.AwayClub.id,
+            StadiumID: values.Stadium.id,
+            RoundID: values.Round.id
+          }
+          dispatch(createMatch(data, (value) => setErrorState(value)))
+        }
+      } catch (error) {
+        console.error(error);
+        setSubmitting(false);
+        setErrors(error);
+      }
+    }
+  });
+  useEffect(() => {
+    if (!_.isEmpty(errorState)) {
+      console.log('check state', errorState);
+
+      if (!errorState.isError) {
+        console.log('ko error');
+        formik.resetForm();
+        onCancel();
+        enqueueSnackbar(currentMatch ? 'Create success' : 'Update success', { variant: 'success' });
+        // navigate(PATH_DASHBOARD.match.list);
+      } else {
+        console.log('bị error');
+      }
+    }
+
+  }, [errorState])
+  const { errors, values, touched, handleSubmit, isSubmitting, setFieldValue, getFieldProps } = formik;
+  return (
+    <FormikProvider value={formik}>
+      <Form noValidate autoComplete="off" onSubmit={handleSubmit}>
+        <Stack spacing={3} sx={{ p: 3 }}>
+          <Autocomplete
+            fullWidth
+            options={roundList}
+            autoHighlight
+            {...isEdit ? { value: formik.values.Round, disabled: 'true' } : {}}
+            getOptionLabel={(option) => option.name}
+            onChange={(event, newValue) => {
+              setFieldValue('Round', newValue);
+            }}
+            renderOption={(props, option) => (
+              <Box component="li" sx={{ '& > img': { mr: 2, flexShrink: 0 } }} {...props}>
+                {/* <Avatar alt="Travis Howard" src={option?.imageURL} sx={{ width: 20, height: 20, marginRight: '5px' }} /> */}
+                {option.name}
+              </Box>
+            )}
+            renderInput={(params) => (
+              <TextField
+                helperText={touched.Round && errors.Round}
+                error={Boolean(touched.Round && errors.Round)}
+                {...params}
+                label="Round"
+                inputProps={{
+                  ...params.inputProps,
+                  autoComplete: 'new-password', // disable autocomplete and autofill
+                }}
+              />
+            )}
+          />
+          <Autocomplete
+            fullWidth
+            options={clubList}
+            autoHighlight
+            {...isEdit ? { value: formik.values.HomeClub, disabled: 'true' } : {}}
+            getOptionLabel={(option) => option.name}
+            onChange={(event, newValue) => {
+              setFieldValue('HomeClub', newValue);
+            }}
+            renderOption={(props, option) => (
+              <Box component="li" sx={{ '& > img': { mr: 2, flexShrink: 0 } }} {...props}>
+                <Avatar alt="Travis Howard" src={option?.imageURL} sx={{ width: 20, height: 20, marginRight: '5px' }} />
+                {option.name}
+              </Box>
+            )}
+            renderInput={(params) => (
+              <TextField
+                helperText={touched.HomeClub && errors.HomeClub}
+                error={Boolean(touched.HomeClub && errors.HomeClub)}
+                {...params}
+                label="HomeClub"
+                inputProps={{
+                  ...params.inputProps,
+                  autoComplete: 'new-password', // disable autocomplete and autofill
+                }}
+              />
+            )}
+          />
+          <Autocomplete
+            fullWidth
+            options={clubList}
+            autoHighlight
+            {...isEdit ? { value: formik.values.AwayClub, disabled: 'true' } : {}}
+            getOptionLabel={(option) => option.name}
+            onChange={(event, newValue) => {
+              setFieldValue('AwayClub', newValue);
+            }}
+            renderOption={(props, option) => (
+              <Box component="li" sx={{ '& > img': { mr: 2, flexShrink: 0 } }} {...props}>
+                <Avatar alt="Travis Howard" src={option?.imageURL} sx={{ width: 20, height: 20, marginRight: '5px' }} />
+                {option.name}
+              </Box>
+            )}
+            renderInput={(params) => (
+              <TextField
+                helperText={touched.AwayClub && errors.AwayClub}
+                error={Boolean(touched.AwayClub && errors.AwayClub)}
+                {...params}
+                label="AwayClub"
+                inputProps={{
+                  ...params.inputProps,
+                  autoComplete: 'new-password', // disable autocomplete and autofill
+                }}
+              />
+            )}
+          />
+          <Autocomplete
+            fullWidth
+            options={stadiumList}
+            autoHighlight
+            {...isEdit ? { value: formik.values.Stadium, disabled: 'true' } : {}}
+            getOptionLabel={(option) => option.name}
+            onChange={(event, newValue) => {
+              setFieldValue('Stadium', newValue);
+            }}
+            renderOption={(props, option) => (
+              <Box component="li" sx={{ '& > img': { mr: 2, flexShrink: 0 } }} {...props}>
+                <Avatar alt="Travis Howard" src={option?.imageURL} sx={{ width: 20, height: 20, marginRight: '5px' }} />
+                {option.name}
+              </Box>
+            )}
+            renderInput={(params) => (
+              <TextField
+                helperText={touched.Stadium && errors.Stadium}
+                error={Boolean(touched.Stadium && errors.Stadium)}
+                {...params}
+                label="Stadium"
+                inputProps={{
+                  ...params.inputProps,
+                  autoComplete: 'new-password', // disable autocomplete and autofill
+                }}
+              />
+            )}
+          />
+          <MobileDateTimePicker
+            label="Start date"
+            disablePast
+            value={values.StartDate}
+            inputFormat="dd/MM/yyyy hh:mm a"
+            onChange={(StartDate) => setFieldValue('StartDate', StartDate)}
+            renderInput={(params) => <TextField {...params} fullWidth
+              helperText={touched.StartDate && errors.StartDate}
+              error={Boolean(touched.StartDate && errors.StartDate)} />}
+          />
+        </Stack>
+        <DialogActions>
+          <Box sx={{ flexGrow: 1 }} />
+          <Button type="button" variant="outlined" color="inherit" onClick={onCancel}>
+            Cancel
+          </Button>
+          <LoadingButton type="submit" variant="contained" loading={isSubmitting} loadingIndicator="Loading...">
+            {!isEdit ? 'Create Match' : 'Save Changes'}
+          </LoadingButton>
+        </DialogActions>
+      </Form>
+    </FormikProvider>
+  );
+}
