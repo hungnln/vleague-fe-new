@@ -19,7 +19,7 @@
   },
   "babel": {
     "presets": [
-      "@babel/preset-react"
+      "@babel/preset-react", "@babel/preset-env"
     ]
   },
   "browserslist": {
@@ -36,6 +36,7 @@
   },
   "dependencies": {
     "@auth0/auth0-spa-js": "^1.18.0",
+    "@babel/preset-env": "^7.18.2",
     "@emotion/cache": "^11.4.0",
     "@emotion/react": "^11.4.1",
     "@emotion/styled": "^11.3.0",
@@ -110,6 +111,7 @@
     "react-intersection-observer": "^8.32.1",
     "react-map-gl": "^6.1.17",
     "react-markdown": "^7.0.1",
+    "react-native-football-lineup": "^0.0.3",
     "react-quill": "^2.0.0-beta.4",
     "react-redux": "^7.2.5",
     "react-router": "^6.0.0-beta.4",
@@ -136,6 +138,7 @@
   "devDependencies": {
     "@babel/core": "^7.15.5",
     "@babel/eslint-parser": "^7.15.4",
+    "@babel/preset-react": "^7.17.12",
     "eslint": "^7.32.0",
     "eslint-config-airbnb": "^18.2.1",
     "eslint-config-prettier": "^8.3.0",

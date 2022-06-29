@@ -28,6 +28,7 @@ import PlayerConTract from 'src/pages/dashboard/Player/PlayerContract';
 import ClubContractPlayerCreate from 'src/pages/dashboard/CLub/ClubContractPlayerCreate';
 import ClubContractStaffCreate from 'src/pages/dashboard/CLub/ClubContractStaffCreate';
 import RoundList from 'src/pages/dashboard/Round/RoundList';
+import MatchDetail from 'src/pages/dashboard/Match/MatchDetail';
 
 // ----------------------------------------------------------------------
 
@@ -213,7 +214,8 @@ export default function Router() {
             { path: 'new', element: <TournamentCreate /> },
             { path: 'edit/:id', element: <TournamentCreate /> },
             { path: 'account', element: <UserAccount /> },
-            { path: ':id/round', element: <RoundList /> }
+            { path: ':id/round', element: <RoundList /> },
+            { path: ':id/match/:matchId', element: <MatchDetail /> }
           ]
         },
         {

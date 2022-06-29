@@ -217,9 +217,9 @@ export default function ClubList() {
                         <TableCell align="left">{headQuarter}</TableCell>
                         <TableCell component="th" scope="row" padding="none">
                           <Stack direction="row" alignItems="center" spacing={2}>
-                            <Avatar alt={stadium.name} src={stadium.imageURL} />
+                            <Avatar alt={stadium?.name} src={stadium?.imageURL} />
                             <Typography variant="subtitle2" noWrap>
-                              {stadium.name}
+                              {stadium?.name}
                             </Typography>
                           </Stack>
                         </TableCell>

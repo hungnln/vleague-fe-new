@@ -73,14 +73,20 @@ export default function TournamentListToolbar({ numSelected, filterName, onFilte
             inputFormat="dd/MM/yyyy h.mm a"
             value={start}
             onChange={onStart}
-            renderInput={(params) => <TextField {...params} />}
+            renderInput={(params) => <TextField {...params} error={false} />}
           />
           <DateTimePicker
             label="Date End"
             inputFormat="dd/MM/yyyy h.mm a"
             value={end}
             onChange={onEnd}
-            renderInput={(params) => <TextField {...params} />}
+
+            renderInput={(params) => <TextField {...params} error={false} />}
+          />
+          <TextField
+            width={50}
+            label="Salary"
+            value={end}
           />
         </Stack>
       )}

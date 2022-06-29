@@ -23,6 +23,10 @@ const initialState = {
   staffContracts: [],
   staffDetail: null,
   currentContract: {},
+  clubContractList: [],
+  HomeStaffContract: [],
+  AwayStaffContract: [],
+
 };
 
 const slice = createSlice({
@@ -82,6 +86,10 @@ const slice = createSlice({
         return contract
       })
       state.contractList = newContractList
+    },
+    getClubContractList(state, action) {
+      state.isLoading = false;
+      state.clubContractList = action.payload
     },
 
     getCurrentContract(state, action) {
@@ -373,6 +381,7 @@ export const getContractList = (id, include) => {
     }
   }
 }
+
 export const getStaffDetail = (id) => {
   return async dispatch => {
     dispatch(slice.actions.startLoading());
@@ -382,6 +391,19 @@ export const getStaffDetail = (id) => {
     } catch (error) {
       console.log(error, 'error');
       dispatch(slice.actions.hasError(error));
+    }
+  }
+}
+export const getClubMatchContract = (ClubID) => {
+  return async dispatch => {
+    dispatch(slice.actions.startLoading());
+    try {
+      const response = await axios.get(`/api/staff-contracts?ClubID=${ClubID}&IncludeEndedContracts=false&Include=staff`);
+      dispatch(slice.actions.getClubContractList(response.data.result))
+    }
+    catch (error) {
+      dispatch(slice.actions.hasError(error.response.data));
+
     }
   }
 }

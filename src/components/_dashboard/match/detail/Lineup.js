@@ -1,0 +1,414 @@
+import PropTypes from 'prop-types';
+import * as Yup from 'yup';
+// material
+import { Box, Button, Card, DialogTitle, Grid, Stack, Table, TableBody, TableCell, TableHead, TableRow } from '@mui/material';
+import Scrollbar from 'src/components/Scrollbar';
+import PlayerLineUpList from '../list/PlayerLineUpList';
+import { useDispatch, useSelector } from 'react-redux';
+import { addLineUp, addLineUpServer, closeModal, openModal } from 'src/redux/slices/match';
+import { DialogAnimate } from 'src/components/animate';
+import MatchLineUpForm from '../MatchLineUpForm';
+import plusFill from '@iconify/icons-eva/plus-fill';
+import checkmarkFill from '@iconify/icons-eva/checkmark-fill';
+import { Icon } from '@iconify/react';
+import { useEffect, useRef, useState } from 'react';
+import MatchStaffForm from '../MatchStaffForm';
+import _ from 'lodash';
+import MatchLineUpMoreMenu from '../list/MatchLineUpMoreMenu';
+import MatchRefereeForm from '../MatchRefereeForm';
+import { Form, FormikProvider, useFormik } from 'formik';
+import { useSnackbar } from 'notistack';
+import { LoadingButton } from '@mui/lab';
+import { current } from '@reduxjs/toolkit';
+//
+
+// ----------------------------------------------------------------------
+
+Lineup.propTypes = {
+
+};
+
+export default function Lineup() {
+    const { currentMatch, isOpenModal, matchParticipation } = useSelector((state) => state.match);
+    const [component, setComponent] = useState()
+    const dispatch = useDispatch();
+    const { enqueueSnackbar } = useSnackbar();
+    const { HomeLineUp, HomeReverse, HomeStaff, AwayLineUp, AwayReverse, AwayStaff, Referee } = matchParticipation
+    const [homeSelected, setHomeSelected] = useState()
+    const { homeClub, awayClub } = currentMatch
+    const [errorState, setErrorState] = useState()
+    const handleAddHomeLineup = () => {
+        setComponent(
+            <>
+                <DialogTitle>Add {homeClub.name}  matchParticipation</DialogTitle>
+                <MatchLineUpForm currentLineUp={matchParticipation?.HomeLineUp} isHome addMember={addHomeLineup} onCancel={handleCloseModal} clubId={currentMatch.homeClubID} />
+            </>)
+        dispatch(openModal());
+    };
+    const handleAddAwayLineup = () => {
+        setComponent(
+            <>
+                <DialogTitle>Add {awayClub.name}  matchParticipation</DialogTitle>
+                <MatchLineUpForm currentLineUp={matchParticipation?.AwayLineUp} addMember={addAwayLineup} onCancel={handleCloseModal} clubId={currentMatch.awayClubID} />
+            </>)
+        dispatch(openModal());
+    };
+    const handleAddHomeReverse = () => {
+        setComponent(
+            <>
+                <DialogTitle>Add {homeClub.name} reverse</DialogTitle>
+                <MatchLineUpForm currentLineUp={matchParticipation?.HomeReverse} isHome isReverse addMember={addHomeReverse} onCancel={handleCloseModal} clubId={currentMatch.homeClubID} />
+            </>)
+        dispatch(openModal());
+    };
+    const handleAddAwayReverse = () => {
+        setComponent(
+            <>
+                <DialogTitle>Add {awayClub.name} reverse</DialogTitle>
+                <MatchLineUpForm currentLineUp={matchParticipation?.AwayReverse} isReverse addMember={addAwayReverse} onCancel={handleCloseModal} clubId={currentMatch.awayClubID} />
+            </>)
+        dispatch(openModal());
+    };
+    const handleAddHomeStaff = () => {
+        setComponent(
+            <>
+                <DialogTitle>Add {homeClub.name} staff</DialogTitle>
+                <MatchStaffForm currentStaffList={matchParticipation?.HomeStaff} isHome addMember={addHomeStaff} onCancel={handleCloseModal} clubId={currentMatch.homeClubID} />
+            </>)
+        dispatch(openModal());
+    };
+    const handleAddAwayStaff = () => {
+        setComponent(
+            <>
+                <DialogTitle>Add {homeClub.name} staff</DialogTitle>
+                <MatchStaffForm currentStaffList={matchParticipation?.AwayStaff} isHome addMember={addAwayStaff} onCancel={handleCloseModal} clubId={currentMatch.awayClubID} />
+            </>)
+        dispatch(openModal());
+    };
+    const handleAddReferee = () => {
+        setComponent(
+            <>
+                <DialogTitle>Add Referee</DialogTitle>
+                <MatchRefereeForm currentRefereeList={matchParticipation?.Referee} addMember={addReferee} onCancel={handleCloseModal} />
+            </>)
+        dispatch(openModal());
+    };
+    const handleCloseModal = () => {
+        dispatch(closeModal());
+    };
+    const addHomeLineup = (callback) => {
+        dispatch(addLineUp({ HomeLineUp: callback }))
+    }
+    const addHomeStaff = (callback) => {
+        dispatch(addLineUp({ HomeStaff: callback }))
+    }
+    const addAwayStaff = (callback) => {
+        dispatch(addLineUp({ AwayStaff: callback }))
+    }
+    const addHomeReverse = (callback) => {
+        dispatch(addLineUp({ HomeReverse: callback }))
+
+    }
+    const addAwayLineup = (callback) => {
+        dispatch(addLineUp({ AwayLineUp: callback }))
+    }
+    const addAwayReverse = (callback) => {
+        dispatch(addLineUp({ AwayReverse: callback }))
+    }
+    const addReferee = (callback) => {
+        dispatch(addLineUp({ Referee: callback }))
+
+    }
+
+    const convertPlayerList = (matchParticipationObj, isReverse) => {
+        const GoalKeeperConvert = { ...matchParticipationObj.GoalKeeper, role: 3 }
+        const DefenderConvert = matchParticipationObj.Defender.reduce((obj, item) => { return [...obj, { ...item, role: 2 }] }, [])
+        const MidfielderConvert = matchParticipationObj.Midfielder.reduce((obj, item) => { return [...obj, { ...item, role: 1 }] }, [])
+        const ForwardConvert = matchParticipationObj.Forward.reduce((obj, item) => { return [...obj, { ...item, role: 0 }] }, [])
+        return [GoalKeeperConvert, ...DefenderConvert, ...MidfielderConvert, ...ForwardConvert].reduce((obj, item) => { return [...obj, { PlayerContractID: item.id, Role: item.role, MatchID: currentMatch.id, InLineups: (!isReverse) }] }, [])
+    }
+    const convertStaffList = (matchParticipationObj) => {
+        const HeadCoachConvert = { ...matchParticipationObj.HeadCoach, role: 0 }
+        const AssistantCoachConvert = matchParticipationObj.AssistantCoach.reduce((obj, item) => { return [...obj, { ...item, role: 1 }] }, [])
+        const MedicalTeamConvert = matchParticipationObj.MedicalTeam.reduce((obj, item) => { return [...obj, { ...item, role: 2 }] }, [])
+        return [HeadCoachConvert, ...AssistantCoachConvert, ...MedicalTeamConvert].reduce((obj, item) => { return [...obj, { StaffContractID: item.id, Role: item.role, MatchID: currentMatch.id }] }, [])
+    }
+    const convertRefereeList = (matchParticipationObj) => {
+        const HeadRefereeConvert = { ...matchParticipationObj.HeadReferee, role: 0 }
+        const AssistantRefereeConvert = matchParticipationObj.AssistantReferee.reduce((obj, item) => { return [...obj, { ...item, role: 1 }] }, [])
+        const MonitoringRefereeConvert = matchParticipationObj.MonitoringReferee.reduce((obj, item) => { return [...obj, { ...item, role: 2 }] }, [])
+        return [HeadRefereeConvert, ...AssistantRefereeConvert, ...MonitoringRefereeConvert].reduce((obj, item) => { return [...obj, { RefereeID: item.id, Role: item.role, MatchID: currentMatch.id }] }, [])
+    }
+    // const homeContract = [...convertPlayerLineUp(HomeLineUp, false), ...convertPlayerLineUp(HomeReverse, true)]
+    useEffect(() => {
+        const HomeReverseSelected = !_.isEmpty(HomeReverse) ? [HomeReverse.GoalKeeper, ...HomeReverse.Defender, ...HomeReverse.Midfielder, ...HomeReverse.Forward] : []
+        const HomeLineUpSelected = !_.isEmpty(HomeLineUp) ? [HomeLineUp.GoalKeeper, ...HomeLineUp.Defender, ...HomeLineUp.Midfielder, ...HomeLineUp.Forward] : []
+        setHomeSelected([...HomeReverseSelected, ...HomeLineUpSelected])
+    }, [matchParticipation])
+    const renderPlayer = (object) => {
+        return object ? Object.values(object).map((e) => {
+            return Array.isArray(e) ? (e.map((row, index) => {
+                return <TableRow
+                    key={row.id}
+                    sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                >
+                    <TableCell align="left" width={70}>
+                        {row.number}
+                    </TableCell>
+                    <TableCell align="left">{row?.player?.name}</TableCell>
+                    <TableCell align="left">{ }</TableCell>
+                </TableRow>
+            })) : (<TableRow
+                key={e?.id}
+                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+            >
+                <TableCell align="left" width={70}>
+                    {e?.number}
+                </TableCell>
+                <TableCell align="left">{e?.player?.name}</TableCell>
+                <TableCell align="left">{ }</TableCell>
+            </TableRow>)
+        }) : (<TableRow
+            sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+        >
+            <TableCell align="center" rowSpan={3}>
+                Not set
+            </TableCell>
+        </TableRow>)
+    }
+
+    const renderStaff = (object) => {
+        return object ? Object.entries(object).map(([key, value]) => {
+            return Array.isArray(value) ? (value.map((row, index) => {
+                return <TableRow
+                    key={row.id}
+                    sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                >
+                    <TableCell align="left" width={70}>
+                        {key}
+                    </TableCell>
+                    <TableCell align="left">{row?.staff?.name}</TableCell>
+                    <TableCell align="left">{ }</TableCell>
+                </TableRow>
+            })) : (<TableRow
+                key={value.id}
+                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+            >
+                <TableCell align="left" width={70}>
+                    {key}
+                </TableCell>
+                <TableCell align="left">{value?.staff?.name}</TableCell>
+                <TableCell align="left">1</TableCell>
+            </TableRow>)
+        }) : <></>
+    }
+    const checkPlayerList = () => {
+        if (!_.isNil(matchParticipation?.HomeLineUp) && !_.isNil(matchParticipation?.AwayLineUp) && !_.isNil(matchParticipation?.HomeReverse) && !_.isNil(matchParticipation?.AwayReverse)) {
+            return [...convertPlayerList(HomeLineUp, false), ...convertPlayerList(HomeReverse, true), ...convertPlayerList(AwayLineUp, false), ...convertPlayerList(AwayReverse, true)]
+        }
+        return []
+    }
+    const checkStaffList = () => {
+        if (!_.isNil(matchParticipation?.HomeStaff) && !_.isNil(matchParticipation?.AwayStaff)) {
+            return [...convertStaffList(HomeStaff), ...convertStaffList(AwayStaff)]
+        }
+        return []
+    }
+    const checkRefereeList = () => {
+        if (!_.isNil(matchParticipation?.Referee)) {
+            return [...convertRefereeList(Referee)]
+        }
+        return []
+    }
+    const renderReferee = (object) => {
+        return object ? Object.entries(object).map(([key, value]) => {
+            return Array.isArray(value) ? (value.map((row, index) => {
+                return <TableRow
+                    key={row.id}
+                    sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                >
+                    <TableCell align="left" width={70}>
+                        {key}
+                    </TableCell>
+                    <TableCell align="left">{row.name}</TableCell>
+                    <TableCell align="right">{ }</TableCell>
+                </TableRow>
+            })) : (<TableRow
+                key={value.id}
+                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+            >
+                <TableCell align="left" width={70}>
+                    {key}
+                </TableCell>
+                <TableCell align="left">{value.name}</TableCell>
+                <TableCell align="right">{ }</TableCell>
+            </TableRow>)
+        }) : <></>
+    }
+    const NewLineupSchema = Yup.object().shape({
+        StartDate: Yup.mixed().required('Start date is required'),
+        // StadiumID: Yup.number().required('Stadium is required'),
+        PlayerParticipation: Yup.array().required('PlayerParticipation is required'),
+        StaffParticipation: Yup.array().required('StaffParticipation is required'),
+        RefereeParticipation: Yup.array().required('RefereeParticipation is required').min(4, "min 4"),
+
+    });
+    const formik = useFormik({
+        enableReinitialize: true,
+        initialValues: {
+            id: currentMatch?.id || "",
+            StartDate: currentMatch?.startDate || null,
+            StadiumID: currentMatch?.stadiumID || null,
+            PlayerParticipation: checkPlayerList(),
+            StaffParticipation: checkStaffList(),
+            RefereeParticipation: checkRefereeList(),
+
+        },
+        validationSchema: NewLineupSchema,
+        onSubmit: async (values, { setSubmitting, resetForm, setErrors }) => {
+            try {
+                dispatch(addLineUpServer(values, (value) => setErrorState(value)))
+                console.log("check submit", values);
+                enqueueSnackbar(matchParticipation ? 'Create success' : 'Update success', { variant: 'success' });
+            } catch (error) {
+                console.error(error);
+                setSubmitting(false);
+                setErrors(error);
+            }
+        }
+    });
+    useEffect(() => {
+        if (!_.isEmpty(errorState)) {
+            if (!errorState.IsError) {
+                console.log('ko error');
+                formik.resetForm();
+                enqueueSnackbar('Update success', { variant: 'success' });
+            }
+            else {
+                enqueueSnackbar(errorState.message, { variant: 'success' });
+            }
+        }
+
+    }, [errorState])
+    const checkDisable = () => {
+        return _.isNil(values.PlayerParticipation) || _.isNil(values.StaffParticipation) || _.isNil(values.RefereeParticipation)
+    }
+    const { errors, values, touched, handleSubmit, isSubmitting, setFieldValue, getFieldProps } = formik;
+    return (
+        <FormikProvider value={formik}>
+            <Form noValidate autoComplete="off" onSubmit={handleSubmit}>
+                <Box sx={{ mb: 3, display: 'flex', justifyContent: 'flex-end' }}>
+                    <LoadingButton startIcon={<Icon icon={checkmarkFill} />} type="submit" variant="contained" loading={isSubmitting} loadingIndicator="Loading..." disabled={checkDisable}>
+                        Save changes
+                    </LoadingButton>
+                </Box>
+                <Grid container spacing={3}>
+                    <Grid item xs={12} md={6}>
+                        <Card sx={{ p: 2 }}>
+                            <Table size="small" aria-label="a dense table">
+                                <TableHead>
+                                    <TableRow>
+                                        <TableCell colSpan={2}>{homeClub?.name}</TableCell>
+                                        <TableCell align='right' ><MatchLineUpMoreMenu onLineup={handleAddHomeLineup} onReverse={handleAddHomeReverse} onStaff={handleAddHomeStaff} /></TableCell>
+
+                                    </TableRow>
+                                </TableHead>
+                                {matchParticipation?.HomeLineUp && (<>
+
+                                    <TableBody>
+                                        {renderPlayer(matchParticipation?.HomeLineUp)}
+                                    </TableBody>
+                                </>)}
+                                {matchParticipation?.HomeReverse && (<>
+                                    <TableHead>
+                                        <TableRow>
+                                            <TableCell colSpan={2} >Dự bị</TableCell>
+                                            <TableCell >{ }</TableCell>
+                                        </TableRow>
+                                    </TableHead>
+                                    <TableBody>
+                                        {renderPlayer(matchParticipation?.HomeReverse)}
+                                    </TableBody>
+                                </>)}
+                                {matchParticipation?.HomeStaff && (<>
+                                    <TableHead>
+                                        <TableRow>
+                                            <TableCell colSpan={2} >Staff</TableCell>
+                                            <TableCell >{ }</TableCell>
+                                        </TableRow>
+                                    </TableHead>
+                                    <TableBody>
+                                        {renderStaff(matchParticipation?.HomeStaff)}
+                                    </TableBody>
+                                </>)}
+                            </Table>
+                        </Card>
+                    </Grid>
+
+                    <Grid item xs={12} md={6}>
+                        <Card sx={{ p: 2 }}>
+                            <Table size="small" aria-label="a dense table">
+                                <TableHead>
+                                    <TableRow>
+                                        <TableCell colSpan={2}>{awayClub?.name}</TableCell>
+                                        <TableCell align='right' ><MatchLineUpMoreMenu onLineup={handleAddAwayLineup} onReverse={handleAddAwayReverse} onStaff={handleAddAwayStaff} /></TableCell>
+
+                                    </TableRow>
+                                </TableHead>
+                                {matchParticipation?.AwayLineUp && (<>
+                                    <TableBody>
+                                        {renderPlayer(matchParticipation?.AwayLineUp)}
+                                    </TableBody>
+                                </>)}
+                                {matchParticipation?.AwayReverse && (<>
+                                    <TableHead>
+                                        <TableRow>
+                                            <TableCell colSpan={2} >Dự bị</TableCell>
+                                            <TableCell >{ }</TableCell>
+                                        </TableRow>
+                                    </TableHead>
+                                    <TableBody>
+                                        {renderPlayer(matchParticipation?.AwayReverse)}
+                                    </TableBody>
+                                </>)}
+                                {matchParticipation?.AwayStaff && (<>
+                                    <TableHead>
+                                        <TableRow>
+                                            <TableCell colSpan={2} >Staff</TableCell>
+                                            <TableCell >{ }</TableCell>
+                                        </TableRow>
+                                    </TableHead>
+                                    <TableBody>
+                                        {renderStaff(matchParticipation?.AwayStaff)}
+                                    </TableBody>
+                                </>)}
+                            </Table>
+
+
+                        </Card>
+                    </Grid>
+                    <Grid item xs={12} md={6}>
+                        <Card sx={{ p: 2 }}>
+                            <Table size="small" aria-label="a dense table">
+                                <TableHead>
+                                    <TableRow>
+                                        <TableCell colSpan={2}>Referee</TableCell>
+                                        <TableCell align='right' ><MatchLineUpMoreMenu onReferee={handleAddReferee} /></TableCell>
+                                    </TableRow>
+                                </TableHead>
+                                <TableBody>
+                                    {renderReferee(matchParticipation?.Referee)}
+                                </TableBody>
+                            </Table>
+                        </Card>
+                    </Grid>
+                </Grid >
+
+                <DialogAnimate open={isOpenModal} onClose={handleCloseModal}>
+                    {component}
+                </DialogAnimate>
+            </Form>
+        </FormikProvider>
+    );
+
+}

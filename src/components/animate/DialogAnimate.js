@@ -14,13 +14,13 @@ DialogAnimate.propTypes = {
   children: PropTypes.node.isRequired
 };
 
-export default function DialogAnimate({ open = false, animate, onClose, children, ...other }) {
+export default function DialogAnimate({ open = false, animate, onClose, children, width, ...other }) {
   return (
     <AnimatePresence>
       {open && (
         <Dialog
           fullWidth
-          maxWidth="xs"
+          maxWidth={width || 'xs'}
           open={open}
           onClose={onClose}
           PaperComponent={motion.div}
