@@ -46,6 +46,7 @@ import { DialogAnimate } from 'src/components/animate';
 import { getTournamentDetail, getTournamentList } from 'src/redux/slices/tournament';
 import { getClubList } from 'src/redux/slices/club';
 import { format } from 'date-fns';
+import { getStadiumList } from 'src/redux/slices/stadium';
 
 // ----------------------------------------------------------------------
 
@@ -95,13 +96,15 @@ export default function MatchList({ roundSelected }) {
   const { matchList, isOpenModal } = useSelector((state) => state.match);
   const { roundList } = useSelector((state) => state.round);
   const { clubList } = useSelector((state) => state.club);
+  const { stadiumList } = useSelector((state) => state.stadium);
+
 
 
   const { tournamentDetail } = useSelector(state => state.tournament)
   const [page, setPage] = useState(0);
   const [order, setOrder] = useState('asc');
   const [selected, setSelected] = useState([]);
-  const [orderBy, setOrderBy] = useState('name');
+  const [orderBy, setOrderBy] = useState('startDate');
   const [filterName, setFilterName] = useState('');
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [currentMatch, setCurrentMatch] = useState({})
@@ -110,6 +113,8 @@ export default function MatchList({ roundSelected }) {
     // dispatch(getTournamentDetail(id))
     dispatch(getMatchList(tournamentDetail.id));
     dispatch(getClubList())
+    dispatch(getStadiumList())
+
   }, [dispatch]);
 
   useEffect(() => {
@@ -220,10 +225,12 @@ export default function MatchList({ roundSelected }) {
               />
               <TableBody>
                 {filteredMatchs.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
-                  const { id, homeClubID, awayClubID, startDate, roundID } = row;
+                  const { id, homeClubID, awayClubID, startDate, roundID, stadiumID } = row;
                   const homeClub = clubList.find(club => club.id === homeClubID)
                   const awayClub = clubList.find(club => club.id === awayClubID)
-                  const round = roundList.find(round => round.id === roundID)
+                  const round = roundList.find(round => round.id === roundID);
+                  const stadium = stadiumList.find(stadium => stadium.id === stadiumID);
+                  const rowEdit = { ...row, homeClub, awayClub, round, stadium }
                   // const isItemSelected = selected.indexOf(name) !== -1;
 
 
@@ -233,23 +240,18 @@ export default function MatchList({ roundSelected }) {
                       key={id}
                       tabIndex={-1}
                       role="checkbox"
-                    // selected={isItemSelected}
-                    // aria-checked={isItemSelected}
                     >
-                      {/* <TableCell padding="checkbox">
-                          <Checkbox checked={isItemSelected} onChange={(event) => handleClick(event, name)} />
-                        </TableCell> */}
                       <TableCell component="th" scope="row" padding="none">
                         <Stack direction="row" alignItems="center" spacing={2}>
                           <Typography variant="subtitle2" noWrap>
-                            {homeClub.name}
+                            {homeClub?.name}
                           </Typography>
-                          <Avatar alt={homeClub} src={homeClub.imageURL} />
+                          <Avatar alt={homeClub} src={homeClub?.imageURL} />
                         </Stack>
                       </TableCell>
                       <TableCell>
                         <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                          {round.name}
+                          {round?.name}
                         </Typography>
                         {new Date(startDate) > new Date() ?
                           <><Typography variant="subtitle2">{format(new Date(startDate), 'dd MMM yyyy')}</Typography>
@@ -261,9 +263,9 @@ export default function MatchList({ roundSelected }) {
                       </TableCell>
                       <TableCell component="th" scope="row" padding="none">
                         <Stack direction="row" alignItems="center" spacing={2}>
-                          <Avatar alt={awayClub} src={awayClub.imageURL} />
+                          <Avatar alt={awayClub} src={awayClub?.imageURL} />
                           <Typography variant="subtitle2" noWrap>
-                            {awayClub.name}
+                            {awayClub?.name}
                           </Typography>
                         </Stack>
                       </TableCell>
@@ -279,7 +281,7 @@ export default function MatchList({ roundSelected }) {
                         </TableCell> */}
 
                       <TableCell align="right">
-                        <MatchMoreMenu onDelete={() => handleDeleteMatch(id)} onEdit={() => { handleEditMatch(row) }} matchId={id} />
+                        <MatchMoreMenu onDelete={() => handleDeleteMatch(id)} onEdit={() => { handleEditMatch(rowEdit) }} matchId={id} />
                       </TableCell>
                     </TableRow>
                   );
@@ -319,7 +321,7 @@ export default function MatchList({ roundSelected }) {
         />
       </Card>
 
-      <DialogAnimate open={isOpenModal} onClose={handleCloseModal}>
+      <DialogAnimate {..._.isEmpty(currentMatch) ? {} : { width: 'xl' }} open={isOpenModal} onClose={handleCloseModal}>
         <DialogTitle>{_.isEmpty(currentMatch) ? 'New match' : 'Edit match'}</DialogTitle>
 
         <MatchNewForm onCancel={handleCloseModal} tournamentID={id} currentMatch={currentMatch} roundSelected={roundSelected} />

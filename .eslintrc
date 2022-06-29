@@ -61,6 +61,7 @@
     "import/no-unresolved":0,
     "import/order":0,
     "no-const-assign":0,
+    "no-lonely-if":0,
     "no-unused-vars": [
       0,
       {

@@ -15,19 +15,12 @@ import { getMatchDetail } from 'src/redux/slices/match';
 
 // ----------------------------------------------------------------------
 
-MatchMoreMenu.propTypes = {
-  onDelete: PropTypes.func,
-  userName: PropTypes.string
+MatchLineUpMoreMenu.propTypes = {
 };
 
-export default function MatchMoreMenu({ onDelete, onEdit, matchName, matchId }) {
+export default function MatchLineUpMoreMenu({ onReferee, onLineup, onReverse, onStaff }) {
   const ref = useRef(null);
   const [isOpen, setIsOpen] = useState(false);
-  const dispatch = useDispatch();
-  const { tournamentDetail } = useSelector(state => state.tournament)
-  // const handleEditMatch = () => {
-  //   dispatch(getMatchDetail(matchId))
-  // }
   return (
     <>
       <IconButton ref={ref} onClick={() => setIsOpen(true)}>
@@ -44,34 +37,40 @@ export default function MatchMoreMenu({ onDelete, onEdit, matchName, matchId }) 
         anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
         transformOrigin={{ vertical: 'top', horizontal: 'right' }}
       >
-        <MenuItem onClick={onDelete} sx={{ color: 'text.secondary' }}>
-          <ListItemIcon>
-            <Icon icon={trash2Outline} width={24} height={24} />
-          </ListItemIcon>
-          <ListItemText primary="Delete" primaryTypographyProps={{ variant: 'body2' }} />
-        </MenuItem>
-
-        <MenuItem
-          // component={RouterLink}
-          // to={`${PATH_DASHBOARD.match.root}/edit/${matchId}`}
-          onClick={onEdit}
+        {!onReferee ? ([
+          <MenuItem onClick={onLineup} sx={{ color: 'text.secondary' }}>
+            <ListItemIcon>
+              <Icon icon={trash2Outline} width={24} height={24} />
+            </ListItemIcon>
+            <ListItemText primary="Line up" primaryTypographyProps={{ variant: 'body2' }} />
+          </MenuItem>,
+          <MenuItem
+            onClick={onReverse}
+            sx={{ color: 'text.secondary' }}
+          >
+            <ListItemIcon>
+              <Icon icon={editFill} width={24} height={24} />
+            </ListItemIcon>
+            <ListItemText primary="Reverse" primaryTypographyProps={{ variant: 'body2' }} />
+          </MenuItem>,
+          <MenuItem
+            onClick={onStaff}
+            sx={{ color: 'text.secondary' }}
+          >
+            <ListItemIcon>
+              <Icon icon={editFill} width={24} height={24} />
+            </ListItemIcon>
+            <ListItemText primary="Staff" primaryTypographyProps={{ variant: 'body2' }} />
+          </MenuItem>
+        ]) : (<MenuItem
+          onClick={onReferee}
           sx={{ color: 'text.secondary' }}
         >
           <ListItemIcon>
             <Icon icon={editFill} width={24} height={24} />
           </ListItemIcon>
-          <ListItemText primary="Edit" primaryTypographyProps={{ variant: 'body2' }} />
-        </MenuItem>
-        <MenuItem
-          component={RouterLink}
-          to={`${PATH_DASHBOARD.tournament.root}/${tournamentDetail.id}/match/${matchId}`}
-          sx={{ color: 'text.secondary' }}
-        >
-          <ListItemIcon>
-            <Icon icon={editFill} width={24} height={24} />
-          </ListItemIcon>
-          <ListItemText primary="Detail" primaryTypographyProps={{ variant: 'body2' }} />
-        </MenuItem>
+          <ListItemText primary="Referee" primaryTypographyProps={{ variant: 'body2' }} />
+        </MenuItem>)}
       </Menu>
     </>
   );

@@ -125,14 +125,14 @@ export default function StaffContractNewForm({ isEdit, currentContract }) {
         <Grid container spacing={3}>
           <Grid item xs={12} md={4}>
             <Card sx={{ py: 10, px: 3 }}>
-              {/* {isEdit && (
+              {isEdit && (
                 <Label
                   color={values.status !== 'active' ? 'error' : 'success'}
                   sx={{ textTransform: 'uppercase', position: 'absolute', top: 24, right: 24 }}
                 >
                   {values.status}
                 </Label>
-              )} */}
+              )}
 
               <Box
                 display="flex"
