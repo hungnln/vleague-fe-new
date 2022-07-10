@@ -56,11 +56,6 @@ export default function UserProfile() {
   const [findFriends, setFindFriends] = useState('');
 
   useEffect(() => {
-    dispatch(getProfile());
-    dispatch(getPosts());
-    dispatch(getFollowers());
-    dispatch(getFriends());
-    dispatch(getGallery());
   }, [dispatch]);
 
   const handleChangeTab = (event, newValue) => {

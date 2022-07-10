@@ -23,6 +23,7 @@ import Page from '../../components/Page';
 import { DialogAnimate } from '../../components/animate';
 import HeaderBreadcrumbs from '../../components/HeaderBreadcrumbs';
 import { CalendarForm, CalendarStyle, CalendarToolbar } from '../../components/_dashboard/calendar';
+import { getMatchList } from 'src/redux/slices/match';
 
 // ----------------------------------------------------------------------
 
@@ -45,9 +46,10 @@ export default function Calendar() {
   const [view, setView] = useState(isMobile ? 'listWeek' : 'dayGridMonth');
   const selectedEvent = useSelector(selectedEventSelector);
   const { events, isOpenModal, selectedRange } = useSelector((state) => state.calendar);
-
+  const { matchList } = useSelector(state => state.match)
   useEffect(() => {
-    dispatch(getEvents());
+    // dispatch(getMatchList(10));
+    // dispatch(getEvents());
   }, [dispatch]);
 
   useEffect(() => {
@@ -133,7 +135,7 @@ export default function Calendar() {
           end: event.end
         })
       );
-      enqueueSnackbar('Update event success', {
+      enqueueSnackbar('Update 1 event success', {
         variant: 'success'
       });
     } catch (error) {
@@ -182,7 +184,7 @@ export default function Calendar() {
               editable
               droppable
               selectable
-              events={events}
+              events={matchList}
               ref={calendarRef}
               rerenderDelay={10}
               initialDate={date}

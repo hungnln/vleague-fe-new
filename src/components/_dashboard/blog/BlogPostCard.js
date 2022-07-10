@@ -11,7 +11,7 @@ import { Box, Card, Grid, Avatar, Typography, CardContent } from '@mui/material'
 // routes
 import { PATH_DASHBOARD } from '../../../routes/paths';
 // utils
-import { fDate } from '../../../utils/formatTime';
+import { fDate, fDateTime } from '../../../utils/formatTime';
 import { fShortenNumber } from '../../../utils/formatNumber';
 //
 import SvgIconStyle from '../../SvgIconStyle';
@@ -70,8 +70,8 @@ BlogPostCard.propTypes = {
 };
 
 export default function BlogPostCard({ post, index }) {
-  const { cover, title, view, comment, share, author, createdAt } = post;
-  const linkTo = `${PATH_DASHBOARD.blog.root}/post/${paramCase(title)}`;
+  const { id, thumbnailImageURL, title, view, comment, share, author, createdAt } = post;
+  const linkTo = `${PATH_DASHBOARD.blog.root}/post/${id}`;
   const latestPostLarge = index === 0;
   const latestPost = index === 1 || index === 2;
 
@@ -119,7 +119,7 @@ export default function BlogPostCard({ post, index }) {
           />
           <AvatarStyle
             alt={author.name}
-            src={author.avatarUrl}
+            src={author.imageURL}
             sx={{
               ...((latestPostLarge || latestPost) && {
                 zIndex: 9,
@@ -131,7 +131,7 @@ export default function BlogPostCard({ post, index }) {
             }}
           />
 
-          <CoverImgStyle alt={title} src={cover} />
+          <CoverImgStyle alt={title} src={thumbnailImageURL} />
         </CardMediaStyle>
 
         <CardContent
@@ -145,7 +145,7 @@ export default function BlogPostCard({ post, index }) {
           }}
         >
           <Typography gutterBottom variant="caption" sx={{ color: 'text.disabled', display: 'block' }}>
-            {fDate(createdAt)}
+            {fDateTime(createdAt)}
           </Typography>
 
           <TitleStyle
@@ -160,7 +160,7 @@ export default function BlogPostCard({ post, index }) {
             {title}
           </TitleStyle>
 
-          <InfoStyle>
+          {/* <InfoStyle>
             {POST_INFO.map((info, index) => (
               <Box
                 key={index}
@@ -177,7 +177,7 @@ export default function BlogPostCard({ post, index }) {
                 <Typography variant="caption">{fShortenNumber(info.number)}</Typography>
               </Box>
             ))}
-          </InfoStyle>
+          </InfoStyle> */}
         </CardContent>
       </Card>
     </Grid>

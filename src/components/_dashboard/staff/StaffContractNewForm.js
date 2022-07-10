@@ -7,17 +7,12 @@ import { Form, FormikProvider, useFormik } from 'formik';
 // material
 import { DatePicker, LoadingButton } from '@mui/lab';
 import { Box, Card, Grid, Stack, Switch, TextField, Typography, FormHelperText, FormControlLabel, Avatar, TextareaAutosize, Autocomplete, Alert } from '@mui/material';
-// utils
-import { getBase64FromUrl, getBase64Image, toBase64 } from 'src/utils/base64/base64';
-import { fData } from '../../../utils/formatNumber';
-import fakeRequest from '../../../utils/fakeRequest';
+
 // routes
 import { PATH_DASHBOARD } from '../../../routes/paths';
 //
 import Label from '../../Label';
-import { UploadAvatar } from '../../upload';
-import countries from './countries';
-import { createContract, createStaff, editContract, editStaff, getStaffList } from 'src/redux/slices/staff';
+import { createContract, editContract, getStaffList } from 'src/redux/slices/staff';
 import { useDispatch, useSelector } from 'src/redux/store';
 import _ from 'lodash';
 import Badge from '@mui/material/Badge';
@@ -32,7 +27,6 @@ StaffContractNewForm.propTypes = {
 };
 
 export default function StaffContractNewForm({ isEdit, currentContract }) {
-  // let base64 = ''
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
@@ -40,7 +34,6 @@ export default function StaffContractNewForm({ isEdit, currentContract }) {
   const [staff] = useState(currentContract.staff)
   const { staffList, error } = useSelector((state) => state.staff);
   const [errorState, setErrorState] = useState()
-  // const [submit, setSubmit] = useState(false)
   const NewStaffSchema = Yup.object().shape({
     Club: Yup.mixed().required('Club is required'),
     Staff: Yup.mixed().required('Staff is required'),
@@ -48,12 +41,10 @@ export default function StaffContractNewForm({ isEdit, currentContract }) {
     Start: Yup.mixed().required('Start date is required'),
     End: Yup.mixed().required('End date is required'),
     Description: Yup.mixed().required('Description is required')
-
   });
   useEffect(() => {
     dispatch(getClubList())
     dispatch(getStaffList())
-
   }, [dispatch])
   const formik = useFormik({
     enableReinitialize: true,
@@ -65,8 +56,6 @@ export default function StaffContractNewForm({ isEdit, currentContract }) {
       Description: currentContract?.description || '',
       Staff: currentContract?.staff || null,
       Club: currentContract?.club || null
-
-
     },
     validationSchema: NewStaffSchema,
     onSubmit: async (values, { setSubmitting, resetForm, setErrors }) => {
@@ -78,7 +67,7 @@ export default function StaffContractNewForm({ isEdit, currentContract }) {
             End: values.End,
             Description: values.Description
           }
-          dispatch(editContract(values.id, data,(value) => { setErrorState(value); console.log(value, 'check state value')}))
+          dispatch(editContract(values.id, data, (value) => { setErrorState(value) }))
         } else {
           data = {
             StaffID: values.Staff.id,
@@ -88,9 +77,9 @@ export default function StaffContractNewForm({ isEdit, currentContract }) {
             End: values.End,
             Description: values.Description
           }
-          dispatch(createContract(data, (value) => { setErrorState(value); console.log(value, 'check state value') }))
+          dispatch(createContract(data, (value) => { setErrorState(value) }))
         }
-       
+
       } catch (error) {
         console.error(error);
         setSubmitting(false);
@@ -100,15 +89,10 @@ export default function StaffContractNewForm({ isEdit, currentContract }) {
   });
   useEffect(() => {
     if (!_.isEmpty(errorState)) {
-      console.log('check state', errorState);
-
       if (!errorState.IsError) {
-        console.log('ko error');
         formik.resetForm();
         enqueueSnackbar(!isEdit ? 'Create success' : 'Update success', { variant: 'success' });
         navigate(PATH_DASHBOARD.staff.contract);
-      } else {
-        console.log('bị error');
       }
     }
 
@@ -156,11 +140,12 @@ export default function StaffContractNewForm({ isEdit, currentContract }) {
               <Stack spacing={3}>
                 <Stack direction={{ xs: 'column', md: 'row' }} spacing={3}>
                   <Autocomplete
-                    // isOptionEqualToValue={(option, value) => option.name === value.name}
+                    isOptionEqualToValue={(option, value) => option.id === value.id}
                     fullWidth
                     options={staffList}
+                    value={values.Staff}
+                    disabled={isEdit}
                     autoHighlight
-                    {...isEdit ? { value: formik.values.Staff, disabled: 'true' } : {}}
                     getOptionLabel={(option) => option.name}
                     onChange={(event, newValue) => {
                       setFieldValue('Staff', newValue);
@@ -185,10 +170,12 @@ export default function StaffContractNewForm({ isEdit, currentContract }) {
                     )}
                   />
                   <Autocomplete
+                    isOptionEqualToValue={(option, value) => option.id === value.id}
                     fullWidth
                     options={clubList}
                     autoHighlight
-                    {...isEdit ? { value: formik.values.Club, disabled: 'true' } : {}}
+                    value={values.Club}
+                    disabled={isEdit}
                     getOptionLabel={(option) => option.name}
                     onChange={(event, newValue) => {
                       setFieldValue('Club', newValue);
@@ -217,7 +204,8 @@ export default function StaffContractNewForm({ isEdit, currentContract }) {
                 <Stack direction={{ xs: 'column', md: 'row' }} spacing={3}>
                   <Stack direction={{ xs: 'row' }} spacing={3}>
                     <DatePicker
-                      {...isEdit ? { disabled: 'true' } : {}}
+                      inputFormat='dd/MM/yyyy'
+                      disabled={isEdit}
                       label="Start"
                       openTo="year"
                       views={['year', 'month', 'day']}
@@ -229,6 +217,7 @@ export default function StaffContractNewForm({ isEdit, currentContract }) {
                         helperText={touched.Start && errors.Start} />}
                     />
                     <DatePicker
+                      inputFormat='dd/MM/yyyy'
                       disablePast
                       label="End"
                       openTo="year"
@@ -263,15 +252,12 @@ export default function StaffContractNewForm({ isEdit, currentContract }) {
                     helperText={touched.Description && errors.Description}
                   />
                 </Stack>
-                {/* <Stack direction={{ xs: 'column', sm: 'row' }} spacing={{ xs: 3, sm: 2 }}>
-
-                </Stack> */}
+                {errorState?.IsError ? <Alert severity="warning">{errorState.Message}</Alert> : ''}
                 <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
                   <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
                     {!isEdit ? 'Create Contract' : 'Save Changes'}
                   </LoadingButton>
                 </Box>
-                {error?.IsError ? <Alert severity="warning">{error.Message}</Alert> : ''}
               </Stack>
             </Card>
           </Grid>

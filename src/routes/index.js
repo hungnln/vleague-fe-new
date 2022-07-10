@@ -10,25 +10,6 @@ import AuthGuard from '../guards/AuthGuard';
 // import RoleBasedGuard from '../guards/RoleBasedGuard';
 // components
 import LoadingScreen from '../components/LoadingScreen';
-import PlayerList from 'src/pages/dashboard/Player/PlayerList';
-import PlayerCreate from '../pages/dashboard/Player/PlayerCreate';
-import StaffList from 'src/pages/dashboard/Staff/StaffList';
-import StaffCreate from 'src/pages/dashboard/Staff/StaffCreate';
-// import ClubList from 'src/pages/dashboard/CLub/ClubList';
-// import ClubCreate from 'src/pages/dashboard/CLub/ClubCreate';
-import StadiumCreate from 'src/pages/dashboard/Stadium/StadiumCreate';
-import StadiumList from 'src/pages/dashboard/Stadium/StadiumList';
-import StaffConTract from 'src/pages/dashboard/Staff/StaffContract';
-import StaffContractCreate from 'src/pages/dashboard/Staff/StaffContractCreate';
-import RefereeList from 'src/pages/dashboard/Referee/RefereeList';
-import RefereeCreate from 'src/pages/dashboard/Referee/RefereeCreate';
-import PlayerContractCreate from 'src/pages/dashboard/Player/PlayerContractCreate';
-// import ClubConTract from 'src/pages/dashboard/CLub/ClubContract';
-import PlayerConTract from 'src/pages/dashboard/Player/PlayerContract';
-import ClubContractPlayerCreate from 'src/pages/dashboard/CLub/ClubContractPlayerCreate';
-import ClubContractStaffCreate from 'src/pages/dashboard/CLub/ClubContractStaffCreate';
-import RoundList from 'src/pages/dashboard/Round/RoundList';
-import MatchDetail from 'src/pages/dashboard/Match/MatchDetail';
 
 // ----------------------------------------------------------------------
 
@@ -79,10 +60,10 @@ export default function Router() {
             </GuestGuard>
           )
         },
-        { path: 'login-unprotected', element: <Login /> },
-        { path: 'register-unprotected', element: <Register /> },
-        { path: 'reset-password', element: <ResetPassword /> },
-        { path: 'verify', element: <VerifyCode /> }
+        // { path: 'login-unprotected', element: <Login /> },
+        // { path: 'register-unprotected', element: <Register /> },
+        // { path: 'reset-password', element: <ResetPassword /> },
+        // { path: 'verify', element: <VerifyCode /> }
       ]
     },
 
@@ -97,33 +78,33 @@ export default function Router() {
       children: [
         { element: <Navigate to="/dashboard/app" replace /> },
         { path: 'app', element: <GeneralApp /> },
-        { path: 'ecommerce', element: <GeneralEcommerce /> },
-        { path: 'analytics', element: <GeneralAnalytics /> },
-        { path: 'banking', element: <GeneralBanking /> },
-        { path: 'booking', element: <GeneralBooking /> },
+        // { path: 'ecommerce', element: <GeneralEcommerce /> },
+        // { path: 'analytics', element: <GeneralAnalytics /> },
+        // { path: 'banking', element: <GeneralBanking /> },
+        // { path: 'booking', element: <GeneralBooking /> },
 
-        {
-          path: 'e-commerce',
-          children: [
-            { element: <Navigate to="/dashboard/e-commerce/shop" replace /> },
-            { path: 'shop', element: <EcommerceShop /> },
-            { path: 'product/:name', element: <EcommerceProductDetails /> },
-            { path: 'list', element: <EcommerceProductList /> },
-            { path: 'product/new', element: <EcommerceProductCreate /> },
-            { path: 'product/:name/edit', element: <EcommerceProductCreate /> },
-            { path: 'checkout', element: <EcommerceCheckout /> },
-            { path: 'invoice', element: <EcommerceInvoice /> }
-          ]
-        },
+        // {
+        //   path: 'e-commerce',
+        //   children: [
+        //     { element: <Navigate to="/dashboard/e-commerce/shop" replace /> },
+        //     { path: 'shop', element: <EcommerceShop /> },
+        //     { path: 'product/:name', element: <EcommerceProductDetails /> },
+        //     { path: 'list', element: <EcommerceProductList /> },
+        //     { path: 'product/new', element: <EcommerceProductCreate /> },
+        //     { path: 'product/:name/edit', element: <EcommerceProductCreate /> },
+        //     { path: 'checkout', element: <EcommerceCheckout /> },
+        //     { path: 'invoice', element: <EcommerceInvoice /> }
+        //   ]
+        // },
         {
           path: 'user',
           children: [
-            { element: <Navigate to="/dashboard/user/profile" replace /> },
+            { element: <Navigate to="/dashboard/user/list" replace /> },
             { path: 'profile', element: <UserProfile /> },
             { path: 'cards', element: <UserCards /> },
             { path: 'list', element: <UserList /> },
             { path: 'new', element: <UserCreate /> },
-            { path: ':name/edit', element: <UserCreate /> },
+            { path: 'edit/:id', element: <UserCreate /> },
             { path: 'account', element: <UserAccount /> }
           ]
         },
@@ -131,12 +112,9 @@ export default function Router() {
           path: 'player',
           children: [
             { element: <Navigate to="/dashboard/player/list" replace /> },
-            { path: 'profile', element: <UserProfile /> },
-            { path: 'cards', element: <UserCards /> },
             { path: 'list', element: <PlayerList /> },
             { path: 'new', element: <PlayerCreate /> },
             { path: 'edit/:id', element: <PlayerCreate /> },
-            { path: 'account', element: <UserAccount /> },
             { path: 'contract', element: <PlayerConTract /> },
             { path: 'contract/:id', element: <PlayerConTract /> },
             { path: 'contract/new', element: <PlayerContractCreate /> },
@@ -147,24 +125,18 @@ export default function Router() {
           path: 'referee',
           children: [
             { element: <Navigate to="/dashboard/referee/list" replace /> },
-            { path: 'profile', element: <UserProfile /> },
-            { path: 'cards', element: <UserCards /> },
             { path: 'list', element: <RefereeList /> },
             { path: 'new', element: <RefereeCreate /> },
             { path: 'edit/:id', element: <RefereeCreate /> },
-            { path: 'account', element: <UserAccount /> }
           ]
         },
         {
           path: 'staff',
           children: [
             { element: <Navigate to="/dashboard/staff/list" replace /> },
-            { path: 'profile', element: <UserProfile /> },
-            { path: 'cards', element: <UserCards /> },
             { path: 'list', element: <StaffList /> },
             { path: 'new', element: <StaffCreate /> },
             { path: 'edit/:id', element: <StaffCreate /> },
-            { path: 'account', element: <UserAccount /> },
             { path: 'contract', element: <StaffConTract /> },
             { path: 'contract/:id', element: <StaffConTract /> },
             { path: 'contract/new', element: <StaffContractCreate /> },
@@ -176,44 +148,32 @@ export default function Router() {
           path: 'club',
           children: [
             { element: <Navigate to="/dashboard/club/list" replace /> },
-            { path: 'profile', element: <UserProfile /> },
-            { path: 'cards', element: <UserCards /> },
             { path: 'list', element: <ClubList /> },
             { path: 'new', element: <ClubCreate /> },
             { path: 'edit/:id', element: <ClubCreate /> },
-            { path: 'account', element: <UserAccount /> },
             { path: 'contract/:id', element: <ClubConTract /> },
             { path: 'contract/:clubId/player/new', element: <ClubContractPlayerCreate /> },
             { path: 'contract/:clubId/player/edit/:id', element: <ClubContractPlayerCreate /> },
             { path: 'contract/:clubId/staff/new', element: <ClubContractStaffCreate /> },
             { path: 'contract/:clubId/staff/edit/:id', element: <ClubContractStaffCreate /> },
-
-
-
           ]
         },
         {
           path: 'stadium',
           children: [
             { element: <Navigate to="/dashboard/stadium/list" replace /> },
-            { path: 'profile', element: <UserProfile /> },
-            { path: 'cards', element: <UserCards /> },
             { path: 'list', element: <StadiumList /> },
             { path: 'new', element: <StadiumCreate /> },
             { path: 'edit/:id', element: <StadiumCreate /> },
-            { path: 'account', element: <UserAccount /> }
           ]
         },
         {
           path: 'tournament',
           children: [
             { element: <Navigate to="/dashboard/tournament/list" replace /> },
-            { path: 'profile', element: <UserProfile /> },
-            { path: 'cards', element: <UserCards /> },
             { path: 'list', element: <TournamentList /> },
             { path: 'new', element: <TournamentCreate /> },
             { path: 'edit/:id', element: <TournamentCreate /> },
-            { path: 'account', element: <UserAccount /> },
             { path: ':id/round', element: <RoundList /> },
             { path: ':id/match/:matchId', element: <MatchDetail /> }
           ]
@@ -223,8 +183,10 @@ export default function Router() {
           children: [
             { element: <Navigate to="/dashboard/blog/posts" replace /> },
             { path: 'posts', element: <BlogPosts /> },
-            { path: 'post/:title', element: <BlogPost /> },
-            { path: 'new-post', element: <BlogNewPost /> }
+            { path: 'post/:id', element: <BlogPost /> },
+            { path: 'new-post', element: <BlogNewPost /> },
+            { path: 'edit/:id', element: <BlogNewPost /> },
+
           ]
         },
         {
@@ -266,67 +228,70 @@ export default function Router() {
     },
     {
       path: '/',
-      element: <MainLayout />,
+      element: <AuthGuard>
+        <DashboardLayout />
+      </AuthGuard>,
       children: [
-        { element: <LandingPage /> },
-        { path: 'about-us', element: <About /> },
-        { path: 'contact-us', element: <Contact /> },
-        { path: 'faqs', element: <Faqs /> },
-        {
-          path: 'components',
-          children: [
-            { element: <ComponentsOverview /> },
-            // FOUNDATIONS
-            { path: 'color', element: <Color /> },
-            { path: 'typography', element: <Typography /> },
-            { path: 'shadows', element: <Shadows /> },
-            { path: 'grid', element: <Grid /> },
-            { path: 'icons', element: <Icons /> },
-            // MATERIAL UI
-            { path: 'accordion', element: <Accordion /> },
-            { path: 'alert', element: <Alert /> },
-            { path: 'autocomplete', element: <Autocomplete /> },
-            { path: 'avatar', element: <Avatar /> },
-            { path: 'badge', element: <Badge /> },
-            { path: 'breadcrumbs', element: <Breadcrumb /> },
-            { path: 'buttons', element: <Buttons /> },
-            { path: 'checkbox', element: <Checkbox /> },
-            { path: 'chip', element: <Chip /> },
-            { path: 'dialog', element: <Dialog /> },
-            { path: 'label', element: <Label /> },
-            { path: 'list', element: <List /> },
-            { path: 'menu', element: <Menu /> },
-            { path: 'pagination', element: <Pagination /> },
-            { path: 'pickers', element: <Pickers /> },
-            { path: 'popover', element: <Popover /> },
-            { path: 'progress', element: <Progress /> },
-            { path: 'radio-button', element: <RadioButtons /> },
-            { path: 'rating', element: <Rating /> },
-            { path: 'slider', element: <Slider /> },
-            { path: 'snackbar', element: <Snackbar /> },
-            { path: 'stepper', element: <Stepper /> },
-            { path: 'switch', element: <Switches /> },
-            { path: 'table', element: <Table /> },
-            { path: 'tabs', element: <Tabs /> },
-            { path: 'textfield', element: <Textfield /> },
-            { path: 'timeline', element: <Timeline /> },
-            { path: 'tooltip', element: <Tooltip /> },
-            { path: 'transfer-list', element: <TransferList /> },
-            { path: 'tree-view', element: <TreeView /> },
-            { path: 'data-grid', element: <DataGrid /> },
-            // EXTRA COMPONENTS
-            { path: 'chart', element: <Charts /> },
-            { path: 'map', element: <Map /> },
-            { path: 'editor', element: <Editor /> },
-            { path: 'copy-to-clipboard', element: <CopyToClipboard /> },
-            { path: 'upload', element: <Upload /> },
-            { path: 'carousel', element: <Carousel /> },
-            { path: 'multi-language', element: <MultiLanguage /> },
-            { path: 'animate', element: <Animate /> },
-            { path: 'mega-menu', element: <MegaMenu /> },
-            { path: 'form-validation', element: <FormValidation /> }
-          ]
-        }
+        { element: <Navigate to="/dashboard/app" replace /> },
+        //   { element: <LandingPage /> },
+        //   { path: 'about-us', element: <About /> },
+        //   { path: 'contact-us', element: <Contact /> },
+        //   { path: 'faqs', element: <Faqs /> },
+        //   {
+        //     path: 'components',
+        //     children: [
+        //       { element: <ComponentsOverview /> },
+        //       // FOUNDATIONS
+        //       { path: 'color', element: <Color /> },
+        //       { path: 'typography', element: <Typography /> },
+        //       { path: 'shadows', element: <Shadows /> },
+        //       { path: 'grid', element: <Grid /> },
+        //       { path: 'icons', element: <Icons /> },
+        //       // MATERIAL UI
+        //       { path: 'accordion', element: <Accordion /> },
+        //       { path: 'alert', element: <Alert /> },
+        //       { path: 'autocomplete', element: <Autocomplete /> },
+        //       { path: 'avatar', element: <Avatar /> },
+        //       { path: 'badge', element: <Badge /> },
+        //       { path: 'breadcrumbs', element: <Breadcrumb /> },
+        //       { path: 'buttons', element: <Buttons /> },
+        //       { path: 'checkbox', element: <Checkbox /> },
+        //       { path: 'chip', element: <Chip /> },
+        //       { path: 'dialog', element: <Dialog /> },
+        //       { path: 'label', element: <Label /> },
+        //       { path: 'list', element: <List /> },
+        //       { path: 'menu', element: <Menu /> },
+        //       { path: 'pagination', element: <Pagination /> },
+        //       { path: 'pickers', element: <Pickers /> },
+        //       { path: 'popover', element: <Popover /> },
+        //       { path: 'progress', element: <Progress /> },
+        //       { path: 'radio-button', element: <RadioButtons /> },
+        //       { path: 'rating', element: <Rating /> },
+        //       { path: 'slider', element: <Slider /> },
+        //       { path: 'snackbar', element: <Snackbar /> },
+        //       { path: 'stepper', element: <Stepper /> },
+        //       { path: 'switch', element: <Switches /> },
+        //       { path: 'table', element: <Table /> },
+        //       { path: 'tabs', element: <Tabs /> },
+        //       { path: 'textfield', element: <Textfield /> },
+        //       { path: 'timeline', element: <Timeline /> },
+        //       { path: 'tooltip', element: <Tooltip /> },
+        //       { path: 'transfer-list', element: <TransferList /> },
+        //       { path: 'tree-view', element: <TreeView /> },
+        //       { path: 'data-grid', element: <DataGrid /> },
+        //       // EXTRA COMPONENTS
+        //       { path: 'chart', element: <Charts /> },
+        //       { path: 'map', element: <Map /> },
+        //       { path: 'editor', element: <Editor /> },
+        //       { path: 'copy-to-clipboard', element: <CopyToClipboard /> },
+        //       { path: 'upload', element: <Upload /> },
+        //       { path: 'carousel', element: <Carousel /> },
+        //       { path: 'multi-language', element: <MultiLanguage /> },
+        //       { path: 'animate', element: <Animate /> },
+        //       { path: 'mega-menu', element: <MegaMenu /> },
+        //       { path: 'form-validation', element: <FormValidation /> }
+        //     ]
+        //   }
       ]
     },
     { path: '*', element: <Navigate to="/404" replace /> }
@@ -364,14 +329,42 @@ const Chat = Loadable(lazy(() => import('../pages/dashboard/Chat')));
 const Mail = Loadable(lazy(() => import('../pages/dashboard/Mail')));
 const Calendar = Loadable(lazy(() => import('../pages/dashboard/Calendar')));
 const Kanban = Loadable(lazy(() => import('../pages/dashboard/Kanban')));
+
+
+// Tournament
+const TournamentCreate = Loadable(lazy(() => import('../pages/dashboard/Tournament/TournamentCreate')));
+const TournamentList = Loadable(lazy(() => import('../pages/dashboard/Tournament/TournamentList')));
+const RoundList = Loadable(lazy(() => import('../pages/dashboard/Round/RoundList')));
+const MatchDetail = Loadable(lazy(() => import('../pages/dashboard/Match/MatchDetail')));
+
+// Stadium
+const StadiumList = Loadable(lazy(() => import('../pages/dashboard/Stadium/StadiumList')));
+const StadiumCreate = Loadable(lazy(() => import('../pages/dashboard/Stadium/StadiumCreate')));
+
+// Club
 const ClubList = Loadable(lazy(() => import('../pages/dashboard/CLub/ClubList')));
 const ClubConTract = Loadable(lazy(() => import('../pages/dashboard/CLub/ClubContract')));
 const ClubCreate = Loadable(lazy(() => import('../pages/dashboard/CLub/ClubCreate')));
+const ClubContractPlayerCreate = Loadable(lazy(() => import('../pages/dashboard/CLub/ClubContractPlayerCreate')));
+const ClubContractStaffCreate = Loadable(lazy(() => import('../pages/dashboard/CLub/ClubContractStaffCreate')));
+
+// Staff
+const StaffList = Loadable(lazy(() => import('../pages/dashboard/Staff/StaffList')));
+const StaffCreate = Loadable(lazy(() => import('../pages/dashboard/Staff/StaffCreate')));
+const StaffConTract = Loadable(lazy(() => import('../pages/dashboard/Staff/StaffContract')));
+const StaffContractCreate = Loadable(lazy(() => import('../pages/dashboard/Staff/StaffContractCreate')));
+
+// referee
+const RefereeList = Loadable(lazy(() => import('../pages/dashboard/Referee/RefereeList')));
+const RefereeCreate = Loadable(lazy(() => import('../pages/dashboard/Referee/RefereeCreate')));
 
 
-const TournamentCreate = Loadable(lazy(() => import('../pages/dashboard/Tournament/TournamentCreate')));
-const TournamentList = Loadable(lazy(() => import('../pages/dashboard/Tournament/TournamentList')));
-// const TournamentCreate = Loadable(lazy(() => import('../pages/dashboard/Tournament/TournamentCreate')));
+// Player
+const PlayerList = Loadable(lazy(() => import('../pages/dashboard/Player/PlayerList')));
+const PlayerCreate = Loadable(lazy(() => import('../pages/dashboard/Player/PlayerCreate')));
+const PlayerConTract = Loadable(lazy(() => import('../pages/dashboard/Player/PlayerContract')));
+const PlayerContractCreate = Loadable(lazy(() => import('../pages/dashboard/Player/PlayerContractCreate')));
+
 
 
 

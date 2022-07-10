@@ -83,11 +83,6 @@ export default function TournamentListToolbar({ numSelected, filterName, onFilte
 
             renderInput={(params) => <TextField {...params} error={false} />}
           />
-          <TextField
-            width={50}
-            label="Salary"
-            value={end}
-          />
         </Stack>
       )}
 

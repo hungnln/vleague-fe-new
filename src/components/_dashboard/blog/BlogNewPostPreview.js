@@ -15,12 +15,12 @@ import EmptyContent from '../../EmptyContent';
 const HeroStyle = styled('div')(({ theme }) => ({
   paddingTop: '56%',
   position: 'relative',
-  backgroundSize: 'cover',
+  backgroundSize: 'ThumbnailImageURL',
   backgroundPosition: 'center',
   backgroundRepeat: 'no-repeat',
   '&:before': {
     top: 0,
-    content: "''",
+    Content: "''",
     width: '100%',
     height: '100%',
     position: 'absolute',
@@ -31,13 +31,13 @@ const HeroStyle = styled('div')(({ theme }) => ({
 // ----------------------------------------------------------------------
 
 PreviewHero.propTypes = {
-  title: PropTypes.string,
-  cover: PropTypes.string
+  Title: PropTypes.string,
+  ThumbnailImageURL: PropTypes.string
 };
 
-function PreviewHero({ title, cover }) {
+function PreviewHero({ Title, ThumbnailImageURL }) {
   return (
-    <HeroStyle sx={{ backgroundImage: `url(${cover})` }}>
+    <HeroStyle sx={{ backgroundImage: `url(${ThumbnailImageURL})` }}>
       <Container
         sx={{
           top: 0,
@@ -50,7 +50,7 @@ function PreviewHero({ title, cover }) {
         }}
       >
         <Typography variant="h2" component="h1">
-          {title}
+          {Title}
         </Typography>
       </Container>
     </HeroStyle>
@@ -65,15 +65,15 @@ BlogNewPostPreview.propTypes = {
 
 export default function BlogNewPostPreview({ formik, openPreview, onClosePreview }) {
   const { values, handleSubmit, isSubmitting, isValid } = formik;
-  const { title, description, content } = values;
-  const cover = isString(values.cover) ? values.cover : values.cover?.preview;
-  const hasContent = title || description || content || cover;
-  const hasHero = title || cover;
+  const { Title, description, Content } = values;
+  const ThumbnailImageURL = isString(values.ThumbnailImageURL) ? values.ThumbnailImageURL : values.ThumbnailImageURL?.preview;
+  const hasContent = Title || description || Content || ThumbnailImageURL;
+  const hasHero = Title || ThumbnailImageURL;
 
   return (
     <DialogAnimate fullScreen open={openPreview} onClose={onClosePreview}>
       <DialogActions sx={{ py: 2, px: 3 }}>
-        <Typography variant="subtitle1" sx={{ flexGrow: 1 }}>
+        <Typography variant="subTitle1" sx={{ flexGrow: 1 }}>
           Preview Post
         </Typography>
         <Button onClick={onClosePreview}>Cancel</Button>
@@ -90,18 +90,18 @@ export default function BlogNewPostPreview({ formik, openPreview, onClosePreview
 
       {hasContent ? (
         <Scrollbar>
-          {hasHero && <PreviewHero title={title} cover={cover} />}
+          {hasHero && <PreviewHero Title={Title} ThumbnailImageURL={ThumbnailImageURL} />}
           <Container>
             <Box sx={{ mt: 5, mb: 10 }}>
               <Typography variant="h6" sx={{ mb: 5 }}>
                 {description}
               </Typography>
-              <Markdown children={content} />
+              <Markdown children={Content} />
             </Box>
           </Container>
         </Scrollbar>
       ) : (
-        <EmptyContent title="Empty content" />
+        <EmptyContent Title="Empty Content" />
       )}
     </DialogAnimate>
   );

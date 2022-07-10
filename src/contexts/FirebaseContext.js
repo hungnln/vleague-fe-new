@@ -61,7 +61,7 @@ function AuthProvider({ children }) {
       firebase.auth().onAuthStateChanged((user) => {
         if (user) {
           // const docRef = firebase.firestore().collection('users').doc(user.uid);
-          user.getIdToken().then((idToken) => localStorage.setItem('accessToken', idToken))
+          user.getIdToken().then((idToken) => { localStorage.setItem('accessToken', idToken); console.log(idToken, "firebase token"); })
           dispatchUser(loginToServer())
           // docRef
           //   .get()
@@ -121,7 +121,7 @@ function AuthProvider({ children }) {
           });
       });
 
- const logout = async () => {
+  const logout = async () => {
     await firebase.auth().signOut();
   };
 

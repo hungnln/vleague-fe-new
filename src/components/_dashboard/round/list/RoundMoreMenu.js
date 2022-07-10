@@ -20,13 +20,10 @@ RoundMoreMenu.propTypes = {
   userName: PropTypes.string
 };
 
-export default function RoundMoreMenu({ onDelete,onEdit, roundName, roundId }) {
+export default function RoundMoreMenu({ onDelete, onEdit }) {
   const ref = useRef(null);
   const [isOpen, setIsOpen] = useState(false);
   const dispatch = useDispatch()
-  // const handleEditRound = () => {
-  //   dispatch(getRoundDetail(roundId))
-  // }
   return (
     <>
       <IconButton ref={ref} onClick={() => setIsOpen(true)}>
@@ -43,7 +40,7 @@ export default function RoundMoreMenu({ onDelete,onEdit, roundName, roundId }) {
         anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
         transformOrigin={{ vertical: 'top', horizontal: 'right' }}
       >
-        <MenuItem onClick={onDelete} sx={{ color: 'text.secondary' }}>
+        <MenuItem onClick={onDelete} sx={{ color: 'error.main' }}>
           <ListItemIcon>
             <Icon icon={trash2Outline} width={24} height={24} />
           </ListItemIcon>

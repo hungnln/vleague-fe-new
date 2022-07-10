@@ -21,7 +21,10 @@ import {
   TableContainer,
   TablePagination,
   DialogTitle,
-  Grid
+  Grid,
+  LinearProgress,
+  Box,
+  CircularProgress
 } from '@mui/material';
 // redux
 import { useDispatch, useSelector } from '../../../redux/store';
@@ -167,12 +170,14 @@ export default function RoundList() {
 
   const filteredRounds = applySortFilter(roundList, getComparator(order, orderBy), filterName);
 
-  const isRoundNotFound = filteredRounds.length === 0;
+  const isRoundNotFound = filteredRounds.length === 0 && roundList.length > 0;
 
   return (
     <Page title="Round: List | V League">
       <Container maxWidth={themeStretch ? false : 'lg'}>
-        <HeaderBreadcrumbs
+        {_.isEmpty(tournamentDetail) ? (<Box >
+          <CircularProgress sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }} />
+        </Box>) : (<> <HeaderBreadcrumbs
           heading={`All round of ${tournamentDetail.name}`}
           links={[
             { name: 'Dashboard', href: PATH_DASHBOARD.root },
@@ -190,52 +195,56 @@ export default function RoundList() {
             </Button>
           }
         />
-        <Grid container spacing={3}>
-          <Grid item xs={4}>
-            <Card>
-              <RoundListToolbar numSelected={selected.length} filterName={filterName} onFilterName={handleFilterByName} />
+          <Grid container spacing={3}>
+            <Grid item xs={12} md={4}>
+              <Card>
+                <RoundListToolbar numSelected={selected.length} filterName={filterName} onFilterName={handleFilterByName} />
 
-              <Scrollbar>
-                <TableContainer sx={{ ma: 800 }}>
-                  <Table>
-                    <RoundListHead
-                      order={order}
-                      orderBy={orderBy}
-                      headLabel={TABLE_HEAD}
-                      rowCount={roundList.length}
-                      numSelected={selected.length}
-                      onRequestSort={handleRequestSort}
-                      onSelectAllClick={handleSelectAllClick}
-                    />
-                    <TableBody>
-                      {filteredRounds.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
-                        const { id, name, tournamentID } = row;
-                        const isItemSelected = selected.indexOf(name) !== -1;
+                <Scrollbar>
+                  <TableContainer sx={{ minWidth: 300 }}>
+                    <Table>
+                      <RoundListHead
+                        order={order}
+                        orderBy={orderBy}
+                        headLabel={TABLE_HEAD}
+                        rowCount={roundList.length}
+                        numSelected={selected.length}
+                        onRequestSort={handleRequestSort}
+                        onSelectAllClick={handleSelectAllClick}
+                      />
+                      <TableBody>
+                        {roundList.length <= 0 &&
+                          (<TableRow sx={{ width: '100%' }}>
+                            <TableCell colSpan={4}> <LinearProgress /></TableCell>
+                          </TableRow>)}
+                        {filteredRounds.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
+                          const { id, name, tournamentID } = row;
+                          const isItemSelected = selected.indexOf(name) !== -1;
 
-                        return (
-                          <TableRow
-                            hover
-                            key={id}
-                            tabIndex={-1}
-                            role="checkbox"
-                            selected={isItemSelected}
-                            aria-checked={isItemSelected}
-                            onClick={() => setRoundSelected(row)}
-                          >
-                            {/* <TableCell padding="checkbox">
+                          return (
+                            <TableRow
+                              hover
+                              key={id}
+                              tabIndex={-1}
+                              role="checkbox"
+                              selected={isItemSelected}
+                              aria-checked={isItemSelected}
+                              onClick={() => setRoundSelected(row)}
+                            >
+                              {/* <TableCell padding="checkbox">
                           <Checkbox checked={isItemSelected} onChange={(event) => handleClick(event, name)} />
                         </TableCell> */}
-                            <TableCell component="th" scope="row" padding="none">
-                              <Stack direction="row" alignItems="center" spacing={2}>
-                                {/* <Avatar alt={name} src={imageURL} /> */}
-                                <Typography variant="subtitle2" noWrap>
-                                  {name}
-                                </Typography>
-                              </Stack>
-                            </TableCell>
+                              <TableCell component="th" scope="row" padding="none">
+                                <Stack direction="row" alignItems="center" spacing={2}>
+                                  {/* <Avatar alt={name} src={imageURL} /> */}
+                                  <Typography variant="subtitle2" noWrap>
+                                    {name}
+                                  </Typography>
+                                </Stack>
+                              </TableCell>
 
-                            {/* <TableCell align="left">{isVerified ? 'Yes' : 'No'}</TableCell> */}
-                            {/* <TableCell align="left">
+                              {/* <TableCell align="left">{isVerified ? 'Yes' : 'No'}</TableCell> */}
+                              {/* <TableCell align="left">
                           <Label
                             variant={theme.palette.mode === 'light' ? 'ghost' : 'filled'}
                             color={(status === 'banned' && 'error') || 'success'}
@@ -244,50 +253,51 @@ export default function RoundList() {
                           </Label>
                         </TableCell> */}
 
-                            <TableCell align="right">
-                              <RoundMoreMenu onDelete={() => handleDeleteRound(id)} onEdit={() => { handleEditRound(row) }} roundName={name} roundId={id} />
+                              <TableCell align="right">
+                                <RoundMoreMenu onDelete={() => handleDeleteRound(id)} onEdit={() => { handleEditRound(row) }} roundName={name} roundId={id} />
+                              </TableCell>
+                            </TableRow>
+                          );
+                        })}
+                        {emptyRows > 0 && (
+                          <TableRow style={{ height: 53 * emptyRows }}>
+                            <TableCell colSpan={6} />
+                          </TableRow>
+                        )}
+                      </TableBody>
+                      {isRoundNotFound && (
+                        <TableBody>
+                          <TableRow>
+                            <TableCell align="center" colSpan={6} sx={{ py: 3 }}>
+                              <SearchNotFound searchQuery={filterName} />
                             </TableCell>
                           </TableRow>
-                        );
-                      })}
-                      {emptyRows > 0 && (
-                        <TableRow style={{ height: 53 * emptyRows }}>
-                          <TableCell colSpan={6} />
-                        </TableRow>
+                        </TableBody>
                       )}
-                    </TableBody>
-                    {isRoundNotFound && (
-                      <TableBody>
-                        <TableRow>
-                          <TableCell align="center" colSpan={6} sx={{ py: 3 }}>
-                            <SearchNotFound searchQuery={filterName} />
-                          </TableCell>
-                        </TableRow>
-                      </TableBody>
-                    )}
-                  </Table>
-                </TableContainer>
-              </Scrollbar>
+                    </Table>
+                  </TableContainer>
+                </Scrollbar>
 
-              <TablePagination
-                rowsPerPageOptions={[5, 10, 25]}
-                component="div"
-                count={roundList.length}
-                rowsPerPage={rowsPerPage}
-                page={page}
-                onPageChange={handleChangePage}
-                onRowsPerPageChange={handleChangeRowsPerPage}
-              />
-            </Card>
+                <TablePagination
+                  rowsPerPageOptions={[5, 10, 25]}
+                  component="div"
+                  count={roundList.length}
+                  rowsPerPage={rowsPerPage}
+                  page={page}
+                  onPageChange={handleChangePage}
+                  onRowsPerPageChange={handleChangeRowsPerPage}
+                />
+              </Card>
+            </Grid>
+            <Grid item xs={12} md={8}><MatchList roundSelected={roundSelected} /></Grid>
           </Grid>
-          <Grid item xs={8}><MatchList roundSelected={roundSelected} /></Grid>
-        </Grid>
 
-        <DialogAnimate open={isOpenModal} onClose={handleCloseModal}>
-          <DialogTitle>{_.isEmpty(currentRound) ? 'New round' : 'Edit round'}</DialogTitle>
+          <DialogAnimate open={isOpenModal} onClose={handleCloseModal}>
+            <DialogTitle>{_.isEmpty(currentRound) ? 'New round' : 'Edit round'}</DialogTitle>
 
-          <RoundNewForm onCancel={handleCloseModal} tournamentID={tournamentDetail.id} currentRound={currentRound} />
-        </DialogAnimate>
+            <RoundNewForm onCancel={handleCloseModal} tournamentID={tournamentDetail.id} currentRound={currentRound} />
+          </DialogAnimate></>)}
+
       </Container>
     </Page >
   );

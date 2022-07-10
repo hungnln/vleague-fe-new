@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { paramCase } from 'change-case';
 import { useParams, useLocation } from 'react-router-dom';
 // material
-import { Container } from '@mui/material';
+import { Box, CircularProgress, Container } from '@mui/material';
 // redux
 import { useDispatch, useSelector } from '../../../redux/store';
 // routes
@@ -32,17 +32,26 @@ export default function ClubCreate() {
 
   return (
     <Page title="Club: Create a new club | V League">
-      <Container maxWidth={themeStretch ? false : 'lg'}>
-        <HeaderBreadcrumbs
-          heading={!isEdit ? 'Create a new club' : 'Edit club'}
-          links={[
-            { name: 'Dashboard', href: PATH_DASHBOARD.root },
-            { name: 'Club', href: PATH_DASHBOARD.club.root },
-            { name: !isEdit ? 'New club' : currentClub?.name }
-          ]}
-        />
+      <Container maxWidth={themeStretch ? false : 'lg'} >
+        {isEdit && currentClub == null ? (
+          <Box >
+            <CircularProgress sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }} />
+          </Box>
+        ) : (<>
+          <HeaderBreadcrumbs
+            heading={!isEdit ? 'Create a new club' : 'Edit club'}
+            links={[
+              { name: 'Dashboard', href: PATH_DASHBOARD.root },
+              { name: 'Club', href: PATH_DASHBOARD.club.root },
+              { name: !isEdit ? 'New club' : currentClub?.name }
+            ]}
+          />
+          <ClubNewForm isEdit={isEdit} currentClub={currentClub} />
+        </>
+        )}
 
-        <ClubNewForm isEdit={isEdit} currentClub={currentClub} />
+
+
       </Container>
     </Page>
   );

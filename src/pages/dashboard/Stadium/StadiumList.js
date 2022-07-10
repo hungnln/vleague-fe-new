@@ -19,11 +19,12 @@ import {
   Container,
   Typography,
   TableContainer,
-  TablePagination
+  TablePagination,
+  LinearProgress
 } from '@mui/material';
 // redux
 import { useDispatch, useSelector } from '../../../redux/store';
-import { getStadiumList, removeStadium } from '../../../redux/slices/stadium';
+import stadium, { getStadiumList, removeStadium } from '../../../redux/slices/stadium';
 // routes
 import { PATH_DASHBOARD } from '../../../routes/paths';
 // hooks
@@ -150,7 +151,7 @@ export default function StadiumList() {
 
   const filteredStadiums = applySortFilter(stadiumList, getComparator(order, orderBy), filterName);
 
-  const isStadiumNotFound = filteredStadiums.length === 0;
+  const isStadiumNotFound = filteredStadiums.length === 0 && stadium.length > 0;
 
   return (
     <Page title="Stadium: List | V League">
@@ -190,6 +191,10 @@ export default function StadiumList() {
                   onSelectAllClick={handleSelectAllClick}
                 />
                 <TableBody>
+                  {stadiumList.length <= 0 &&
+                    (<TableRow sx={{ width: '100%' }}>
+                      <TableCell colSpan={6}> <LinearProgress /></TableCell>
+                    </TableRow>)}
                   {filteredStadiums.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
                     const { id, name, address, imageURL, isVerified } = row;
                     const isItemSelected = selected.indexOf(name) !== -1;
@@ -197,7 +202,7 @@ export default function StadiumList() {
                     return (
                       <TableRow
                         hover
-                        key={id}
+                        key={id}pClub
                         tabIndex={-1}
                         role="checkbox"
                         selected={isItemSelected}

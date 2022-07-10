@@ -1,4 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
+import { filter } from 'lodash';
 // utils
 import axios from '../../utils/axios';
 
@@ -12,11 +13,11 @@ const initialState = {
   recentPosts: [],
   hasMore: true,
   index: 0,
-  step: 11
+  step: 1,
 };
 
 const slice = createSlice({
-  name: 'blog',
+  name: 'news',
   initialState,
   reducers: {
     // START LOADING
@@ -33,17 +34,49 @@ const slice = createSlice({
     // GET POSTS
     getPostsSuccess(state, action) {
       state.isLoading = false;
-      state.posts = action.payload;
+      const newPosts = []
+      if (state.posts.length !== 0) {
+        action.payload.forEach((post, index) => {
+          if (!state.posts.find(statePost => statePost.id === post.id)) {
+            newPosts = [...newPosts, post]
+          }
+        })
+        state.posts = [].concat(state.posts, newPosts)
+      }
+      else {
+        state.posts = action.payload
+
+      }
+
+
+    },
+    addPost(state, action) {
+      state.isLoading = false;
+      state.posts = [...state.posts, action.payload]
+    },
+    editPost(state, action) {
+      state.isLoading = false;
+      const newPost = state.posts.map(post => {
+        if (Number(post.id) === Number(action.payload.id)) {
+          return action.payload
+        }
+        return post
+      })
+      state.posts = newPost
+    },
+    deletePost(state, action) {
+      const deletePost = filter(state.posts, (post) => post.id !== action.payload);
+      state.posts = deletePost;
     },
 
     // GET POST INFINITE
     getPostsInitial(state, action) {
       state.isLoading = false;
-      state.posts = action.payload;
+      state.posts = [...state.post, action.payload];
     },
 
     getMorePosts(state) {
-      const setIndex = state.index + state.step;
+      const setIndex = state.step + 1;
       state.index = setIndex;
     },
 
@@ -73,33 +106,87 @@ export const { getMorePosts } = slice.actions;
 
 // ----------------------------------------------------------------------
 
-export function getAllPosts() {
+export function getAllPosts(PageNumber) {
   return async (dispatch) => {
     dispatch(slice.actions.startLoading());
     try {
-      const response = await axios.get('/api/blog/posts/all');
-      dispatch(slice.actions.getPostsSuccess(response.data.posts));
+      const response = await axios.get(`/api/news?Include=author,clubs,players&PageNumber=${PageNumber || 1}`);
+      const results = response.data.result.length;
+      const { totalCount } = response.data.pagination;
+
+      // dispatch(slice.actions.getPostsInitial(response.data.result));
+
+      if (results >= totalCount) {
+        dispatch(slice.actions.noHasMore());
+      }
+      dispatch(slice.actions.getPostsSuccess(response.data.result));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
     }
   };
 }
-
-// ----------------------------------------------------------------------
-
-export function getPostsInitial(index, step) {
+export function createPost(values, callback) {
   return async (dispatch) => {
     dispatch(slice.actions.startLoading());
     try {
-      const response = await axios.get('/api/blog/posts', {
-        params: { index, step }
-      });
-      const results = response.data.results.length;
-      const { maxLength } = response.data;
+      const response = await axios.post('/api/news', values);
+      if (response.data.statusCode === 200) {
+        const { id } = response.data.result
+        const responsePost = await axios.get(`/api/news/${id}?Include=author,players,clubs`);
+        dispatch(slice.actions.addPost(responsePost.data.result));
+        callback({ IsError: response.data.IsError })
+      }
 
-      dispatch(slice.actions.getPostsInitial(response.data.results));
+    } catch (error) {
+      dispatch(slice.actions.hasError(error));
+      // console.log(error);
+      callback(error.response.data)
 
-      if (results >= maxLength) {
+    }
+  };
+}
+export function editPost(values, callback) {
+  return async (dispatch) => {
+    dispatch(slice.actions.startLoading());
+    try {
+      const response = await axios.put(`/api/news/${values.id}`, values);
+      if (response.data.statusCode === 200) {
+        const responsePost = await axios.get(`/api/news/${values.id}?Include=author,players,clubs`);
+        dispatch(slice.actions.editPost(responsePost.data.result))
+        callback({ IsError: response.data.IsError })
+      }
+    } catch (error) {
+      dispatch(slice.actions.hasError(error));
+      callback(error.response.data)
+
+    }
+  };
+}
+export function deletePost(id) {
+  return async dispatch => {
+    dispatch(slice.actions.startLoading());
+    try {
+      const response = await axios.delete(`/api/news/${id}`);
+      dispatch(slice.actions.deletePost(id))
+    } catch (error) {
+      dispatch(slice.actions.hasError(error));
+    }
+  }
+}
+
+// ----------------------------------------------------------------------
+
+export function getPostsInitial(step) {
+  return async (dispatch) => {
+    dispatch(slice.actions.startLoading());
+    try {
+      const response = await axios.get(`/api/news?Include=author,clubs,players&PageNumber=${step || 1}`);
+      const results = response.data.result.length;
+      const { totalCount } = response.data.pagination;
+
+      dispatch(slice.actions.getPostsInitial(response.data.result));
+
+      if (results >= totalCount) {
         dispatch(slice.actions.noHasMore());
       }
     } catch (error) {
@@ -108,16 +195,14 @@ export function getPostsInitial(index, step) {
   };
 }
 
-// ----------------------------------------------------------------------
+// // ----------------------------------------------------------------------
 
-export function getPost(title) {
+export function getPost(id) {
   return async (dispatch) => {
     dispatch(slice.actions.startLoading());
     try {
-      const response = await axios.get('/api/blog/post', {
-        params: { title }
-      });
-      dispatch(slice.actions.getPostSuccess(response.data.post));
+      const response = await axios.get(`/api/news/${id}?Include=author,players,clubs`);
+      dispatch(slice.actions.getPostSuccess(response.data.result));
     } catch (error) {
       console.error(error);
       dispatch(slice.actions.hasError(error));
@@ -125,20 +210,17 @@ export function getPost(title) {
   };
 }
 
-// ----------------------------------------------------------------------
+// // ----------------------------------------------------------------------
 
-export function getRecentPosts(title) {
-  return async (dispatch) => {
-    dispatch(slice.actions.startLoading());
-    try {
-      const response = await axios.get('/api/blog/posts/recent', {
-        params: { title }
-      });
-
-      dispatch(slice.actions.getRecentPostsSuccess(response.data.recentPosts));
-    } catch (error) {
-      console.error(error);
-      dispatch(slice.actions.hasError(error));
-    }
-  };
-}
+// export function getRecentPosts(id) {
+//   return async (dispatch) => {
+//     dispatch(slice.actions.startLoading());
+//     try {
+//       const response = await axios.get(`/api/news/${id}?Include=author`);
+//       dispatch(slice.actions.getRecentPostsSuccess(response.data.recentPosts));
+//     } catch (error) {
+//       console.error(error);
+//       dispatch(slice.actions.hasError(error));
+//     }
+//   };
+// }

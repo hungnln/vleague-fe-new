@@ -8,7 +8,7 @@ import { useEffect, useCallback, useState } from 'react';
 import { Box, Grid, Button, Skeleton, Container, Stack } from '@mui/material';
 // redux
 import { useDispatch, useSelector } from '../../redux/store';
-import { getPostsInitial, getMorePosts } from '../../redux/slices/blog';
+import { getAllPosts, getMorePosts } from '../../redux/slices/blog';
 // hooks
 import useSettings from '../../hooks/useSettings';
 // routes
@@ -22,7 +22,7 @@ import { BlogPostCard, BlogPostsSort, BlogPostsSearch } from '../../components/_
 
 const SORT_OPTIONS = [
   { value: 'latest', label: 'Latest' },
-  { value: 'popular', label: 'Popular' },
+  // { value: 'popular', label: 'Popular' },
   { value: 'oldest', label: 'Oldest' }
 ];
 
@@ -35,9 +35,9 @@ const applySort = (posts, sortBy) => {
   if (sortBy === 'oldest') {
     return orderBy(posts, ['createdAt'], ['asc']);
   }
-  if (sortBy === 'popular') {
-    return orderBy(posts, ['view'], ['desc']);
-  }
+  // if (sortBy === 'popular') {
+  //   return orderBy(posts, ['view'], ['desc']);
+  // }
   return posts;
 };
 
@@ -64,15 +64,15 @@ export default function BlogPosts() {
   const onScroll = useCallback(() => dispatch(getMorePosts()), [dispatch]);
 
   useEffect(() => {
-    dispatch(getPostsInitial(index, step));
-  }, [dispatch, index, step]);
+    dispatch(getAllPosts(step));
+  }, [dispatch, step]);
 
   const handleChangeSort = (event) => {
     setFilters(event.target.value);
   };
 
   return (
-    <Page title="Blog: Posts | Minimal-UI">
+    <Page title="News: Posts | V League">
       <Container maxWidth={themeStretch ? false : 'lg'}>
         <HeaderBreadcrumbs
           heading="Blog"

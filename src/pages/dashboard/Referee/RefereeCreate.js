@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { paramCase } from 'change-case';
 import { useParams, useLocation } from 'react-router-dom';
 // material
-import { Container } from '@mui/material';
+import { Box, CircularProgress, Container } from '@mui/material';
 // redux
 import { useDispatch, useSelector } from '../../../redux/store';
 // routes
@@ -33,16 +33,22 @@ export default function RefereeCreate() {
   return (
     <Page title="Referee: Create a new referee | V League">
       <Container maxWidth={themeStretch ? false : 'lg'}>
-        <HeaderBreadcrumbs
-          heading={!isEdit ? 'Create a new referee' : 'Edit referee'}
-          links={[
-            { name: 'Dashboard', href: PATH_DASHBOARD.root },
-            { name: 'Referee', href: PATH_DASHBOARD.referee.root },
-            { name: !isEdit ? 'New referee' : currentReferee?.name }
-          ]}
-        />
+        {isEdit && currentReferee ? (<Box >
+          <CircularProgress sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }} />
+        </Box>) : (
+          <>
+            <HeaderBreadcrumbs
+              heading={!isEdit ? 'Create a new referee' : 'Edit referee'}
+              links={[
+                { name: 'Dashboard', href: PATH_DASHBOARD.root },
+                { name: 'Referee', href: PATH_DASHBOARD.referee.root },
+                { name: !isEdit ? 'New referee' : currentReferee?.name }
+              ]}
+            />
 
-        <RefereeNewForm isEdit={isEdit} currentReferee={isEdit ? currentReferee : {}} />
+            <RefereeNewForm isEdit={isEdit} currentReferee={isEdit ? currentReferee : {}} /></>
+        )}
+
       </Container>
     </Page>
   );

@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { paramCase } from 'change-case';
 import { useParams, useLocation } from 'react-router-dom';
 // material
-import { Container } from '@mui/material';
+import { Box, CircularProgress, Container } from '@mui/material';
 // redux
 import { useDispatch, useSelector } from '../../../redux/store';
 // routes
@@ -33,16 +33,24 @@ export default function PlayerCreate() {
   return (
     <Page title="Player: Create a new player | V League">
       <Container maxWidth={themeStretch ? false : 'lg'}>
-        <HeaderBreadcrumbs
-          heading={!isEdit ? 'Create a new player' : 'Edit player'}
-          links={[
-            { name: 'Dashboard', href: PATH_DASHBOARD.root },
-            { name: 'Player', href: PATH_DASHBOARD.player.root },
-            { name: !isEdit ? 'New player' : currentPlayer?.name }
-          ]}
-        />
+        {isEdit && currentPlayer == null ?
+          (<Box>
+            <CircularProgress sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }} />
+          </Box>)
+          :
+          (<>
+            <HeaderBreadcrumbs
+              heading={!isEdit ? 'Create a new player' : 'Edit player'}
+              links={[
+                { name: 'Dashboard', href: PATH_DASHBOARD.root },
+                { name: 'Player', href: PATH_DASHBOARD.player.root },
+                { name: !isEdit ? 'New player' : currentPlayer?.name }
+              ]}
+            />
 
-        <PlayerNewForm isEdit={isEdit} currentPlayer={isEdit ? currentPlayer : {}} />
+            <PlayerNewForm isEdit={isEdit} currentPlayer={isEdit ? currentPlayer : {}} />
+          </>)}
+
       </Container>
     </Page>
   );

@@ -18,7 +18,10 @@ import {
   Container,
   Typography,
   TableContainer,
-  TablePagination
+  TablePagination,
+  LinearProgress,
+  Box,
+  CircularProgress
 } from '@mui/material';
 // redux
 import { useDispatch, useSelector } from '../../../redux/store';
@@ -40,6 +43,8 @@ import moment from 'moment';
 import { fCurrency } from 'src/utils/formatNumber';
 import StaffContractMoreMenu from 'src/components/_dashboard/staff/contract/StaffContractMoreMenu';
 import StaffContractNewForm from 'src/components/_dashboard/staff/StaffContractNewForm';
+import GroupOutlinedIcon from '@mui/icons-material/GroupOutlined';
+
 // ----------------------------------------------------------------------
 
 export default function StaffConTract() {
@@ -47,9 +52,7 @@ export default function StaffConTract() {
   const dispatch = useDispatch();
   const { pathname } = useLocation();
   const { id } = useParams();
-  // const { staffContracts } = useSelector((state) => state.staff);
   const { contractList } = useSelector((state) => state.staff);
-
   const isEdit = _.isNil(id) ? 0 : 1;
   const { staffDetail } = useSelector((state) => state.staff)
   const [page, setPage] = useState(0);
@@ -58,7 +61,6 @@ export default function StaffConTract() {
   const [orderBy, setOrderBy] = useState('name');
   const [filterName, setFilterName] = useState('');
   const [rowsPerPage, setRowsPerPage] = useState(5);
-  // const contractList = !_.isNil(staffContracts) ? [staffContracts] : [contractList]
   useEffect(() => {
     if (isEdit) {
       dispatch(getStaffDetail(id))
@@ -132,7 +134,7 @@ export default function StaffConTract() {
 
   const filteredStaffs = applySortFilter(contractList, getComparator(order, orderBy), filterName);
 
-  const isStaffNotFound = filteredStaffs.length === 0;
+  const isStaffNotFound = filteredStaffs.length === 0 && contractList.length > 0;
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
@@ -152,14 +154,15 @@ export default function StaffConTract() {
 
   };
   const handleDeleteContract = (staffId) => {
-    // dispatch(deleteStaff(staffId));
     dispatch(removeContract(staffId))
 
   };
   return (
     <Page title="Staff: View contract | V League">
       <Container maxWidth={themeStretch ? false : 'lg'}>
-        <HeaderBreadcrumbs
+        {_.isEmpty(staffDetail) && contractList === 0 ? (<Box >
+          <CircularProgress sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }} />
+        </Box>) : (<>  <HeaderBreadcrumbs
           heading={!isEdit ? 'View staff contract' : `View ${staffDetail?.name} contract`}
           links={[
             { name: 'Dashboard', href: PATH_DASHBOARD.root },
@@ -172,7 +175,7 @@ export default function StaffConTract() {
                 variant="contained"
                 component={RouterLink}
                 to={`${PATH_DASHBOARD.staff.list}`}
-                startIcon={<Icon icon={plusFill} />}
+                startIcon={<GroupOutlinedIcon />}
               >
                 View staffs
               </Button>
@@ -188,60 +191,64 @@ export default function StaffConTract() {
             </>
           }
         />
-        <Card>
-          {/* <StaffListToolbar numSelected={selected.length} filterName={filterName} onFilterName={handleFilterByName} /> */}
+          <Card>
+            <StaffListToolbar numSelected={selected.length} filterName={filterName} onFilterName={handleFilterByName} />
 
-          <Scrollbar>
-            <TableContainer sx={{ minWidth: 800 }}>
-              <Table>
-                <StaffListHead
-                  order={order}
-                  orderBy={orderBy}
-                  headLabel={isEdit ? TABLE_HEAD_EDIT : TABLE_HEAD}
-                  rowCount={contractList.length}
-                  numSelected={selected.length}
-                  onRequestSort={handleRequestSort}
-                  onSelectAllClick={handleSelectAllClick}
-                />
-                <TableBody>
-                  {filteredStaffs.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
-                    const { id, staff, club, salary, start, end } = row;
-                    const isItemSelected = selected.indexOf(id) !== -1;
+            <Scrollbar>
+              <TableContainer sx={{ minWidth: 800 }}>
+                <Table>
+                  <StaffListHead
+                    order={order}
+                    orderBy={orderBy}
+                    headLabel={isEdit ? TABLE_HEAD_EDIT : TABLE_HEAD}
+                    rowCount={contractList.length}
+                    numSelected={selected.length}
+                    onRequestSort={handleRequestSort}
+                    onSelectAllClick={handleSelectAllClick}
+                  />
+                  <TableBody>
+                    {contractList.length <= 0 &&
+                      (<TableRow sx={{ width: '100%' }}>
+                        <TableCell colSpan={10}> <LinearProgress /></TableCell>
+                      </TableRow>)}
+                    {filteredStaffs.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
+                      const { id, staff, club, salary, start, end } = row;
+                      const isItemSelected = selected.indexOf(id) !== -1;
 
-                    return (
-                      <TableRow
-                        hover
-                        key={id}
-                        tabIndex={-1}
-                        role="checkbox"
-                        selected={isItemSelected}
-                        aria-checked={isItemSelected}
-                      >
-                        {isEdit ? '' : <TableCell component="th" scope="row" padding="none">
-                          <Stack direction="row" alignItems="center" spacing={2}>
-                            <Avatar alt={staff.name} src={staff?.imageURL} />
-                            <Typography variant="subtitle2" noWrap>
-                              {staff?.name}
-                            </Typography>
-                          </Stack>
-                        </TableCell>}
-                        {/* <TableCell padding="checkbox">
+                      return (
+                        <TableRow
+                          hover
+                          key={id}
+                          tabIndex={-1}
+                          role="checkbox"
+                          selected={isItemSelected}
+                          aria-checked={isItemSelected}
+                        >
+                          {isEdit ? '' : <TableCell component="th" scope="row" padding="none">
+                            <Stack direction="row" alignItems="center" spacing={2}>
+                              <Avatar alt={staff.name} src={staff?.imageURL} />
+                              <Typography variant="subtitle2" noWrap>
+                                {staff?.name}
+                              </Typography>
+                            </Stack>
+                          </TableCell>}
+                          {/* <TableCell padding="checkbox">
                           <Checkbox checked={isItemSelected} onChange={(event) => handleClick(event, name)} />
                         </TableCell> */}
-                        <TableCell component="th" scope="row" padding="none">
-                          <Stack direction="row" alignItems="center" spacing={2}>
-                            <Avatar alt={club} src={club?.imageURL} />
-                            <Typography variant="subtitle2" noWrap>
-                              {club?.name}
-                            </Typography>
-                          </Stack>
-                        </TableCell>
-                        <TableCell align="left">{fCurrency(salary)}</TableCell>
-                        <TableCell align="left">{moment(start).format('DD-MM-YYYY')}</TableCell>
-                        <TableCell align="left">{moment(end).format('DD-MM-YYYY')}</TableCell>
+                          <TableCell component="th" scope="row" padding="none">
+                            <Stack direction="row" alignItems="center" spacing={2}>
+                              <Avatar alt={club} src={club?.imageURL} />
+                              <Typography variant="subtitle2" noWrap>
+                                {club?.name}
+                              </Typography>
+                            </Stack>
+                          </TableCell>
+                          <TableCell align="left">{fCurrency(salary)}</TableCell>
+                          <TableCell align="left">{moment(start).format('DD-MM-YYYY')}</TableCell>
+                          <TableCell align="left">{moment(end).format('DD-MM-YYYY')}</TableCell>
 
-                        {/* <TableCell align="left">{isVerified ? 'Yes' : 'No'}</TableCell> */}
-                        {/* <TableCell align="left">
+                          {/* <TableCell align="left">{isVerified ? 'Yes' : 'No'}</TableCell> */}
+                          {/* <TableCell align="left">
                           <Label
                             variant={theme.palette.mode === 'light' ? 'ghost' : 'filled'}
                             color={(status === 'banned' && 'error') || 'success'}
@@ -250,43 +257,41 @@ export default function StaffConTract() {
                           </Label>
                         </TableCell> */}
 
-                        <TableCell align="right">
-                          <StaffContractMoreMenu onDelete={() => handleDeleteContract(id)} contractId={id} />
+                          <TableCell align="right">
+                            <StaffContractMoreMenu onDelete={() => handleDeleteContract(id)} contractId={id} />
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                    {emptyRows > 0 && (
+                      <TableRow style={{ height: 53 * emptyRows }}>
+                        <TableCell colSpan={6} />
+                      </TableRow>
+                    )}
+                  </TableBody>
+                  {isStaffNotFound && (
+                    <TableBody>
+                      <TableRow>
+                        <TableCell align="center" colSpan={6} sx={{ py: 3 }}>
+                          <SearchNotFound searchQuery={filterName} />
                         </TableCell>
                       </TableRow>
-                    );
-                  })}
-                  {emptyRows > 0 && (
-                    <TableRow style={{ height: 53 * emptyRows }}>
-                      <TableCell colSpan={6} />
-                    </TableRow>
+                    </TableBody>
                   )}
-                </TableBody>
-                {isStaffNotFound && (
-                  <TableBody>
-                    <TableRow>
-                      <TableCell align="center" colSpan={6} sx={{ py: 3 }}>
-                        <SearchNotFound searchQuery={filterName} />
-                      </TableCell>
-                    </TableRow>
-                  </TableBody>
-                )}
-              </Table>
-            </TableContainer>
-          </Scrollbar>
+                </Table>
+              </TableContainer>
+            </Scrollbar>
 
-          <TablePagination
-            rowsPerPageOptions={[5, 10, 25]}
-            component="div"
-            count={contractList.length}
-            rowsPerPage={rowsPerPage}
-            page={page}
-            onPageChange={handleChangePage}
-            onRowsPerPageChange={handleChangeRowsPerPage}
-          />
-        </Card>
-        {/* <StaffContractNewForm isEdit={isEdit} currentContract={currentContract} /> */}
-        {/* <StaffNewForm isEdit={isEdit} staffDetail={staffDetail} /> */}
+            <TablePagination
+              rowsPerPageOptions={[5, 10, 25]}
+              component="div"
+              count={contractList.length}
+              rowsPerPage={rowsPerPage}
+              page={page}
+              onPageChange={handleChangePage}
+              onRowsPerPageChange={handleChangeRowsPerPage}
+            />
+          </Card></>)}
 
       </Container>
     </Page>

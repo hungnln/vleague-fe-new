@@ -1,4 +1,4 @@
-import { filter } from 'lodash';
+import _, { filter } from 'lodash';
 import { Icon } from '@iconify/react';
 import { sentenceCase } from 'change-case';
 import { useState, useEffect } from 'react';
@@ -19,11 +19,13 @@ import {
   Container,
   Typography,
   TableContainer,
-  TablePagination
+  TablePagination,
+  LinearProgress,
+  DialogTitle
 } from '@mui/material';
 // redux
 import { useDispatch, useSelector } from '../../../redux/store';
-import { getTournamentList, removeTournament } from '../../../redux/slices/tournament';
+import { closeModal, getTournamentList, openModal, removeTournament } from '../../../redux/slices/tournament';
 // routes
 import { PATH_DASHBOARD } from '../../../routes/paths';
 // hooks
@@ -38,6 +40,8 @@ import HeaderBreadcrumbs from '../../../components/HeaderBreadcrumbs';
 import { TournamentMoreMenu, TournamentListHead, TournamentListToolbar } from 'src/components/_dashboard/tournament/list';
 import { ModeComment } from '@mui/icons-material';
 import moment from 'moment';
+import { DialogAnimate } from 'src/components/animate';
+import TournamentNewForm from 'src/components/_dashboard/tournament/TournamentNewForm';
 
 // ----------------------------------------------------------------------
 
@@ -87,7 +91,7 @@ export default function TournamentList() {
   const { themeStretch } = useSettings();
   const theme = useTheme();
   const dispatch = useDispatch();
-  const { tournamentList } = useSelector((state) => state.tournament);
+  const { tournamentList, isOpenModal } = useSelector((state) => state.tournament);
   const [page, setPage] = useState(0);
   const [order, setOrder] = useState('asc');
   const [selected, setSelected] = useState([]);
@@ -96,9 +100,7 @@ export default function TournamentList() {
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [start, setStart] = useState('');
   const [end, setEnd] = useState('');
-
-
-
+  const [currentTournament, setCurrentTournament] = useState({})
   useEffect(() => {
     dispatch(getTournamentList());
   }, [dispatch]);
@@ -153,16 +155,26 @@ export default function TournamentList() {
   }
 
   const handleDeleteTournament = (tournamentId) => {
-    // dispatch(deleteTournament(tournamentId));
     dispatch(removeTournament(tournamentId))
 
   };
+  const handleAddTournament = () => {
+    setCurrentTournament({});
+    dispatch(openModal());
+  };
+  const handleCloseModal = () => {
+    dispatch(closeModal());
+  };
+  const handleEditTournament = (tournament) => {
+    setCurrentTournament(tournament);
+    dispatch(openModal());
+  }
 
   const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - tournamentList.length) : 0;
 
   const filteredTournaments = applySortFilter(tournamentList, getComparator(order, orderBy), filterName, start, end);
 
-  const isTournamentNotFound = filteredTournaments.length === 0;
+  const isTournamentNotFound = filteredTournaments.length === 0 && tournamentList.length > 0;
 
   return (
     <Page title="Tournament: List | V League">
@@ -178,8 +190,7 @@ export default function TournamentList() {
             <>
               <Button
                 variant="contained"
-                component={RouterLink}
-                to={PATH_DASHBOARD.tournament.newTournament}
+                onClick={handleAddTournament}
                 startIcon={<Icon icon={plusFill} />}
               >
                 New Tournament
@@ -204,6 +215,10 @@ export default function TournamentList() {
                   onSelectAllClick={handleSelectAllClick}
                 />
                 <TableBody>
+                  {tournamentList.length <= 0 &&
+                    (<TableRow sx={{ width: '100%' }}>
+                      <TableCell colSpan={5}> <LinearProgress /></TableCell>
+                    </TableRow>)}
                   {filteredTournaments.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
                     const { id, name, from, to, isVerified } = row;
                     const isItemSelected = selected.indexOf(name) !== -1;
@@ -241,7 +256,7 @@ export default function TournamentList() {
                         </TableCell> */}
 
                         <TableCell align="right">
-                          <TournamentMoreMenu onDelete={() => handleDeleteTournament(id)} tournamentName={name} tournamentId={id} />
+                          <TournamentMoreMenu onDelete={() => handleDeleteTournament(id)} onEdit={() => handleEditTournament(row)} tournamentName={name} tournamentId={id} />
                         </TableCell>
                       </TableRow>
                     );
@@ -275,6 +290,11 @@ export default function TournamentList() {
             onRowsPerPageChange={handleChangeRowsPerPage}
           />
         </Card>
+        <DialogAnimate open={isOpenModal} onClose={handleCloseModal}>
+          <DialogTitle>{_.isEmpty(currentTournament) ? 'New tournament' : 'Edit tournament'}</DialogTitle>
+
+          <TournamentNewForm onCancel={handleCloseModal} currentTournament={currentTournament} />
+        </DialogAnimate>
       </Container>
     </Page>
   );

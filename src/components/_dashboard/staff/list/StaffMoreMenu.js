@@ -11,6 +11,7 @@ import BusinessCenterIcon from '@mui/icons-material/BusinessCenter';
 import { Menu, MenuItem, IconButton, ListItemIcon, ListItemText } from '@mui/material';
 // routes
 import { PATH_DASHBOARD } from '../../../../routes/paths';
+import eyeFill from '@iconify/icons-eva/eye-fill';
 
 // ----------------------------------------------------------------------
 
@@ -39,7 +40,7 @@ export default function StaffMoreMenu({ onDelete, staffName, staffId }) {
         anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
         transformOrigin={{ vertical: 'top', horizontal: 'right' }}
       >
-        <MenuItem onClick={onDelete} sx={{ color: 'text.secondary' }}>
+        <MenuItem onClick={onDelete} sx={{ color: 'error.main' }}>
           <ListItemIcon>
             <Icon icon={trash2Outline} width={24} height={24} />
           </ListItemIcon>
@@ -62,7 +63,7 @@ export default function StaffMoreMenu({ onDelete, staffName, staffId }) {
           sx={{ color: 'text.secondary' }}
         >
           <ListItemIcon>
-            <BusinessCenterIcon icon={editFill} width={24} height={24} />
+            <BusinessCenterIcon icon={eyeFill} width={24} height={24} />
           </ListItemIcon>
           <ListItemText primary="View contract" primaryTypographyProps={{ variant: 'body2' }} />
         </MenuItem>

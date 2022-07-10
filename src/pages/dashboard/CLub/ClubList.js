@@ -19,7 +19,9 @@ import {
   Container,
   Typography,
   TableContainer,
-  TablePagination
+  TablePagination,
+  LinearProgress,
+  Box
 } from '@mui/material';
 // redux
 import { useDispatch, useSelector } from '../../../redux/store';
@@ -153,7 +155,7 @@ export default function ClubList() {
 
   const filteredClubs = applySortFilter(clubList, getComparator(order, orderBy), filterName);
 
-  const isClubNotFound = filteredClubs.length === 0;
+  const isClubNotFound = filteredClubs.length === 0 && clubList.length > 0;
 
   return (
     <Page title="Club: List | V League">
@@ -192,7 +194,12 @@ export default function ClubList() {
                   onRequestSort={handleRequestSort}
                   onSelectAllClick={handleSelectAllClick}
                 />
+
                 <TableBody>
+                  {clubList.length <= 0 &&
+                    (<TableRow sx={{ width: '100%' }}>
+                      <TableCell colSpan={5}> <LinearProgress /></TableCell>
+                    </TableRow>)}
                   {filteredClubs.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
                     const { id, name, headQuarter, imageURL, stadium } = row;
                     const isItemSelected = selected.indexOf(name) !== -1;

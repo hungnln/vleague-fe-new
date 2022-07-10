@@ -19,7 +19,8 @@ import {
   Container,
   Typography,
   TableContainer,
-  TablePagination
+  TablePagination,
+  LinearProgress
 } from '@mui/material';
 // redux
 import { useDispatch, useSelector } from '../../redux/store';
@@ -146,7 +147,7 @@ export default function UserList() {
 
   const filteredUsers = applySortFilter(userList, getComparator(order, orderBy), filterName);
 
-  const isUserNotFound = filteredUsers.length === 0;
+  const isUserNotFound = filteredUsers.length === 0 && userList.length > 0;
 
   return (
     <Page title="User: List | V League">
@@ -158,16 +159,16 @@ export default function UserList() {
             { name: 'User', href: PATH_DASHBOARD.user.root },
             { name: 'List' }
           ]}
-          action={
-            <Button
-              variant="contained"
-              component={RouterLink}
-              to={PATH_DASHBOARD.user.newUser}
-              startIcon={<Icon icon={plusFill} />}
-            >
-              New User
-            </Button>
-          }
+        // action={
+        //   <Button
+        //     variant="contained"
+        //     component={RouterLink}
+        //     to={PATH_DASHBOARD.user.newUser}
+        //     startIcon={<Icon icon={plusFill} />}
+        //   >
+        //     New User
+        //   </Button>
+        // }
         />
 
         <Card>
@@ -186,6 +187,10 @@ export default function UserList() {
                   onSelectAllClick={handleSelectAllClick}
                 />
                 <TableBody>
+                  {userList.length <= 0 &&
+                    (<TableRow sx={{ width: '100%' }}>
+                      <TableCell colSpan={4}> <LinearProgress /></TableCell>
+                    </TableRow>)}
                   {filteredUsers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
                     const { id, name, email, imageURL, isVerified } = row;
                     const isItemSelected = selected.indexOf(name) !== -1;
@@ -199,9 +204,9 @@ export default function UserList() {
                         selected={isItemSelected}
                         aria-checked={isItemSelected}
                       >
-                        <TableCell padding="checkbox">
+                        {/* <TableCell padding="checkbox">
                           <Checkbox checked={isItemSelected} onChange={(event) => handleClick(event, name)} />
-                        </TableCell>
+                        </TableCell> */}
                         <TableCell component="th" scope="row" padding="none">
                           <Stack direction="row" alignItems="center" spacing={2}>
                             <Avatar alt={name} src={imageURL} />
@@ -222,9 +227,9 @@ export default function UserList() {
                           </Label>
                         </TableCell> */}
 
-                        <TableCell align="right">
-                          <UserMoreMenu onDelete={() => { handleDeleteUser(id) }} userName={name} />
-                        </TableCell>
+                        {/* <TableCell align="right">
+                          <UserMoreMenu onDelete={() => { handleDeleteUser(id) }} userID={id} />
+                        </TableCell> */}
                       </TableRow>
                     );
                   })}

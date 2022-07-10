@@ -15,10 +15,10 @@ import { PATH_DASHBOARD } from '../../../../routes/paths';
 
 UserMoreMenu.propTypes = {
   onDelete: PropTypes.func,
-  userName: PropTypes.string
+  userID: PropTypes.string
 };
 
-export default function UserMoreMenu({ onDelete, userName }) {
+export default function UserMoreMenu({ onDelete, userID }) {
   const ref = useRef(null);
   const [isOpen, setIsOpen] = useState(false);
 
@@ -38,7 +38,7 @@ export default function UserMoreMenu({ onDelete, userName }) {
         anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
         transformOrigin={{ vertical: 'top', horizontal: 'right' }}
       >
-        <MenuItem onClick={onDelete} sx={{ color: 'text.secondary' }}>
+        <MenuItem onClick={onDelete} sx={{ color: 'error.main' }}>
           <ListItemIcon>
             <Icon icon={trash2Outline} width={24} height={24} />
           </ListItemIcon>
@@ -47,7 +47,7 @@ export default function UserMoreMenu({ onDelete, userName }) {
 
         <MenuItem
           component={RouterLink}
-          to={`${PATH_DASHBOARD.player.root}/${paramCase(userName)}/edit`}
+          to={`${PATH_DASHBOARD.player.root}/edit/${userID}`}
           sx={{ color: 'text.secondary' }}
         >
           <ListItemIcon>
