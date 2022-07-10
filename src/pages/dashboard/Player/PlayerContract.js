@@ -18,7 +18,10 @@ import {
   Container,
   Typography,
   TableContainer,
-  TablePagination
+  TablePagination,
+  LinearProgress,
+  Box,
+  CircularProgress
 } from '@mui/material';
 // redux
 import { useDispatch, useSelector } from '../../../redux/store';
@@ -40,6 +43,8 @@ import moment from 'moment';
 import { fCurrency } from 'src/utils/formatNumber';
 import PlayerContractMoreMenu from 'src/components/_dashboard/player/contract/PlayerContractMoreMenu';
 import PlayerContractNewForm from 'src/components/_dashboard/player/PlayerContractNewForm';
+import AssignmentIndOutlinedIcon from '@mui/icons-material/AssignmentIndOutlined';
+
 // ----------------------------------------------------------------------
 
 export default function PlayerConTract() {
@@ -132,7 +137,7 @@ export default function PlayerConTract() {
 
   const filteredPlayers = applySortFilter(contractList, getComparator(order, orderBy), filterName);
 
-  const isPlayerNotFound = filteredPlayers.length === 0;
+  const isPlayerNotFound = filteredPlayers.length === 0 && contractList > 0;
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
@@ -159,89 +164,96 @@ export default function PlayerConTract() {
   return (
     <Page title="Player: View contract | V League">
       <Container maxWidth={themeStretch ? false : 'lg'}>
-        <HeaderBreadcrumbs
-          heading={!isEdit ? 'View player contract' : `View ${playerDetail?.name} contract`}
-          links={[
-            { name: 'Dashboard', href: PATH_DASHBOARD.root },
-            { name: 'Player', href: PATH_DASHBOARD.player.root },
-            { name: !isEdit ? 'View all contracts' : playerDetail?.name, href: `${PATH_DASHBOARD.player.root}/edit/${playerDetail?.id}` }
-          ]}
-          action={
-            <>
-              <Button
-                variant="contained"
-                component={RouterLink}
-                to={`${PATH_DASHBOARD.player.list}`}
-                startIcon={<Icon icon={plusFill} />}
-              >
-                View players
-              </Button>
-              <Button
-                variant="contained"
-                component={RouterLink}
-                to={`${PATH_DASHBOARD.player.contract}/new`}
-                startIcon={<Icon icon={plusFill} />}
-                sx={{ ml: 2 }}
-              >
-                New contract
-              </Button>
-            </>
-          }
-        />
-        <Card>
-          <PlayerListToolbar numSelected={selected.length} filterName={filterName} onFilterName={handleFilterByName} />
+        {_.isEmpty(playerDetail) && contractList === 0 ? (<Box >
+          <CircularProgress sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }} />
+        </Box>) : (<>
+          <HeaderBreadcrumbs
+            heading={!isEdit ? 'View player contract' : `View ${playerDetail?.name} contract`}
+            links={[
+              { name: 'Dashboard', href: PATH_DASHBOARD.root },
+              { name: 'Player', href: PATH_DASHBOARD.player.root },
+              { name: !isEdit ? 'View all contracts' : playerDetail?.name, href: `${PATH_DASHBOARD.player.root}/edit/${playerDetail?.id}` }
+            ]}
+            action={
+              <>
+                <Button
+                  variant="contained"
+                  component={RouterLink}
+                  to={`${PATH_DASHBOARD.player.list}`}
+                  startIcon={<AssignmentIndOutlinedIcon />}
+                >
+                  View players
+                </Button>
+                <Button
+                  variant="contained"
+                  component={RouterLink}
+                  to={`${PATH_DASHBOARD.player.contract}/new`}
+                  startIcon={<Icon icon={plusFill} />}
+                  sx={{ ml: 2 }}
+                >
+                  New contract
+                </Button>
+              </>
+            }
+          />
+          <Card>
+            <PlayerListToolbar numSelected={selected.length} filterName={filterName} onFilterName={handleFilterByName} />
 
-          <Scrollbar>
-            <TableContainer sx={{ minWidth: 800 }}>
-              <Table>
-                <PlayerListHead
-                  order={order}
-                  orderBy={orderBy}
-                  headLabel={isEdit ? TABLE_HEAD_EDIT : TABLE_HEAD}
-                  rowCount={contractList.length}
-                  numSelected={selected.length}
-                  onRequestSort={handleRequestSort}
-                  onSelectAllClick={handleSelectAllClick}
-                />
-                <TableBody>
-                  {filteredPlayers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
-                    const { id, player, club, salary, start, end } = row;
-                    const isItemSelected = selected.indexOf(id) !== -1;
+            <Scrollbar>
+              <TableContainer sx={{ minWidth: 800 }}>
+                <Table>
+                  <PlayerListHead
+                    order={order}
+                    orderBy={orderBy}
+                    headLabel={isEdit ? TABLE_HEAD_EDIT : TABLE_HEAD}
+                    rowCount={contractList.length}
+                    numSelected={selected.length}
+                    onRequestSort={handleRequestSort}
+                    onSelectAllClick={handleSelectAllClick}
+                  />
+                  <TableBody>
+                    {contractList.length <= 0 &&
+                      (<TableRow sx={{ width: '100%' }}>
+                        <TableCell colSpan={6}> <LinearProgress /></TableCell>
+                      </TableRow>)}
+                    {filteredPlayers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
+                      const { id, player, club, salary, start, end } = row;
+                      const isItemSelected = selected.indexOf(id) !== -1;
 
-                    return (
-                      <TableRow
-                        hover
-                        key={id}
-                        tabIndex={-1}
-                        role="checkbox"
-                        selected={isItemSelected}
-                        aria-checked={isItemSelected}
-                      >
-                        {isEdit ? '' : <TableCell component="th" scope="row" padding="none">
-                          <Stack direction="row" alignItems="center" spacing={2}>
-                            <Avatar alt={player.name} src={player?.imageURL} />
-                            <Typography variant="subtitle2" noWrap>
-                              {player?.name}
-                            </Typography>
-                          </Stack>
-                        </TableCell>}
-                        {/* <TableCell padding="checkbox">
+                      return (
+                        <TableRow
+                          hover
+                          key={id}
+                          tabIndex={-1}
+                          role="checkbox"
+                          selected={isItemSelected}
+                          aria-checked={isItemSelected}
+                        >
+                          {isEdit ? '' : <TableCell component="th" scope="row" padding="none">
+                            <Stack direction="row" alignItems="center" spacing={2}>
+                              <Avatar alt={player.name} src={player?.imageURL} />
+                              <Typography variant="subtitle2" noWrap>
+                                {player?.name}
+                              </Typography>
+                            </Stack>
+                          </TableCell>}
+                          {/* <TableCell padding="checkbox">
                           <Checkbox checked={isItemSelected} onChange={(event) => handleClick(event, name)} />
                         </TableCell> */}
-                        <TableCell component="th" scope="row" padding="none">
-                          <Stack direction="row" alignItems="center" spacing={2}>
-                            <Avatar alt={club} src={club?.imageURL} />
-                            <Typography variant="subtitle2" noWrap>
-                              {club?.name}
-                            </Typography>
-                          </Stack>
-                        </TableCell>
-                        <TableCell align="left">{fCurrency(salary)}</TableCell>
-                        <TableCell align="left">{moment(start).format('DD-MM-YYYY')}</TableCell>
-                        <TableCell align="left">{moment(end).format('DD-MM-YYYY')}</TableCell>
+                          <TableCell component="th" scope="row" padding="none">
+                            <Stack direction="row" alignItems="center" spacing={2}>
+                              <Avatar alt={club} src={club?.imageURL} />
+                              <Typography variant="subtitle2" noWrap>
+                                {club?.name}
+                              </Typography>
+                            </Stack>
+                          </TableCell>
+                          <TableCell align="left">{fCurrency(salary)}</TableCell>
+                          <TableCell align="left">{moment(start).format('DD-MM-YYYY')}</TableCell>
+                          <TableCell align="left">{moment(end).format('DD-MM-YYYY')}</TableCell>
 
-                        {/* <TableCell align="left">{isVerified ? 'Yes' : 'No'}</TableCell> */}
-                        {/* <TableCell align="left">
+                          {/* <TableCell align="left">{isVerified ? 'Yes' : 'No'}</TableCell> */}
+                          {/* <TableCell align="left">
                           <Label
                             variant={theme.palette.mode === 'light' ? 'ghost' : 'filled'}
                             color={(status === 'banned' && 'error') || 'success'}
@@ -250,41 +262,42 @@ export default function PlayerConTract() {
                           </Label>
                         </TableCell> */}
 
-                        <TableCell align="right">
-                          <PlayerContractMoreMenu onDelete={() => handleDeleteContract(id)} contractId={id} />
+                          <TableCell align="right">
+                            <PlayerContractMoreMenu onDelete={() => handleDeleteContract(id)} contractId={id} />
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                    {emptyRows > 0 && (
+                      <TableRow style={{ height: 53 * emptyRows }}>
+                        <TableCell colSpan={6} />
+                      </TableRow>
+                    )}
+                  </TableBody>
+                  {isPlayerNotFound && (
+                    <TableBody>
+                      <TableRow>
+                        <TableCell align="center" colSpan={6} sx={{ py: 3 }}>
+                          <SearchNotFound searchQuery={filterName} />
                         </TableCell>
                       </TableRow>
-                    );
-                  })}
-                  {emptyRows > 0 && (
-                    <TableRow style={{ height: 53 * emptyRows }}>
-                      <TableCell colSpan={6} />
-                    </TableRow>
+                    </TableBody>
                   )}
-                </TableBody>
-                {isPlayerNotFound && (
-                  <TableBody>
-                    <TableRow>
-                      <TableCell align="center" colSpan={6} sx={{ py: 3 }}>
-                        <SearchNotFound searchQuery={filterName} />
-                      </TableCell>
-                    </TableRow>
-                  </TableBody>
-                )}
-              </Table>
-            </TableContainer>
-          </Scrollbar>
+                </Table>
+              </TableContainer>
+            </Scrollbar>
 
-          <TablePagination
-            rowsPerPageOptions={[5, 10, 25]}
-            component="div"
-            count={contractList.length}
-            rowsPerPage={rowsPerPage}
-            page={page}
-            onPageChange={handleChangePage}
-            onRowsPerPageChange={handleChangeRowsPerPage}
-          />
-        </Card>
+            <TablePagination
+              rowsPerPageOptions={[5, 10, 25]}
+              component="div"
+              count={contractList.length}
+              rowsPerPage={rowsPerPage}
+              page={page}
+              onPageChange={handleChangePage}
+              onRowsPerPageChange={handleChangeRowsPerPage}
+            />
+          </Card></>)}
+
         {/* <PlayerContractNewForm isEdit={isEdit} currentContract={currentContract} /> */}
         {/* <PlayerNewForm isEdit={isEdit} playerDetail={playerDetail} /> */}
 

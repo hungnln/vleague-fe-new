@@ -10,27 +10,20 @@ import { alpha, useTheme, styled } from '@mui/material/styles';
 import { Box, Avatar, SpeedDial, Typography, SpeedDialAction, useMediaQuery } from '@mui/material';
 // utils
 import { fDate } from '../../../utils/formatTime';
+import { PATH_DASHBOARD } from 'src/routes/paths';
+import { useDispatch } from 'react-redux';
+import { deletePost } from 'src/redux/slices/blog';
+import { useNavigate } from 'react-router';
+import editFill from '@iconify/icons-eva/edit-fill';
+import trash2Outline from '@iconify/icons-eva/trash-2-outline';
+import moreVerticalFill from '@iconify/icons-eva/more-vertical-fill';
+
+
+
 
 // ----------------------------------------------------------------------
 
-const SOCIALS = [
-  {
-    name: 'Facebook',
-    icon: <Icon icon={facebookFill} width={20} height={20} color="#1877F2" />
-  },
-  {
-    name: 'Instagram',
-    icon: <Icon icon={instagramFilled} width={20} height={20} color="#D7336D" />
-  },
-  {
-    name: 'Linkedin',
-    icon: <Icon icon={linkedinFill} width={20} height={20} color="#006097" />
-  },
-  {
-    name: 'Twitter',
-    icon: <Icon icon={twitterFill} width={20} height={20} color="#1C9CEA" />
-  }
-];
+
 
 const RootStyle = styled('div')(({ theme }) => ({
   height: 480,
@@ -101,13 +94,37 @@ BlogPostHero.propTypes = {
 };
 
 export default function BlogPostHero({ post, ...other }) {
-  const { cover, title, author, createdAt } = post;
+  const { thumbnailImageURL, title, author, createdAt } = post;
   const theme = useTheme();
+  const navigate = useNavigate()
+  const dispatch = useDispatch();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-
+  const handleDeletePost = () => {
+    dispatch(deletePost(post.id))
+    navigate(PATH_DASHBOARD.blog.root)
+  }
+  const SOCIALS = [
+    {
+      name: 'Edit',
+      icon: <Icon icon={editFill} width={20} height={20} color="#1877F2" />,
+      link: `${PATH_DASHBOARD.blog.root}/edit/${post.id}`
+    },
+    {
+      name: 'Delete',
+      icon: <Icon icon={trash2Outline} width={20} height={20} color="#D7336D" />
+    },
+    // {
+    //   name: 'Linkedin',
+    //   icon: <Icon icon={linkedinFill} width={20} height={20} color="#006097" />
+    // },
+    // {
+    //   name: 'Twitter',
+    //   icon: <Icon icon={twitterFill} width={20} height={20} color="#1C9CEA" />
+    // }
+  ];
   return (
     <RootStyle {...other}>
-      <CoverImgStyle alt="post cover" src={cover} />
+      <CoverImgStyle alt="post cover" src={thumbnailImageURL} />
 
       <TitleStyle variant="h2" component="h1">
         {title}
@@ -115,7 +132,7 @@ export default function BlogPostHero({ post, ...other }) {
 
       <FooterStyle>
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          <Avatar alt={author.name} src={author.avatarUrl} sx={{ width: 48, height: 48 }} />
+          <Avatar alt={author.name} src={author.imageURL} sx={{ width: 48, height: 48 }} />
           <Box sx={{ ml: 2 }}>
             <Typography variant="subtitle1" sx={{ color: 'common.white' }}>
               {author.name}
@@ -129,7 +146,7 @@ export default function BlogPostHero({ post, ...other }) {
         <SpeedDial
           direction={isMobile ? 'up' : 'left'}
           ariaLabel="Share post"
-          icon={<Icon icon={shareFill} />}
+          icon={<Icon icon={moreVerticalFill} />}
           sx={{ '& .MuiSpeedDial-fab': { width: 48, height: 48 } }}
         >
           {SOCIALS.map((action) => (
@@ -139,6 +156,7 @@ export default function BlogPostHero({ post, ...other }) {
               tooltipTitle={action.name}
               tooltipPlacement="top"
               FabProps={{ color: 'default' }}
+              onClick={() => action.link ? navigate(action.link) : handleDeletePost()}
             />
           ))}
         </SpeedDial>

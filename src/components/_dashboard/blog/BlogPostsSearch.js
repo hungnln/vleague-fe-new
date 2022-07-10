@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import { Icon } from '@iconify/react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { paramCase } from 'change-case';
 import parse from 'autosuggest-highlight/parse';
 import match from 'autosuggest-highlight/match';
@@ -54,25 +54,26 @@ BlogPostsSearch.propTypes = {
 export default function BlogPostsSearch({ sx }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
-  const linkTo = (title) => `${PATH_DASHBOARD.blog.root}/post/${paramCase(title)}`;
-
+  const linkTo = (id) => `${PATH_DASHBOARD.blog.root}/post/${id}`;
+  const handleClickAway = () => {
+    setSearchQuery('')
+  }
   const handleChangeSearch = async (event) => {
     try {
       const { value } = event.target;
       setSearchQuery(value);
-      if (value) {
-        const response = await axios.get('/api/blog/posts/search', {
-          params: { query: value }
-        });
-        setSearchResults(response.data.results);
+      if (value.trim().length > 0) {
+        const response = await axios.get(`/api/news?SearchText=${value}`);
+        setSearchResults(response.data.result);
       } else {
         setSearchResults([]);
       }
     } catch (error) {
       console.error(error);
+
     }
   };
-
+  useEffect(() => { console.log("check", searchQuery); }, [searchQuery])
   return (
     <RootStyle
       sx={{
@@ -85,7 +86,6 @@ export default function BlogPostsSearch({ sx }) {
       }}
     >
       <Autocomplete
-        open
         size="small"
         disablePortal
         popupIcon={null}
@@ -120,12 +120,12 @@ export default function BlogPostsSearch({ sx }) {
           />
         )}
         renderOption={(props, post, { inputValue }) => {
-          const { title } = post;
+          const { title, id } = post;
           const matches = match(title, inputValue);
           const parts = parse(title, matches);
           return (
             <li {...props}>
-              <Link to={linkTo(title)} component={RouterLink} underline="none">
+              <Link to={linkTo(id)} component={RouterLink} underline="none">
                 {parts.map((part, index) => (
                   <Typography
                     key={index}

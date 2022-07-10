@@ -5,6 +5,8 @@ import heartFill from '@iconify/icons-eva/heart-fill';
 import { Box, Chip, Avatar, AvatarGroup, FormControlLabel, Checkbox } from '@mui/material';
 // utils
 import { fShortenNumber } from '../../../utils/formatNumber';
+import { PATH_DASHBOARD } from 'src/routes/paths';
+import { useNavigate } from 'react-router';
 
 // ----------------------------------------------------------------------
 
@@ -14,16 +16,20 @@ BlogPostTags.propTypes = {
 };
 
 export default function BlogPostTags({ post, sx }) {
-  const { favorite, tags, favoritePerson } = post;
+  const { clubs, players } = post;
+  const navigate = useNavigate();
 
   return (
     <Box sx={{ py: 3, ...sx }}>
-      {tags.map((tag) => (
-        <Chip key={tag} label={tag} sx={{ m: 0.5 }} />
+      {players.map((tag) => (
+        <Chip clickable key={tag.id} label={tag.name} sx={{ m: 0.5 }} onClick={() => navigate(`${PATH_DASHBOARD.player.root}/edit/${tag.id}`)} />
+      ))}
+      {clubs.map((tag) => (
+        <Chip clickable key={tag.id} label={tag.name} sx={{ m: 0.5 }} onClick={() => navigate(`${PATH_DASHBOARD.club.root}/edit/${tag.id}`)} />
       ))}
 
       <Box sx={{ display: 'flex', alignItems: 'center', mt: 3 }}>
-        <FormControlLabel
+        {/* <FormControlLabel
           control={
             <Checkbox
               defaultChecked
@@ -34,12 +40,12 @@ export default function BlogPostTags({ post, sx }) {
             />
           }
           label={fShortenNumber(favorite)}
-        />
-        <AvatarGroup max={4} sx={{ '& .MuiAvatar-root': { width: 32, height: 32 } }}>
+        /> */}
+        {/* <AvatarGroup max={4} sx={{ '& .MuiAvatar-root': { width: 32, height: 32 } }}>
           {favoritePerson.map((person) => (
             <Avatar key={person.name} alt={person.name} src={person.avatarUrl} />
           ))}
-        </AvatarGroup>
+        </AvatarGroup> */}
       </Box>
     </Box>
   );

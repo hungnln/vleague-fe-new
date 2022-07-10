@@ -224,6 +224,9 @@ export const loginToServer = () => {
       const response = await axios.post('/api/login/firebase');
       console.log(response, 'respone');
       dispatch(slice.actions.getProfileSuccess(response.data.result));
+      localStorage.setItem('accessToken', response.data.result.token)
+      localStorage.setItem('tokenExpire', response.data.result.tokenExpiresAt)
+      console.log(response.data.result.token, "api token")
     } catch (error) {
       console.log(error, 'error');
       dispatch(slice.actions.hasError(error));

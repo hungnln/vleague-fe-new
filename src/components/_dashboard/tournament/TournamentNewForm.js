@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { Form, FormikProvider, useFormik } from 'formik';
 // material
 import { DatePicker, LoadingButton } from '@mui/lab';
-import { Box, Card, Grid, Stack, Switch, TextField, Typography, FormHelperText, FormControlLabel } from '@mui/material';
+import { Box, Card, Grid, Stack, Switch, TextField, Typography, FormHelperText, FormControlLabel, Alert } from '@mui/material';
 // utils
 import { getBase64FromUrl, getBase64Image, toBase64 } from 'src/utils/base64/base64';
 import { fData } from '../../../utils/formatNumber';
@@ -28,9 +28,9 @@ TournamentNewForm.propTypes = {
   currentTournament: PropTypes.object
 };
 
-export default function TournamentNewForm({ isEdit, currentTournament }) {
+export default function TournamentNewForm({ onCancel, currentTournament }) {
   const dispatch = useDispatch();
-  const navigate = useNavigate();
+  const isEdit = !_.isEmpty(currentTournament)
   const [errorState, setErrorState] = useState();
   const { enqueueSnackbar } = useSnackbar();
   const NewTournamentSchema = Yup.object().shape({
@@ -64,15 +64,10 @@ export default function TournamentNewForm({ isEdit, currentTournament }) {
   });
   useEffect(() => {
     if (!_.isEmpty(errorState)) {
-      console.log('check state', errorState);
-
       if (!errorState.IsError) {
-        console.log('ko error');
         formik.resetForm();
         enqueueSnackbar(!isEdit ? 'Create success' : 'Update success', { variant: 'success' });
-        navigate(PATH_DASHBOARD.tournament.list);
-      } else {
-        console.log('bị error');
+        onCancel()
       }
     }
 
@@ -81,65 +76,50 @@ export default function TournamentNewForm({ isEdit, currentTournament }) {
   return (
     <FormikProvider value={formik}>
       <Form noValidate autoComplete="off" onSubmit={handleSubmit}>
-        <Grid container spacing={3}>
-          {/* <Grid item xs={12} md={4}>
-            <Card sx={{ py: 10, px: 3 }}>
-              {isEdit && (
-                <Label
-                  color={values.status !== 'active' ? 'error' : 'success'}
-                  sx={{ textTransform: 'uppercase', position: 'absolute', top: 24, right: 24 }}
-                >
-                  {values.status}
-                </Label>
-              )}
-            </Card>
-          </Grid> */}
+        <Card sx={{ p: 3 }}>
+          <Stack spacing={3}>
+            <Stack direction={{ xs: 'column', }} spacing={3}>
+              <TextField
+                fullWidth
+                label="Name"
+                {...getFieldProps('Name')}
+                error={Boolean(touched.Name && errors.Name)}
+                helperText={touched.Name && errors.Name}
+              />
+              <DatePicker
+                disabled={isEdit}
+                label="From"
+                openTo="year"
+                views={['year', 'month', 'day']}
+                value={values.From}
+                onChange={(newValue) => {
+                  setFieldValue('From', newValue);
+                }}
+                renderInput={(params) => <TextField {...params} error={Boolean(touched.From && errors.From)}
+                  helperText={touched.From && errors.From} />}
+              />
+              <DatePicker
+                disablePast
+                label="To"
+                openTo="year"
+                views={['year', 'month', 'day']}
+                value={values.To}
+                onChange={(newValue) => {
+                  setFieldValue('To', newValue);
+                }}
+                renderInput={(params) => <TextField {...params} error={Boolean(touched.To && errors.To)}
+                  helperText={touched.To && errors.To} />}
+              />
+            </Stack>
+            {errorState?.IsError ? <Alert severity="warning">{errorState.Message}</Alert> : ''}
 
-          <Grid item xs={12} md={4}>
-            <Card sx={{ p: 3 }}>
-              <Stack spacing={3}>
-                <Stack direction={{ xs: 'column', }} spacing={3}>
-                  <TextField
-                    fullWidth
-                    label="Name"
-                    {...getFieldProps('Name')}
-                    error={Boolean(touched.Name && errors.Name)}
-                    helperText={touched.Name && errors.Name}
-                  />
-                  <DatePicker
-                    {...isEdit ? { disabled: 'true' } : {}}
-                    label="From"
-                    openTo="year"
-                    views={['year', 'month', 'day']}
-                    value={values.From}
-                    onChange={(newValue) => {
-                      setFieldValue('From', newValue);
-                    }}
-                    renderInput={(params) => <TextField {...params} error={Boolean(touched.From && errors.From)}
-                      helperText={touched.From && errors.From} />}
-                  />
-                  <DatePicker
-                    disablePast
-                    label="To"
-                    openTo="year"
-                    views={['year', 'month', 'day']}
-                    value={values.To}
-                    onChange={(newValue) => {
-                      setFieldValue('To', newValue);
-                    }}
-                    renderInput={(params) => <TextField {...params} error={Boolean(touched.To && errors.To)}
-                      helperText={touched.To && errors.To} />}
-                  />
-                </Stack>
-                <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
-                  <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
-                    {!isEdit ? 'Create Tournament' : 'Save Changes'}
-                  </LoadingButton>
-                </Box>
-              </Stack>
-            </Card>
-          </Grid>
-        </Grid>
+            <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
+              <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
+                {!isEdit ? 'Create Tournament' : 'Save Changes'}
+              </LoadingButton>
+            </Box>
+          </Stack>
+        </Card>
       </Form>
     </FormikProvider>
   );

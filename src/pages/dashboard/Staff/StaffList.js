@@ -19,7 +19,8 @@ import {
   Container,
   Typography,
   TableContainer,
-  TablePagination
+  TablePagination,
+  LinearProgress
 } from '@mui/material';
 // redux
 import { useDispatch, useSelector } from '../../../redux/store';
@@ -38,6 +39,7 @@ import HeaderBreadcrumbs from '../../../components/HeaderBreadcrumbs';
 import { StaffMoreMenu, StaffListHead, StaffListToolbar } from 'src/components/_dashboard/staff/list';
 import { ModeComment } from '@mui/icons-material';
 import moment from 'moment';
+import AssignmentIndOutlinedIcon from '@mui/icons-material/AssignmentIndOutlined';
 
 // ----------------------------------------------------------------------
 
@@ -141,7 +143,6 @@ export default function StaffList() {
   };
 
   const handleDeleteStaff = (staffId) => {
-    // dispatch(deleteStaff(staffId));
     dispatch(removeStaff(staffId))
 
   };
@@ -150,7 +151,7 @@ export default function StaffList() {
 
   const filteredStaffs = applySortFilter(staffList, getComparator(order, orderBy), filterName);
 
-  const isStaffNotFound = filteredStaffs.length === 0;
+  const isStaffNotFound = filteredStaffs.length === 0 && staffList.length > 0;
 
   return (
     <Page title="Staff: List | V League">
@@ -164,16 +165,16 @@ export default function StaffList() {
           ]}
           action={
             <>
-              <Button
+              <Button Button
                 variant="contained"
                 component={RouterLink}
                 to={PATH_DASHBOARD.staff.contract}
-                startIcon={<Icon icon={plusFill} />}
+                startIcon={<AssignmentIndOutlinedIcon />}
               >
                 View Contracts
               </Button>
-              <Button
 
+              <Button
                 variant="contained"
                 component={RouterLink}
                 to={PATH_DASHBOARD.staff.newStaff}
@@ -182,7 +183,6 @@ export default function StaffList() {
               >
                 New Staff
               </Button></>
-
           }
         />
 
@@ -190,7 +190,7 @@ export default function StaffList() {
           <StaffListToolbar numSelected={selected.length} filterName={filterName} onFilterName={handleFilterByName} />
 
           <Scrollbar>
-            <TableContainer sx={{ minWidth: 800 }}>
+            <TableContainer sx={{ minWidth: 300 }}>
               <Table>
                 <StaffListHead
                   order={order}
@@ -202,6 +202,10 @@ export default function StaffList() {
                   onSelectAllClick={handleSelectAllClick}
                 />
                 <TableBody>
+                  {staffList.length <= 0 &&
+                    (<TableRow sx={{ width: '100%' }}>
+                      <TableCell colSpan={4}> <LinearProgress /></TableCell>
+                    </TableRow>)}
                   {filteredStaffs.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
                     const { id, name, dateOfBirth, imageURL, isVerified } = row;
                     const isItemSelected = selected.indexOf(name) !== -1;
@@ -221,7 +225,7 @@ export default function StaffList() {
                         <TableCell component="th" scope="row" padding="none">
                           <Stack direction="row" alignItems="center" spacing={2}>
                             <Avatar alt={name} src={imageURL} />
-                            <Typography variant="subtitle2" noWrap>
+                            <Typography variant="subtitle2" >
                               {name}
                             </Typography>
                           </Stack>

@@ -11,7 +11,7 @@ import { styled } from '@mui/material/styles';
 // routes
 import { PATH_DASHBOARD } from '../../../routes/paths';
 // utils
-import { fDate } from '../../../utils/formatTime';
+import { fDate, fDateTime } from '../../../utils/formatTime';
 import { fShortenNumber } from '../../../utils/formatNumber';
 //
 import SvgIconStyle from '../../SvgIconStyle';
@@ -74,7 +74,7 @@ function PostItem({ post }) {
 
         <CardContent sx={{ pt: 4.5 }}>
           <Typography gutterBottom variant="caption" sx={{ color: 'text.disabled', display: 'block' }}>
-            {fDate(createdAt)}
+            {fDateTime(createdAt)}
           </Typography>
 
           <Link

@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { Form, FormikProvider, useFormik } from 'formik';
 // material
 import { DatePicker, LoadingButton } from '@mui/lab';
-import { Box, Card, Grid, Stack, Switch, TextField, Typography, FormHelperText, FormControlLabel } from '@mui/material';
+import { Box, Card, Grid, Stack, Switch, TextField, Typography, FormHelperText, FormControlLabel, Alert } from '@mui/material';
 // utils
 import { getBase64FromUrl, getBase64Image, toBase64 } from 'src/utils/base64/base64';
 import { fData } from '../../../utils/formatNumber';
@@ -32,26 +32,21 @@ export default function PlayerNewForm({ isEdit, currentPlayer }) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [errorState, setErrorState] = useState()
-
-  let base64 = ''
-  // const [base64, setBase64] = useState('')
   const { enqueueSnackbar } = useSnackbar();
   const NewPlayerSchema = Yup.object().shape({
     Name: Yup.string().required('Name is required'),
     DateOfBirth: Yup.string().required('Birthday is required'),
-    ImageURL: Yup.mixed().required('Avatar is required')
+    ImageURL: Yup.mixed().required('Avatar is required'),
+    HeightCm: Yup.number().required('Height is required').min(0),
+    WeightKg: Yup.number().required('Weight is required').min(0),
+
   });
   useEffect(() => {
     if (!_.isEmpty(errorState)) {
-      console.log('check state', errorState);
-
       if (!errorState.IsError) {
-        console.log('ko error');
         formik.resetForm();
         enqueueSnackbar(!isEdit ? 'Create success' : 'Update success', { variant: 'success' });
         navigate(PATH_DASHBOARD.player.list);
-      } else {
-        console.log('bị error');
       }
     }
 
@@ -63,8 +58,8 @@ export default function PlayerNewForm({ isEdit, currentPlayer }) {
       id: currentPlayer?.id || '',
       Name: currentPlayer?.name || '',
       DateOfBirth: currentPlayer?.dateOfBirth || '',
-      HeightCm: currentPlayer?.heightCm || 0,
-      WeightKg: currentPlayer?.weightKg || 0,
+      HeightCm: currentPlayer?.heightCm || '',
+      WeightKg: currentPlayer?.weightKg || '',
       ImageURL: currentPlayer?.imageURL || null,
     },
     validationSchema: NewPlayerSchema,
@@ -72,8 +67,8 @@ export default function PlayerNewForm({ isEdit, currentPlayer }) {
       try {
         let data = ''
         if (isEdit) {
-          if (base64 !== '') {
-            data = { ...values, ImageURL: base64 }
+          if (values.ImageURL?.base64 == null) {
+            data = { ...values }
           } else {
             data = { ...values, ImageURL: values.ImageURL.base64 }
           }
@@ -82,10 +77,6 @@ export default function PlayerNewForm({ isEdit, currentPlayer }) {
           data = { ...values, ImageURL: values.ImageURL.base64 }
           dispatch(createPlayer(data, value => setErrorState(value)))
         }
-        // resetForm();
-        // setSubmitting(false);
-        // enqueueSnackbar(!isEdit ? 'Create success' : 'Update success', { variant: 'success' });
-        // navigate(PATH_DASHBOARD.player.list);
       } catch (error) {
         console.error(error);
         setSubmitting(false);
@@ -95,11 +86,6 @@ export default function PlayerNewForm({ isEdit, currentPlayer }) {
   });
 
   const { errors, values, touched, handleSubmit, isSubmitting, setFieldValue, getFieldProps } = formik;
-  if (_.includes(formik.values.ImageURL, 'http')) {
-    console.log(1);
-    getBase64Image(currentPlayer?.imageURL).then(value =>
-      base64 = value)
-  }
   const handleDrop = useCallback(
     (acceptedFiles) => {
       const file = acceptedFiles[0];
@@ -110,12 +96,10 @@ export default function PlayerNewForm({ isEdit, currentPlayer }) {
             preview: URL.createObjectURL(file), base64: value
           });
         })
-        base64 = ''
       }
     },
     [setFieldValue]
   );
-  // const [value, setValue] = useState(new Date(values.DateOfBirth));
 
   return (
     <FormikProvider value={formik}>
@@ -192,20 +176,20 @@ export default function PlayerNewForm({ isEdit, currentPlayer }) {
                         type='number'
                         label="Heigh"
                         {...getFieldProps('HeightCm')}
-                        error={Boolean(touched.Name && errors.Name)}
-                        helperText={touched.Name && errors.Name}
+                        error={Boolean(touched.HeightCm && errors.HeightCm)}
+                        helperText={touched.HeightCm && errors.HeightCm}
                       />
                       <TextField
                         type='number'
                         label="Weight"
                         {...getFieldProps('WeightKg')}
-                        error={Boolean(touched.Name && errors.Name)}
-                        helperText={touched.Name && errors.Name}
+                        error={Boolean(touched.WeightKg && errors.WeightKg)}
+                        helperText={touched.WeightKg && errors.WeightKg}
                       />
                     </Stack>
                   </Stack>
                 </Stack>
-
+                {errorState?.IsError ? <Alert severity="warning">{errorState?.Message}</Alert> : ''}
                 <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
                   <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
                     {!isEdit ? 'Create Player' : 'Save Changes'}

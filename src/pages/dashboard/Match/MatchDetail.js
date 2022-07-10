@@ -5,9 +5,10 @@ import heartFill from '@iconify/icons-eva/heart-fill';
 import peopleFill from '@iconify/icons-eva/people-fill';
 import roundPermMedia from '@iconify/icons-ic/round-perm-media';
 import roundAccountBox from '@iconify/icons-ic/round-account-box';
+import baselineOnlinePrediction from '@iconify/icons-ic/baseline-online-prediction';
 // material
 import { styled } from '@mui/material/styles';
-import { Tab, Box, Card, Tabs, Container, Stack, Grid, Avatar, Typography } from '@mui/material';
+import { Tab, Box, Card, Tabs, Container, Stack, Grid, Avatar, Typography, CircularProgress, Badge } from '@mui/material';
 // routes
 // hooks
 // components
@@ -28,6 +29,7 @@ import _ from 'lodash';
 import { getPlayerList } from 'src/redux/slices/player';
 import { getStaffList } from 'src/redux/slices/staff';
 import { getRefereeList } from 'src/redux/slices/referee';
+import AccessTimeOutlinedIcon from '@mui/icons-material/AccessTimeOutlined';
 
 // ----------------------------------------------------------------------
 
@@ -79,11 +81,10 @@ export default function MatchDetail() {
     if (!currentMatch) {
         return null;
     }
-
     const PROFILE_TABS = [
         {
             value: 'happening',
-            icon: <Icon icon={roundAccountBox} width={20} height={20} />,
+            icon: <Icon icon={baselineOnlinePrediction} width={20} height={20} />,
             component: <Event activities={activities} />
         },
         {
@@ -91,98 +92,88 @@ export default function MatchDetail() {
             icon: <Icon icon={roundAccountBox} width={20} height={20} />,
             component: <Lineup matchParticiation={matchParticiation} />
         },
-        {
-            value: 'statistic',
-            icon: <Icon icon={roundAccountBox} width={20} height={20} />,
-            component: <Event activities={activities} />
-        },
-        {
-            value: 'news',
-            icon: <Icon icon={roundAccountBox} width={20} height={20} />,
-            component: <Event activities={activities} />
-        },
         // {
-        //     value: 'followers',
-        //     icon: <Icon icon={heartFill} width={20} height={20} />,
-        //     component: <ProfileFollowers followers={followers} onToggleFollow={handleToggleFollow} />
+        //     value: 'statistic',
+        //     icon: <Icon icon={roundAccountBox} width={20} height={20} />,
+        //     component: <Event activities={activities} />
         // },
         // {
-        //     value: 'friends',
-        //     icon: <Icon icon={peopleFill} width={20} height={20} />,
-        //     component: <ProfileFriends friends={friends} findFriends={findFriends} onFindFriends={handleFindFriends} />
+        //     value: 'news',
+        //     icon: <Icon icon={roundAccountBox} width={20} height={20} />,
+        //     component: <Event activities={activities} />
         // },
-        // {
-        //     value: 'gallery',
-        //     icon: <Icon icon={roundPermMedia} width={20} height={20} />,
-        //     component: <ProfileGallery gallery={gallery} />
-        // }
     ];
 
     return (
         <Page title={`Match: ${homeClub?.name} vs ${awayClub?.name} | V League`}>
             <Container maxWidth={themeStretch ? false : 'lg'}>
-                <HeaderBreadcrumbs
+                {_.isEmpty(currentMatch) ? (<Box >
+                    <CircularProgress sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }} />
+                </Box>) : (<> <HeaderBreadcrumbs
                     heading="Match"
                     links={[
                         { name: 'Dashboard', href: PATH_DASHBOARD.root },
+                        { name: 'Tournament', href: PATH_DASHBOARD.tournament.root },
+                        // { name: 'Round', href: `${PATH_DASHBOARD.tournament.root}/${currentMatch?.roundID}/round` },
                         // { name: 'Match', href: PATH_DASHBOARD.match.root },
                         { name: currentMatch?.id }
                     ]}
                 />
-                <Card
-                    sx={{
-                        mb: 3,
-                        height: 200,
-                        position: 'relative'
-                    }}
-                >   <Typography variant="subtitle2" noWrap sx={{ mt: 1, px: 3 }}>
-                        {moment(new Date(currentMatch?.startDate)).format('DD MMM yyyy HH:mm')}
-                    </Typography>
-                    <Grid container spacing={3} sx={{ mt: 1, px: 3 }}>
-                        <Grid item xs={4}>
-                            <Stack spacing={3} direction={{ xs: 'column', sm: 'row' }} alignItems="center" justifyContent="center">
-                                <Avatar alt={homeClub} src={homeClub?.imageURL} />
-                                <Typography variant="subtitle2" noWrap>
-                                    {homeClub?.name}
-                                </Typography>
-                            </Stack>
-                        </Grid>
-                        <Grid item xs={4}>
-                            <Stack spacing={3} direction="row" alignItems="center" justifyContent="center">
-                                <Typography variant="h2" noWrap>
-                                    {homeGoals} : {awayGoals}
-                                </Typography>
-                            </Stack>
-                        </Grid>
-                        <Grid item xs={4}>
-                            <Stack spacing={3} direction={{ xs: 'column-reverse', sm: 'row' }} alignItems="center" justifyContent="center">
-                                <Typography variant="subtitle2" noWrap>
-                                    {awayClub?.name}
-                                </Typography>
-                                <Avatar alt={awayClub} src={awayClub?.imageURL} />
+                    <Card
+                        sx={{
+                            mb: 3,
+                            height: 200,
+                            position: 'relative'
+                        }}
+                    >   <Typography variant="subtitle2" noWrap sx={{ mt: 1, px: 3 }}>
+                            {moment(new Date(currentMatch?.startDate)).format('DD MMM yyyy HH:mm')}
+                        </Typography>
+                        <Grid container spacing={3} sx={{ mt: 1, px: 3 }}>
+                            <Grid item xs={4}>
+                                <Stack spacing={3} direction={{ xs: 'column', sm: 'row' }} alignItems="center" justifyContent="center">
+                                    <Avatar alt={homeClub} src={homeClub?.imageURL} />
+                                    <Typography variant="subtitle2" noWrap>
+                                        {homeClub?.name}
+                                    </Typography>
+                                </Stack>
+                            </Grid>
+                            <Grid item xs={4}>
+                                <Stack spacing={3} direction="row" alignItems="center" justifyContent="center">
+                                    <Typography variant="h2" noWrap>
+                                        {homeGoals} : {awayGoals}
+                                    </Typography>
+                                </Stack>
+                            </Grid>
+                            <Grid item xs={4}>
+                                <Stack spacing={3} direction={{ xs: 'column-reverse', sm: 'row' }} alignItems="center" justifyContent="center">
+                                    <Typography variant="subtitle2" noWrap>
+                                        {awayClub?.name}
+                                    </Typography>
+                                    <Avatar alt={awayClub} src={awayClub?.imageURL} />
 
-                            </Stack>
+                                </Stack>
+                            </Grid>
                         </Grid>
-                    </Grid>
-                    <TabsWrapperStyle>
-                        <Tabs
-                            value={currentTab}
-                            scrollButtons="auto"
-                            variant="scrollable"
-                            allowScrollButtonsMobile
-                            onChange={handleChangeTab}
-                        >
-                            {PROFILE_TABS.map((tab) => (
-                                <Tab disableRipple key={tab.value} value={tab.value} icon={tab.icon} label={capitalCase(tab.value)} />
-                            ))}
-                        </Tabs>
-                    </TabsWrapperStyle>
-                </Card>
+                        <TabsWrapperStyle>
+                            <Tabs
+                                value={currentTab}
+                                scrollButtons="auto"
+                                variant="scrollable"
+                                allowScrollButtonsMobile
+                                onChange={handleChangeTab}
+                            >
+                                {PROFILE_TABS.map((tab) => (
+                                    <Tab disableRipple key={tab.value} value={tab.value} icon={tab.icon} label={capitalCase(tab.value)} />
+                                ))}
+                            </Tabs>
+                        </TabsWrapperStyle>
+                    </Card>
 
-                {PROFILE_TABS.map((tab) => {
-                    const isMatched = tab.value === currentTab;
-                    return isMatched && <Box key={tab.value}>{tab.component}</Box>;
-                })}
+                    {PROFILE_TABS.map((tab) => {
+                        const isMatched = tab.value === currentTab;
+                        return isMatched && <Box key={tab.value}>{tab.component}</Box>;
+                    })}</>)}
+
             </Container>
         </Page>
     );

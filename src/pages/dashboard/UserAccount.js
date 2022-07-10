@@ -34,11 +34,6 @@ export default function UserAccount() {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    dispatch(getCards());
-    dispatch(getAddressBook());
-    dispatch(getInvoices());
-    dispatch(getNotifications());
-    dispatch(getProfile());
   }, [dispatch]);
 
   const ACCOUNT_TABS = [

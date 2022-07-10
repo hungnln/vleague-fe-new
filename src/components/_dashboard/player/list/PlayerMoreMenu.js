@@ -3,6 +3,7 @@ import { Icon } from '@iconify/react';
 import { paramCase } from 'change-case';
 import { useRef, useState } from 'react';
 import editFill from '@iconify/icons-eva/edit-fill';
+import eyeFill from '@iconify/icons-eva/eye-fill';
 import { Link as RouterLink } from 'react-router-dom';
 import trash2Outline from '@iconify/icons-eva/trash-2-outline';
 import moreVerticalFill from '@iconify/icons-eva/more-vertical-fill';
@@ -20,7 +21,7 @@ PlayerMoreMenu.propTypes = {
   userName: PropTypes.string
 };
 
-export default function PlayerMoreMenu({ onDelete, playerName,playerId }) {
+export default function PlayerMoreMenu({ onDelete, playerName, playerId }) {
   const ref = useRef(null);
   const [isOpen, setIsOpen] = useState(false);
 
@@ -40,7 +41,7 @@ export default function PlayerMoreMenu({ onDelete, playerName,playerId }) {
         anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
         transformOrigin={{ vertical: 'top', horizontal: 'right' }}
       >
-        <MenuItem onClick={onDelete} sx={{ color: 'text.secondary' }}>
+        <MenuItem onClick={onDelete} sx={{ color: 'error.main' }}>
           <ListItemIcon>
             <Icon icon={trash2Outline} width={24} height={24} />
           </ListItemIcon>
@@ -63,7 +64,7 @@ export default function PlayerMoreMenu({ onDelete, playerName,playerId }) {
           sx={{ color: 'text.secondary' }}
         >
           <ListItemIcon>
-            <BusinessCenterIcon icon={editFill} width={24} height={24} />
+            <BusinessCenterIcon icon={eyeFill} width={24} height={24} />
           </ListItemIcon>
           <ListItemText primary="View contract" primaryTypographyProps={{ variant: 'body2' }} />
         </MenuItem>

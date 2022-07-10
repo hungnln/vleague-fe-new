@@ -40,7 +40,7 @@ export default function MatchLineUpMoreMenu({ onReferee, onLineup, onReverse, on
         {!onReferee ? ([
           <MenuItem onClick={onLineup} sx={{ color: 'text.secondary' }}>
             <ListItemIcon>
-              <Icon icon={trash2Outline} width={24} height={24} />
+              <Icon icon={editFill} width={24} height={24} />
             </ListItemIcon>
             <ListItemText primary="Line up" primaryTypographyProps={{ variant: 'body2' }} />
           </MenuItem>,

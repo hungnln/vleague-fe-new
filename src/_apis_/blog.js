@@ -195,33 +195,33 @@
 // ];
 
 // export const posts = [...Array(23)].map((_, index) => {
-//   return {
-//     id: mockData.id(index),
-//     cover: mockData.image.cover(index),
-//     title: mockData.text.title(index),
-//     description: mockData.text.sentence(index),
-//     createdAt: mockData.time(index),
-//     view: random(9999),
-//     comment: random(9999),
-//     share: random(9999),
-//     favorite: random(9999),
-//     author: {
-//       name: mockData.name.fullName(index),
-//       avatarUrl: mockData.image.avatar(index)
-//     },
-//     tags: ['Lamp', 'A man', 'Human', 'Lantern', 'Festival'],
-//     body: POST_BODY,
-//     favoritePerson: [...Array(40)].map((_, index) => {
-//       return {
-//         name: mockData.name.fullName(index),
-//         avatarUrl: mockData.image.avatar(index)
-//       };
-//     }),
-//     comments: POST_COMMENTS
-//   };
+//     return {
+//         id: mockData.id(index),
+//         cover: mockData.image.cover(index),
+//         title: mockData.text.title(index),
+//         description: mockData.text.sentence(index),
+//         createdAt: mockData.time(index),
+//         view: random(9999),
+//         comment: random(9999),
+//         share: random(9999),
+//         favorite: random(9999),
+//         author: {
+//             name: mockData.name.fullName(index),
+//             avatarUrl: mockData.image.avatar(index)
+//         },
+//         tags: ['Lamp', 'A man', 'Human', 'Lantern', 'Festival'],
+//         body: POST_BODY,
+//         favoritePerson: [...Array(40)].map((_, index) => {
+//             return {
+//                 name: mockData.name.fullName(index),
+//                 avatarUrl: mockData.image.avatar(index)
+//             };
+//         }),
+//         comments: POST_COMMENTS
+//     };
 // });
 
-// // ----------------------------------------------------------------------
+// // // ----------------------------------------------------------------------
 
 // mock.onGet('/api/blog/posts/all').reply(200, { posts });
 

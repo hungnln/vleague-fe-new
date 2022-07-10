@@ -145,20 +145,25 @@ export default function Lineup() {
         const HomeLineUpSelected = !_.isEmpty(HomeLineUp) ? [HomeLineUp.GoalKeeper, ...HomeLineUp.Defender, ...HomeLineUp.Midfielder, ...HomeLineUp.Forward] : []
         setHomeSelected([...HomeReverseSelected, ...HomeLineUpSelected])
     }, [matchParticipation])
-    const renderPlayer = (object) => {
-        return object ? Object.values(object).map((e) => {
+    const renderPlayer = (object, isHome) => {
+        return object ? Object.entries(object).map(([key, e]) => {
             return Array.isArray(e) ? (e.map((row, index) => {
-                return <TableRow
+                return isHome ? (<TableRow
                     key={row.id}
                     sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                 >
-                    <TableCell align="left" width={70}>
-                        {row.number}
-                    </TableCell>
+                    <TableCell align="left" width={70}>{row.number}</TableCell>
                     <TableCell align="left">{row?.player?.name}</TableCell>
-                    <TableCell align="left">{ }</TableCell>
-                </TableRow>
-            })) : (<TableRow
+                    <TableCell align="right">{key}</TableCell>
+                </TableRow >) : (<TableRow
+                    key={row.id}
+                    sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                >
+                    <TableCell align="left">{key}</TableCell>
+                    <TableCell align="right">{row?.player?.name}</TableCell>
+                    <TableCell align="right" width={70}>{row.number}</TableCell>
+                </TableRow >)
+            })) : isHome ? ((<TableRow
                 key={e?.id}
                 sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
             >
@@ -166,8 +171,17 @@ export default function Lineup() {
                     {e?.number}
                 </TableCell>
                 <TableCell align="left">{e?.player?.name}</TableCell>
-                <TableCell align="left">{ }</TableCell>
-            </TableRow>)
+                <TableCell align="right">{key}</TableCell>
+            </TableRow>)) : ((<TableRow
+                key={e?.id}
+                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+            >
+                <TableCell align="left">{key}</TableCell>
+                <TableCell align="right">{e?.player?.name}</TableCell>
+                <TableCell align="right" width={70}>
+                    {e?.number}
+                </TableCell>
+            </TableRow>))
         }) : (<TableRow
             sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
         >
@@ -177,29 +191,47 @@ export default function Lineup() {
         </TableRow>)
     }
 
-    const renderStaff = (object) => {
+    const renderStaff = (object, isHome) => {
         return object ? Object.entries(object).map(([key, value]) => {
             return Array.isArray(value) ? (value.map((row, index) => {
-                return <TableRow
+                return isHome ? (<TableRow
                     key={row.id}
                     sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                 >
+                    <TableCell align="left">{row?.staff?.name}</TableCell>
+                    <TableCell align="right" width={70}>
+                        {key}
+                    </TableCell>
+                    {/* <TableCell align="left">{ }</TableCell> */}
+                </TableRow>) : (<TableRow
+                    key={row.id}
+                    sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                >
+                    {/* <TableCell align="right">{ }</TableCell> */}
                     <TableCell align="left" width={70}>
                         {key}
                     </TableCell>
-                    <TableCell align="left">{row?.staff?.name}</TableCell>
-                    <TableCell align="left">{ }</TableCell>
-                </TableRow>
-            })) : (<TableRow
+                    <TableCell align="right">{row?.staff?.name}</TableCell>
+                </TableRow>)
+            })) : isHome ? ((<TableRow
                 key={value.id}
                 sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
             >
+                <TableCell align="left">{value?.staff?.name}</TableCell>
+                <TableCell align="right" width={70}>
+                    {key}
+                </TableCell>
+                {/* <TableCell align="left">{ }</TableCell> */}
+            </TableRow>)) : ((<TableRow
+                key={value.id}
+                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+            >
+                {/* <TableCell align="right">{ }</TableCell> */}
                 <TableCell align="left" width={70}>
                     {key}
                 </TableCell>
-                <TableCell align="left">{value?.staff?.name}</TableCell>
-                <TableCell align="left">1</TableCell>
-            </TableRow>)
+                <TableCell align="right">{value?.staff?.name}</TableCell>
+            </TableRow>))
         }) : <></>
     }
     const checkPlayerList = () => {
@@ -230,8 +262,8 @@ export default function Lineup() {
                     <TableCell align="left" width={70}>
                         {key}
                     </TableCell>
-                    <TableCell align="left">{row.name}</TableCell>
-                    <TableCell align="right">{ }</TableCell>
+                    <TableCell align="right">{row.name}</TableCell>
+                    {/* <TableCell align="right">{ }</TableCell> */}
                 </TableRow>
             })) : (<TableRow
                 key={value.id}
@@ -240,17 +272,22 @@ export default function Lineup() {
                 <TableCell align="left" width={70}>
                     {key}
                 </TableCell>
-                <TableCell align="left">{value.name}</TableCell>
-                <TableCell align="right">{ }</TableCell>
+                <TableCell align="right">{value.name}</TableCell>
+                {/* <TableCell align="right">{ }</TableCell> */}
             </TableRow>)
         }) : <></>
     }
+    // const renderStadium = () => {
+    //     return <TableRow sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
+    //         <TableCell></TableCell>
+    //     </TableRow>
+    // }
     const NewLineupSchema = Yup.object().shape({
-        StartDate: Yup.mixed().required('Start date is required'),
+        // StartDate: Yup.mixed().required('Start date is required'),
         // StadiumID: Yup.number().required('Stadium is required'),
-        PlayerParticipation: Yup.array().required('PlayerParticipation is required'),
-        StaffParticipation: Yup.array().required('StaffParticipation is required'),
-        RefereeParticipation: Yup.array().required('RefereeParticipation is required').min(4, "min 4"),
+        // PlayerParticipation: Yup.array().required('PlayerParticipation is required'),
+        // StaffParticipation: Yup.array().required('StaffParticipation is required'),
+        // RefereeParticipation: Yup.array().required('RefereeParticipation is required').min(4, "min 4"),
 
     });
     const formik = useFormik({
@@ -268,8 +305,8 @@ export default function Lineup() {
         onSubmit: async (values, { setSubmitting, resetForm, setErrors }) => {
             try {
                 dispatch(addLineUpServer(values, (value) => setErrorState(value)))
-                console.log("check submit", values);
-                enqueueSnackbar(matchParticipation ? 'Create success' : 'Update success', { variant: 'success' });
+                // console.log("check submit", checkDisable());
+                // enqueueSnackbar(matchParticipation ? 'Create success' : 'Update success', { variant: 'success' });
             } catch (error) {
                 console.error(error);
                 setSubmitting(false);
@@ -285,20 +322,20 @@ export default function Lineup() {
                 enqueueSnackbar('Update success', { variant: 'success' });
             }
             else {
-                enqueueSnackbar(errorState.message, { variant: 'success' });
+                enqueueSnackbar(errorState.Message, { variant: 'error' });
             }
         }
 
     }, [errorState])
     const checkDisable = () => {
-        return _.isNil(values.PlayerParticipation) || _.isNil(values.StaffParticipation) || _.isNil(values.RefereeParticipation)
+        return _.isEmpty(values.PlayerParticipation) || _.isEmpty(values.StaffParticipation) || _.isEmpty(values.RefereeParticipation)
     }
     const { errors, values, touched, handleSubmit, isSubmitting, setFieldValue, getFieldProps } = formik;
     return (
         <FormikProvider value={formik}>
             <Form noValidate autoComplete="off" onSubmit={handleSubmit}>
                 <Box sx={{ mb: 3, display: 'flex', justifyContent: 'flex-end' }}>
-                    <LoadingButton startIcon={<Icon icon={checkmarkFill} />} type="submit" variant="contained" loading={isSubmitting} loadingIndicator="Loading..." disabled={checkDisable}>
+                    <LoadingButton startIcon={<Icon icon={checkmarkFill} />} type="submit" variant="contained" loading={isSubmitting} loadingIndicator="Loading..." disabled={checkDisable()}>
                         Save changes
                     </LoadingButton>
                 </Box>
@@ -310,16 +347,28 @@ export default function Lineup() {
                                     <TableRow>
                                         <TableCell colSpan={2}>{homeClub?.name}</TableCell>
                                         <TableCell align='right' ><MatchLineUpMoreMenu onLineup={handleAddHomeLineup} onReverse={handleAddHomeReverse} onStaff={handleAddHomeStaff} /></TableCell>
-
                                     </TableRow>
                                 </TableHead>
-                                {matchParticipation?.HomeLineUp && (<>
-
+                            </Table>
+                        </Card>
+                        {matchParticipation?.HomeLineUp && (
+                            <Card sx={{ p: 2, mt: 3 }}>
+                                <Table size="small">
+                                    <TableHead>
+                                        <TableRow>
+                                            <TableCell colSpan={2} >Ra sân</TableCell>
+                                            <TableCell >{ }</TableCell>
+                                        </TableRow>
+                                    </TableHead>
                                     <TableBody>
-                                        {renderPlayer(matchParticipation?.HomeLineUp)}
+                                        {renderPlayer(matchParticipation?.HomeLineUp, true)}
                                     </TableBody>
-                                </>)}
-                                {matchParticipation?.HomeReverse && (<>
+                                </Table>
+                            </Card>
+                        )}
+                        {matchParticipation?.HomeReverse && (
+                            <Card sx={{ p: 2, mt: 3 }}>
+                                <Table size="small">
                                     <TableHead>
                                         <TableRow>
                                             <TableCell colSpan={2} >Dự bị</TableCell>
@@ -327,64 +376,106 @@ export default function Lineup() {
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>
-                                        {renderPlayer(matchParticipation?.HomeReverse)}
+                                        {renderPlayer(matchParticipation?.HomeReverse, true)}
                                     </TableBody>
-                                </>)}
-                                {matchParticipation?.HomeStaff && (<>
+                                </Table>
+                            </Card>
+                        )}
+
+
+                        {matchParticipation?.HomeStaff && (
+                            <Card sx={{ p: 2, mt: 3 }}>
+                                <Table size="small">
                                     <TableHead>
                                         <TableRow>
-                                            <TableCell colSpan={2} >Staff</TableCell>
+                                            <TableCell colSpan={1} align='left'>Staff</TableCell>
                                             <TableCell >{ }</TableCell>
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>
-                                        {renderStaff(matchParticipation?.HomeStaff)}
+                                        {renderStaff(matchParticipation?.HomeStaff, true)}
                                     </TableBody>
-                                </>)}
-                            </Table>
-                        </Card>
+                                </Table>
+                            </Card>
+                        )}
+
                     </Grid>
 
                     <Grid item xs={12} md={6}>
-                        <Card sx={{ p: 2 }}>
+                        <Card sx={{ p: 2 }} >
                             <Table size="small" aria-label="a dense table">
                                 <TableHead>
                                     <TableRow>
-                                        <TableCell colSpan={2}>{awayClub?.name}</TableCell>
-                                        <TableCell align='right' ><MatchLineUpMoreMenu onLineup={handleAddAwayLineup} onReverse={handleAddAwayReverse} onStaff={handleAddAwayStaff} /></TableCell>
-
+                                        <TableCell align='left' ><MatchLineUpMoreMenu onLineup={handleAddAwayLineup} onReverse={handleAddAwayReverse} onStaff={handleAddAwayStaff} /></TableCell>
+                                        <TableCell colSpan={2} align="right">{awayClub?.name}</TableCell>
                                     </TableRow>
                                 </TableHead>
-                                {matchParticipation?.AwayLineUp && (<>
+                            </Table>
+
+
+                        </Card>
+                        {matchParticipation?.AwayLineUp && (
+                            <Card sx={{ p: 2, mt: 3 }}>
+                                <Table size='small'>
+                                    <TableHead>
+                                        <TableRow>
+                                            <TableCell >{ }</TableCell>
+                                            <TableCell colSpan={2} align="right">Ra sân</TableCell>
+                                        </TableRow>
+                                    </TableHead>
                                     <TableBody>
                                         {renderPlayer(matchParticipation?.AwayLineUp)}
                                     </TableBody>
-                                </>)}
-                                {matchParticipation?.AwayReverse && (<>
+                                </Table>
+                            </Card>
+                        )}
+                        {matchParticipation?.AwayReverse && (
+                            <Card sx={{ p: 2, mt: 3 }}>
+                                <Table size='small'>
                                     <TableHead>
                                         <TableRow>
-                                            <TableCell colSpan={2} >Dự bị</TableCell>
                                             <TableCell >{ }</TableCell>
+                                            <TableCell colSpan={2} align="right" >Dự bị</TableCell>
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>
                                         {renderPlayer(matchParticipation?.AwayReverse)}
                                     </TableBody>
-                                </>)}
-                                {matchParticipation?.AwayStaff && (<>
+                                </Table>
+                            </Card>
+                        )}
+
+
+                        {matchParticipation?.AwayStaff && (
+                            <Card sx={{ p: 2, mt: 3 }}>
+                                <Table size='small'>
                                     <TableHead>
                                         <TableRow>
-                                            <TableCell colSpan={2} >Staff</TableCell>
                                             <TableCell >{ }</TableCell>
+                                            <TableCell colSpan={1} align="right">Staff</TableCell>
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>
                                         {renderStaff(matchParticipation?.AwayStaff)}
                                     </TableBody>
-                                </>)}
+                                </Table>
+                            </Card>
+                        )}
+
+                    </Grid>
+                    <Grid item xs={12} md={6}>
+                        <Card sx={{ p: 2 }}>
+                            <Table size="small" aria-label="a dense table">
+                                <TableHead>
+                                    <TableRow>
+                                        <TableCell colSpan={1}>Referee</TableCell>
+                                        <TableCell align='right' ><MatchLineUpMoreMenu onReferee={handleAddReferee} /></TableCell>
+                                    </TableRow>
+                                </TableHead>
+                                <TableBody>
+                                    {renderReferee(matchParticipation?.Referee)}
+                                </TableBody>
                             </Table>
-
-
                         </Card>
                     </Grid>
                     <Grid item xs={12} md={6}>
@@ -392,7 +483,7 @@ export default function Lineup() {
                             <Table size="small" aria-label="a dense table">
                                 <TableHead>
                                     <TableRow>
-                                        <TableCell colSpan={2}>Referee</TableCell>
+                                        <TableCell colSpan={1}>Referee</TableCell>
                                         <TableCell align='right' ><MatchLineUpMoreMenu onReferee={handleAddReferee} /></TableCell>
                                     </TableRow>
                                 </TableHead>
@@ -408,7 +499,7 @@ export default function Lineup() {
                     {component}
                 </DialogAnimate>
             </Form>
-        </FormikProvider>
+        </FormikProvider >
     );
 
 }

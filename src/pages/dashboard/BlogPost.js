@@ -5,7 +5,7 @@ import { useParams } from 'react-router-dom';
 import { Box, Card, Divider, Skeleton, Container, Typography, Pagination } from '@mui/material';
 // redux
 import { useDispatch, useSelector } from '../../redux/store';
-import { getPost, getRecentPosts } from '../../redux/slices/blog';
+import { getPost } from '../../redux/slices/blog';
 // routes
 import { PATH_DASHBOARD } from '../../routes/paths';
 // hooks
@@ -41,23 +41,21 @@ const SkeletonLoad = (
 export default function BlogPost() {
   const { themeStretch } = useSettings();
   const dispatch = useDispatch();
-  const { title } = useParams();
+  const { id } = useParams();
   const { post, error, recentPosts } = useSelector((state) => state.blog);
-
   useEffect(() => {
-    dispatch(getPost(title));
-    dispatch(getRecentPosts(title));
-  }, [dispatch, title]);
+    dispatch(getPost(id));
+  }, [dispatch]);
 
   return (
-    <Page title="Blog: Post Details | Minimal-UI">
+    <Page title="News: Post Details | V League">
       <Container maxWidth={themeStretch ? false : 'lg'}>
         <HeaderBreadcrumbs
           heading="Post Details"
           links={[
             { name: 'Dashboard', href: PATH_DASHBOARD.root },
-            { name: 'Blog', href: PATH_DASHBOARD.blog.root },
-            { name: sentenceCase(title) }
+            { name: 'News', href: PATH_DASHBOARD.blog.root },
+            { name: post?.title }
           ]}
         />
 
@@ -66,32 +64,34 @@ export default function BlogPost() {
             <BlogPostHero post={post} />
 
             <Box sx={{ p: { xs: 3, md: 5 } }}>
-              <Typography variant="h6" sx={{ mb: 5 }}>
-                {post.description}
+              <Typography variant="h3" sx={{ mb: 5 }}>
+                {post?.title}
               </Typography>
 
-              <Markdown children={post.body} />
+              <Markdown children={post?.content} />
 
-              <Box sx={{ my: 5 }}>
-                <Divider />
-                <BlogPostTags post={post} />
-                <Divider />
-              </Box>
+              {(post?.players.length > 0 || post?.clubs.length > 0) && (
+                <Box sx={{ mt: 5 }}>
+                  <Divider />
+                  <BlogPostTags post={post} />
+                  {/* <Divider /> */}
+                </Box>
+              )}
 
-              <Box sx={{ display: 'flex', mb: 2 }}>
+              {/* <Box sx={{ display: 'flex', mb: 2 }}>
                 <Typography variant="h4">Comments</Typography>
                 <Typography variant="subtitle2" sx={{ color: 'text.disabled' }}>
                   ({post.comments.length})
                 </Typography>
-              </Box>
+              </Box> */}
 
-              <BlogPostCommentList post={post} />
+              {/* <BlogPostCommentList post={post} /> */}
 
-              <Box sx={{ mb: 5, mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
+              {/* <Box sx={{ mb: 5, mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
                 <Pagination count={8} color="primary" />
-              </Box>
+              </Box> */}
 
-              <BlogPostCommentForm />
+              {/* <BlogPostCommentForm /> */}
             </Box>
           </Card>
         )}
@@ -100,7 +100,7 @@ export default function BlogPost() {
 
         {error && <Typography variant="h6">404 Post not found</Typography>}
 
-        {recentPosts.length > 0 && <BlogPostRecent posts={recentPosts} />}
+        {/* {recentPosts.length > 0 && <BlogPostRecent posts={recentPosts} />} */}
       </Container>
     </Page>
   );

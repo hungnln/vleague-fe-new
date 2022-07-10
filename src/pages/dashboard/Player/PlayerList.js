@@ -19,7 +19,8 @@ import {
   Container,
   Typography,
   TableContainer,
-  TablePagination
+  TablePagination,
+  LinearProgress
 } from '@mui/material';
 // redux
 import { useDispatch, useSelector } from '../../../redux/store';
@@ -38,15 +39,13 @@ import HeaderBreadcrumbs from '../../../components/HeaderBreadcrumbs';
 import { PlayerMoreMenu, PlayerListHead, PlayerListToolbar } from 'src/components/_dashboard/player/list';
 import { ModeComment } from '@mui/icons-material';
 import moment from 'moment';
+import AssignmentIndOutlinedIcon from '@mui/icons-material/AssignmentIndOutlined';
 
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
   { id: 'name', label: 'Name', alignRight: false },
   { id: 'birthday', label: 'Birthday', alignRight: false },
-  // { id: 'role', label: 'Role', alignRight: false },
-  // { id: 'isVerified', label: 'Verified', alignRight: false },
-  // { id: 'status', label: 'Status', alignRight: false },
   { id: '', label: 'Action', alignRight: true }
 ];
 
@@ -151,7 +150,7 @@ export default function PlayerList() {
 
   const filteredPlayers = applySortFilter(playerList, getComparator(order, orderBy), filterName);
 
-  const isPlayerNotFound = filteredPlayers.length === 0;
+  const isPlayerNotFound = filteredPlayers.length === 0 && playerList.length > 0;
 
   return (
     <Page title="Player: List | V League">
@@ -169,7 +168,7 @@ export default function PlayerList() {
                 variant="contained"
                 component={RouterLink}
                 to={PATH_DASHBOARD.player.contract}
-                startIcon={<Icon icon={plusFill} />}
+                startIcon={<AssignmentIndOutlinedIcon />}
               >
                 View Contracts
               </Button>
@@ -190,7 +189,7 @@ export default function PlayerList() {
           <PlayerListToolbar numSelected={selected.length} filterName={filterName} onFilterName={handleFilterByName} />
 
           <Scrollbar>
-            <TableContainer sx={{ minWidth: 800 }}>
+            <TableContainer sx={{ minWidth: 400 }}>
               <Table>
                 <PlayerListHead
                   order={order}
@@ -202,6 +201,10 @@ export default function PlayerList() {
                   onSelectAllClick={handleSelectAllClick}
                 />
                 <TableBody>
+                  {playerList.length <= 0 &&
+                    (<TableRow sx={{ width: '100%' }}>
+                      <TableCell colSpan={4}> <LinearProgress /></TableCell>
+                    </TableRow>)}
                   {filteredPlayers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
                     const { id, name, dateOfBirth, imageURL, isVerified } = row;
                     const isItemSelected = selected.indexOf(name) !== -1;
@@ -218,10 +221,10 @@ export default function PlayerList() {
                         {/* <TableCell padding="checkbox">
                           <Checkbox checked={isItemSelected} onChange={(event) => handleClick(event, name)} />
                         </TableCell> */}
-                        <TableCell component="th" scope="row" padding="none">
+                        <TableCell align="left">
                           <Stack direction="row" alignItems="center" spacing={2}>
                             <Avatar alt={name} src={imageURL} />
-                            <Typography variant="subtitle2" noWrap>
+                            <Typography variant="subtitle2" >
                               {name}
                             </Typography>
                           </Stack>

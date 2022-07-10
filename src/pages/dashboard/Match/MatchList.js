@@ -23,7 +23,8 @@ import {
   DialogTitle,
   Grid,
   Paper,
-  Box
+  Box,
+  LinearProgress
 } from '@mui/material';
 // redux
 import { useDispatch, useSelector } from '../../../redux/store';
@@ -47,6 +48,7 @@ import { getTournamentDetail, getTournamentList } from 'src/redux/slices/tournam
 import { getClubList } from 'src/redux/slices/club';
 import { format } from 'date-fns';
 import { getStadiumList } from 'src/redux/slices/stadium';
+import match from 'autosuggest-highlight/match';
 
 // ----------------------------------------------------------------------
 
@@ -185,7 +187,7 @@ export default function MatchList({ roundSelected }) {
 
   const filteredMatchs = applySortFilter(matchList, getComparator(order, orderBy), filterName);
 
-  const isMatchNotFound = filteredMatchs.length === 0;
+  const isMatchNotFound = filteredMatchs.length === 0 && matchList.length > 0;
 
   return (
     <>
@@ -224,8 +226,12 @@ export default function MatchList({ roundSelected }) {
                 onSelectAllClick={handleSelectAllClick}
               />
               <TableBody>
+                {matchList.length <= 0 &&
+                  (<TableRow sx={{ width: '100%' }}>
+                    <TableCell colSpan={5}> <LinearProgress /></TableCell>
+                  </TableRow>)}
                 {filteredMatchs.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
-                  const { id, homeClubID, awayClubID, startDate, roundID, stadiumID } = row;
+                  const { id, homeClubID, awayClubID, startDate, roundID, stadiumID, homeGoals, awayGoals } = row;
                   const homeClub = clubList.find(club => club.id === homeClubID)
                   const awayClub = clubList.find(club => club.id === awayClubID)
                   const round = roundList.find(round => round.id === roundID);
@@ -241,8 +247,8 @@ export default function MatchList({ roundSelected }) {
                       tabIndex={-1}
                       role="checkbox"
                     >
-                      <TableCell component="th" scope="row" padding="none">
-                        <Stack direction="row" alignItems="center" spacing={2}>
+                      <TableCell component="th" scope="row" padding="none" >
+                        <Stack direction="row" alignItems="center" justifyContent="space-between" spacing={2}>
                           <Typography variant="subtitle2" noWrap>
                             {homeClub?.name}
                           </Typography>
@@ -258,11 +264,11 @@ export default function MatchList({ roundSelected }) {
                             <Typography variant="body2" sx={{ color: 'text.secondary' }}>
                               {format(new Date(startDate), 'p')}
                             </Typography></>
-                          : '1-0'}
+                          : `${homeGoals} - ${awayGoals}`}
 
                       </TableCell>
                       <TableCell component="th" scope="row" padding="none">
-                        <Stack direction="row" alignItems="center" spacing={2}>
+                        <Stack direction="row" alignItems="center" justifyContent="space-between" spacing={2}>
                           <Avatar alt={awayClub} src={awayClub?.imageURL} />
                           <Typography variant="subtitle2" noWrap>
                             {awayClub?.name}

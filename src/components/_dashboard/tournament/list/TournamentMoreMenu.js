@@ -10,6 +10,7 @@ import moreVerticalFill from '@iconify/icons-eva/more-vertical-fill';
 import { Menu, MenuItem, IconButton, ListItemIcon, ListItemText } from '@mui/material';
 // routes
 import { PATH_DASHBOARD } from '../../../../routes/paths';
+import eyeFill from '@iconify/icons-eva/eye-fill';
 
 // ----------------------------------------------------------------------
 
@@ -18,7 +19,7 @@ TournamentMoreMenu.propTypes = {
   userName: PropTypes.string
 };
 
-export default function TournamentMoreMenu({ onDelete, tournamentName, tournamentId }) {
+export default function TournamentMoreMenu({ onDelete, tournamentName, tournamentId, onEdit }) {
   const ref = useRef(null);
   const [isOpen, setIsOpen] = useState(false);
 
@@ -38,7 +39,7 @@ export default function TournamentMoreMenu({ onDelete, tournamentName, tournamen
         anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
         transformOrigin={{ vertical: 'top', horizontal: 'right' }}
       >
-        <MenuItem onClick={onDelete} sx={{ color: 'text.secondary' }}>
+        <MenuItem onClick={onDelete} sx={{ color: 'error.main' }}>
           <ListItemIcon>
             <Icon icon={trash2Outline} width={24} height={24} />
           </ListItemIcon>
@@ -46,8 +47,7 @@ export default function TournamentMoreMenu({ onDelete, tournamentName, tournamen
         </MenuItem>
 
         <MenuItem
-          component={RouterLink}
-          to={`${PATH_DASHBOARD.tournament.root}/edit/${tournamentId}`}
+          onClick={onEdit}
           sx={{ color: 'text.secondary' }}
         >
           <ListItemIcon>
@@ -61,7 +61,7 @@ export default function TournamentMoreMenu({ onDelete, tournamentName, tournamen
           sx={{ color: 'text.secondary' }}
         >
           <ListItemIcon>
-            <Icon icon={editFill} width={24} height={24} />
+            <Icon icon={eyeFill} width={24} height={24} />
           </ListItemIcon>
           <ListItemText primary="View all rounds" primaryTypographyProps={{ variant: 'body2' }} />
         </MenuItem>

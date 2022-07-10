@@ -108,7 +108,7 @@ export default function MatchLineUpForm({ onCancel, clubId, addMember, changeSel
             setErrorState({ isError: true, Message: "Lineup must have 11 player" })
           }
         } else {
-          if (selectedPlayer.length >= 9) {
+          if (selectedPlayer.length === 9) {
             onCancel()
             addMember(values)
             changeSelected(selectedPlayer)

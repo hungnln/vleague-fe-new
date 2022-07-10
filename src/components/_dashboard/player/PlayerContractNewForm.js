@@ -32,7 +32,6 @@ PlayerContractNewForm.propTypes = {
 };
 
 export default function PlayerContractNewForm({ isEdit, currentContract }) {
-  // let base64 = ''
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
@@ -40,7 +39,6 @@ export default function PlayerContractNewForm({ isEdit, currentContract }) {
   const [player] = useState(currentContract.player)
   const { playerList, error } = useSelector((state) => state.player);
   const [errorState, setErrorState] = useState()
-  // const [submit, setSubmit] = useState(false)
   const NewPlayerSchema = Yup.object().shape({
     Club: Yup.mixed().required('Club is required'),
     Player: Yup.mixed().required('Player is required'),
@@ -49,13 +47,10 @@ export default function PlayerContractNewForm({ isEdit, currentContract }) {
     End: Yup.mixed().required('End date is required'),
     Description: Yup.mixed().required('Description is required'),
     Number: Yup.number().required('Number is required').min(Number(1))
-
-
   });
   useEffect(() => {
     dispatch(getClubList())
     dispatch(getPlayerList())
-
   }, [dispatch])
   const formik = useFormik({
     enableReinitialize: true,
@@ -68,8 +63,6 @@ export default function PlayerContractNewForm({ isEdit, currentContract }) {
       Player: currentContract?.player || null,
       Club: currentContract?.club || null,
       Number: currentContract?.number || ''
-
-
     },
     validationSchema: NewPlayerSchema,
     onSubmit: async (values, { setSubmitting, resetForm, setErrors }) => {
@@ -105,15 +98,10 @@ export default function PlayerContractNewForm({ isEdit, currentContract }) {
   });
   useEffect(() => {
     if (!_.isEmpty(errorState)) {
-      console.log('check state', errorState);
-
       if (!errorState.isError) {
-        console.log('ko error');
         formik.resetForm();
         enqueueSnackbar(!isEdit ? 'Create success' : 'Update success', { variant: 'success' });
         navigate(PATH_DASHBOARD.player.contract);
-      } else {
-        console.log('bị error');
       }
     }
 
@@ -161,11 +149,12 @@ export default function PlayerContractNewForm({ isEdit, currentContract }) {
               <Stack spacing={3}>
                 <Stack direction={{ xs: 'column', md: 'row' }} spacing={3}>
                   <Autocomplete
-                    // isOptionEqualToValue={(option, value) => option.name === value.name}
+                    isOptionEqualToValue={(option, value) => option.id === value.id}
                     fullWidth
                     options={playerList}
                     autoHighlight
-                    {...isEdit ? { value: formik.values.Player, disabled: 'true' } : {}}
+                    disabled={isEdit}
+                    value={values.Player}
                     getOptionLabel={(option) => option.name}
                     onChange={(event, newValue) => {
                       setFieldValue('Player', newValue);
@@ -190,10 +179,12 @@ export default function PlayerContractNewForm({ isEdit, currentContract }) {
                     )}
                   />
                   <Autocomplete
+                    isOptionEqualToValue={(option, value) => option.id === value.id}
                     fullWidth
                     options={clubList}
                     autoHighlight
-                    {...isEdit ? { value: formik.values.Club, disabled: 'true' } : {}}
+                    disabled={isEdit}
+                    value={values.Club}
                     getOptionLabel={(option) => option.name}
                     onChange={(event, newValue) => {
                       setFieldValue('Club', newValue);
@@ -222,7 +213,8 @@ export default function PlayerContractNewForm({ isEdit, currentContract }) {
                 <Stack direction={{ xs: 'column', md: 'row' }} spacing={3}>
                   <Stack direction={{ xs: 'row' }} spacing={3}>
                     <DatePicker
-                      {...isEdit ? { disabled: 'true' } : {}}
+                      inputFormat='dd/MM/yyyy'
+                      disabled={isEdit}
                       label="Start"
                       openTo="year"
                       views={['year', 'month', 'day']}
@@ -234,6 +226,7 @@ export default function PlayerContractNewForm({ isEdit, currentContract }) {
                         helperText={touched.Start && errors.Start} />}
                     />
                     <DatePicker
+                      inputFormat='dd/MM/yyyy'
                       disablePast
                       label="End"
                       openTo="year"
@@ -250,7 +243,6 @@ export default function PlayerContractNewForm({ isEdit, currentContract }) {
 
                   <Stack direction={{ xs: 'row' }} spacing={3}>
                     <TextField
-                      width={80}
                       label="Salary"
                       {...getFieldProps('Salary')}
                       error={Boolean(touched.Salary && errors.Salary)}
@@ -258,7 +250,7 @@ export default function PlayerContractNewForm({ isEdit, currentContract }) {
                     />
                     <TextField
                       type="number"
-                      width={20}
+                      sx={{ width: 110 }}
                       label="Number"
                       InputLabelProps={{ shrink: true }}
                       {...getFieldProps('Number')}
@@ -279,15 +271,12 @@ export default function PlayerContractNewForm({ isEdit, currentContract }) {
                     helperText={touched.Description && errors.Description}
                   />
                 </Stack>
-                {/* <Stack direction={{ xs: 'column', sm: 'row' }} spacing={{ xs: 3, sm: 2 }}>
-
-                </Stack> */}
+                {errorState?.IsError ? <Alert severity="warning">{errorState.Message}</Alert> : ''}
                 <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
                   <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
                     {!isEdit ? 'Create Contract' : 'Save Changes'}
                   </LoadingButton>
                 </Box>
-                {error?.IsError ? <Alert severity="warning">{error.Message}</Alert> : ''}
               </Stack>
             </Card>
           </Grid>

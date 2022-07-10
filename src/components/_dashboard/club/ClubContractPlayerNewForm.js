@@ -7,14 +7,10 @@ import { Form, FormikProvider, useFormik } from 'formik';
 // material
 import { DatePicker, LoadingButton } from '@mui/lab';
 import { Box, Card, Grid, Stack, Switch, TextField, Typography, FormHelperText, FormControlLabel, Autocomplete, Avatar, Alert } from '@mui/material';
-// utils
-import { getBase64FromUrl, getBase64Image, toBase64 } from 'src/utils/base64/base64';
-import { fData } from '../../../utils/formatNumber';
-import fakeRequest from '../../../utils/fakeRequest';
+
 // routes
 import { PATH_DASHBOARD } from '../../../routes/paths';
 //
-import Label from '../../Label';
 import { useDispatch } from 'src/redux/store';
 import { createContract as createPlayerContract, editContract as editPlayerContract, getPlayerList } from 'src/redux/slices/player'
 import _ from 'lodash';
@@ -38,7 +34,7 @@ export default function ClubContractPlayerNewForm({ isEdit, currentContract, cur
   const { enqueueSnackbar } = useSnackbar();
   const { playerList } = useSelector(state => state.player)
   const NewClubSchema = Yup.object().shape({
-    Number: Yup.number().required('Number is required'),
+    Number: Yup.mixed().required('Number is required'),
     Start: Yup.mixed().required('Start is required'),
     End: Yup.mixed().required('End is required'),
     Player: Yup.mixed().required('Player is required'),
@@ -55,12 +51,11 @@ export default function ClubContractPlayerNewForm({ isEdit, currentContract, cur
       End: currentContract?.end || '',
       Description: currentContract?.description || '',
       Player: currentContract?.player || null,
-      Number: currentContract?.number || null,
+      Number: currentContract?.number || '',
       Club: currentClub,
     },
     validationSchema: NewClubSchema,
     onSubmit: async (values, { setSubmitting, resetForm, setErrors }) => {
-      console.log('hello');
       try {
         let data = ''
         if (isEdit) {
@@ -69,9 +64,8 @@ export default function ClubContractPlayerNewForm({ isEdit, currentContract, cur
             End: values.End,
             Description: values.Description,
             Number: values.Number,
-
           }
-          dispatch(editPlayerContract(values.id, data, (value) => { setErrorState(value); console.log(value, 'check state value') }))
+          dispatch(editPlayerContract(values.id, data, (value) => { setErrorState(value) }))
         } else {
           data = {
             PlayerID: values.Player.id,
@@ -82,11 +76,9 @@ export default function ClubContractPlayerNewForm({ isEdit, currentContract, cur
             End: values.End,
             Description: values.Description
           }
-          dispatch(createPlayerContract(data, (value) => { setErrorState(value); console.log(value, 'check state value') }))
+          dispatch(createPlayerContract(data, (value) => { setErrorState(value) }))
         }
-        console.log('data', data);
       } catch (error) {
-        console.error('co loi dm');
         setSubmitting(false);
         setErrors(error);
       }
@@ -96,22 +88,16 @@ export default function ClubContractPlayerNewForm({ isEdit, currentContract, cur
   const { errors, values, touched, handleSubmit, isSubmitting, setFieldValue, getFieldProps } = formik;
   useEffect(() => {
     if (!_.isEmpty(errorState)) {
-      console.log('check state', errorState);
-
       if (!errorState.isError) {
-        console.log('ko error');
         formik.resetForm();
         enqueueSnackbar(!isEdit ? 'Create success' : 'Update success', { variant: 'success' });
         navigate(`${PATH_DASHBOARD.club.contract}/${currentClub.id}`);
-      } else {
-        console.log('bị error');
       }
     }
 
   }, [errorState])
   useEffect(() => {
     dispatch(getPlayerList())
-
   }, [dispatch])
   const SmallAvatar = styled(Avatar)(({ theme }) => ({
     width: 22,
@@ -154,26 +140,14 @@ export default function ClubContractPlayerNewForm({ isEdit, currentContract, cur
             <Card sx={{ p: 3 }}>
               <Stack spacing={3}>
                 <Stack direction={{ xs: 'column', md: 'row' }} spacing={3}>
-                  {/* <TextField
-                    // width={80}
-                    width={50}
-                    InputProps={{
-                      readOnly: true,
-                    }}
-                    label="Club"
-                    // defaultValue=" "
-                    value={values.Club.name}
-                    error={Boolean(touched.Club && errors.Club)}
-                    helperText={touched.Club && errors.Club}
-                  // error={Boolean(touched.Club && errors.Club)}
-                  // helperText={touched.Club && errors.Club}
-                  /> */}
+
                   <Autocomplete
-                    // isOptionEqualToValue={(option, value) => option.name === value.name}
+                    isOptionEqualToValue={(option, value) => option.id === value.id}
                     fullWidth
                     options={playerList}
                     autoHighlight
-                    {...isEdit ? { value: formik.values.Player, disabled: 'true' } : {}}
+                    value={values.Player}
+                    disabled={isEdit}
                     getOptionLabel={(option) => option.name}
                     onChange={(event, newValue) => {
                       setFieldValue('Player', newValue);
@@ -199,48 +173,19 @@ export default function ClubContractPlayerNewForm({ isEdit, currentContract, cur
                   />
                   <TextField
                     type="number"
-                    width={20}
+                    sx={{ width: 120 }}
                     label="Number"
-                    InputLabelProps={{ shrink: true }}
+                    // InputLabelProps={{ shrink: true }}
                     {...getFieldProps('Number')}
                     error={Boolean(touched.Number && errors.Number)}
                     helperText={touched.Number && errors.Number}
                   />
-                  {/* <Autocomplete
-                    disabled
-                    fullWidth
-                    // options={null}
-                    autoHighlight
-                    {...isEdit ? { value: formik.values.Club, disabled: 'true' } : {}}
-                    getOptionLabel={(option) => option.name}
-                    onChange={(event, newValue) => {
-                      setFieldValue('Club', newValue);
-                    }}
-                    renderOption={(props, option) => (
-                      <Box component="li" sx={{ '& > img': { mr: 2, flexShrink: 0 } }} {...props}>
-                        <Avatar alt="Travis Howard" src={option?.imageURL} sx={{ width: 20, height: 20, marginRight: '5px' }} />
-                        {option.name}
-                      </Box>
-                    )}
-                    renderInput={(params) => (
-                      <TextField
-                        helperText={touched.Club && errors.Club}
-                        error={Boolean(touched.Club && errors.Club)}
-                        {...params}
-                        label="Club"
-                        inputProps={{
-                          ...params.inputProps,
-                          autoComplete: 'new-password', // disable autocomplete and autofill
-                        }}
-                      />
-                    )}
-                  /> */}
-
                 </Stack>
                 <Stack direction={{ xs: 'column', md: 'row' }} spacing={3}>
                   <Stack direction={{ xs: 'row' }} spacing={3}>
                     <DatePicker
-                      {...isEdit ? { disabled: 'true' } : {}}
+                      inputFormat='dd/MM/yyyy'
+                      disabled={isEdit}
                       label="Start"
                       openTo="year"
                       views={['year', 'month', 'day']}
@@ -252,6 +197,7 @@ export default function ClubContractPlayerNewForm({ isEdit, currentContract, cur
                         helperText={touched.Start && errors.Start} />}
                     />
                     <DatePicker
+                      inputFormat='dd/MM/yyyy'
                       disablePast
                       label="End"
                       openTo="year"
@@ -289,15 +235,12 @@ export default function ClubContractPlayerNewForm({ isEdit, currentContract, cur
                     helperText={touched.Description && errors.Description}
                   />
                 </Stack>
-                {/* <Stack direction={{ xs: 'column', sm: 'row' }} spacing={{ xs: 3, sm: 2 }}>
-
-                </Stack> */}
+                {errorState?.IsError ? <Alert severity="warning">{errorState.Message}</Alert> : ''}
                 <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
                   <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
                     {!isEdit ? 'Create Contract' : 'Save Changes'}
                   </LoadingButton>
                 </Box>
-                {errorState?.IsError ? <Alert severity="warning">{errorState.Message}</Alert> : ''}
               </Stack>
             </Card>
           </Grid>

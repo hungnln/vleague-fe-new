@@ -19,7 +19,9 @@ import {
   Typography,
   TableContainer,
   TablePagination,
-  Box
+  Box,
+  LinearProgress,
+  CircularProgress
 } from '@mui/material';
 // redux
 import { useDispatch, useSelector } from '../../../redux/store';
@@ -149,8 +151,8 @@ export default function ClubConTract() {
   const filteredPlayerContract = applySortFilterPlayer(playerContractList, getComparator(orderPlayer, orderByPlayer), filterNamePlayer);
   const filteredStaffContract = applySortFilterStaff(staffContractList, getComparator(orderStaff, orderByStaff), filterNameStaff);
 
-  const isPlayerContractNotFound = filteredPlayerContract.length === 0;
-  const isStaffContractNotFound = filteredStaffContract.length === 0;
+  const isPlayerContractNotFound = filteredPlayerContract.length === 0 && playerContractList.length > 0;
+  const isStaffContractNotFound = filteredStaffContract.length === 0 && staffContractList.length > 0;
 
   const handleChangePagePlayer = (event, newPage) => {
     setPagePlayer(newPage);
@@ -177,25 +179,20 @@ export default function ClubConTract() {
     setFilterNameStaff(event.target.value);
   };
 
-  // const handleDeleteClub = (clubId) => {
-  //   // dispatch(deleteClub(clubId));
-  //   dispatch(removeClub(clubId))
-
-  // };
   const handleDeletePlayerContract = (contractId) => {
-    // dispatch(deleteClub(clubId));
     dispatch(removePlayerContract(contractId))
 
   };
   const handleDeleteStaffContract = (contractId) => {
-    // dispatch(deleteClub(clubId));
     dispatch(removeStaffContract(contractId))
 
   };
   return (
     <Page title="Club: View contract | V League">
       <Container maxWidth={themeStretch ? false : 'lg'}>
-        <HeaderBreadcrumbs
+        {_.isEmpty(clubDetail)?(<Box >
+          <CircularProgress sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }} />
+        </Box>):(<> <HeaderBreadcrumbs
           heading={`View ${clubDetail?.name} contract`}
           links={[
             { name: 'Dashboard', href: PATH_DASHBOARD.root },
@@ -248,6 +245,10 @@ export default function ClubConTract() {
                 // onSelectAllClick={handleSelectAllClick}
                 />
                 <TableBody>
+                  {playerContractList.length <= 0 &&
+                    (<TableRow sx={{ width: '100%' }}>
+                      <TableCell colSpan={5}> <LinearProgress /></TableCell>
+                    </TableRow>)}
                   {filteredPlayerContract.slice(pagePlayer * rowsPerPagePlayer, pagePlayer * rowsPerPagePlayer + rowsPerPagePlayer).map((row) => {
                     const { id, player, salary, start, end, number } = row;
                     const isItemSelected = selected.indexOf(id) !== -1;
@@ -355,6 +356,10 @@ export default function ClubConTract() {
                 // onSelectAllClick={handleSelectAllClick}
                 />
                 <TableBody>
+                {staffContractList.length <= 0 &&
+                    (<TableRow sx={{ width: '100%' }}>
+                      <TableCell colSpan={5}> <LinearProgress /></TableCell>
+                    </TableRow>)}
                   {filteredStaffContract.slice(pageStaff * rowsPerPageStaff, pageStaff * rowsPerPageStaff + rowsPerPageStaff).map((row) => {
                     const { id, staff, salary, start, end } = row;
                     const isItemSelected = selected.indexOf(id) !== -1;
@@ -391,7 +396,7 @@ export default function ClubConTract() {
                         </TableCell> */}
 
                         <TableCell align="right">
-                          <ClubContractMoreMenu onDelete={() => handleDeletePlayerContract(id)} contractId={id} type="staff" clubId={clubDetail.id} />
+                          <ClubContractMoreMenu onDelete={() => handleDeleteStaffContract(id)} contractId={id} type="staff" clubId={clubDetail.id} />
                         </TableCell>
                       </TableRow>
                     );
@@ -424,7 +429,8 @@ export default function ClubConTract() {
             onPageChange={handleChangePageStaff}
             onRowsPerPageChange={handleChangeRowsPerPageStaff}
           />
-        </Card>
+        </Card></>)}
+       
       </Container>
     </Page>
   );

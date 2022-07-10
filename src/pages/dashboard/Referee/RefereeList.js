@@ -19,7 +19,8 @@ import {
   Container,
   Typography,
   TableContainer,
-  TablePagination
+  TablePagination,
+  LinearProgress
 } from '@mui/material';
 // redux
 import { useDispatch, useSelector } from '../../../redux/store';
@@ -36,8 +37,7 @@ import SearchNotFound from '../../../components/SearchNotFound';
 import HeaderBreadcrumbs from '../../../components/HeaderBreadcrumbs';
 // import { UserListHead, UserListToolbar, UserMoreMenu } from '../../components/_dashboard/user/list';
 import { RefereeMoreMenu, RefereeListHead, RefereeListToolbar } from 'src/components/_dashboard/referee/list';
-import { ModeComment } from '@mui/icons-material';
-import moment from 'moment';
+
 
 // ----------------------------------------------------------------------
 
@@ -150,7 +150,7 @@ export default function RefereeList() {
 
   const filteredReferees = applySortFilter(refereeList, getComparator(order, orderBy), filterName);
 
-  const isRefereeNotFound = filteredReferees.length === 0;
+  const isRefereeNotFound = filteredReferees.length === 0 && refereeList.length > 0;
 
   return (
     <Page title="Referee: List | V League">
@@ -178,7 +178,7 @@ export default function RefereeList() {
           <RefereeListToolbar numSelected={selected.length} filterName={filterName} onFilterName={handleFilterByName} />
 
           <Scrollbar>
-            <TableContainer sx={{ minWidth: 800 }}>
+            <TableContainer sx={{ minWidth: 300 }}>
               <Table>
                 <RefereeListHead
                   order={order}
@@ -190,6 +190,10 @@ export default function RefereeList() {
                   onSelectAllClick={handleSelectAllClick}
                 />
                 <TableBody>
+                  {refereeList.length <= 0 &&
+                    (<TableRow sx={{ width: '100%' }}>
+                      <TableCell colSpan={4}> <LinearProgress /></TableCell>
+                    </TableRow>)}
                   {filteredReferees.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
                     const { id, name, dateOfBirth, imageURL, isVerified } = row;
                     const isItemSelected = selected.indexOf(name) !== -1;
