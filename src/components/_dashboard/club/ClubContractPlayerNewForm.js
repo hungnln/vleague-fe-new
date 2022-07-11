@@ -55,7 +55,7 @@ export default function ClubContractPlayerNewForm({ isEdit, currentContract, cur
       Club: currentClub,
     },
     validationSchema: NewClubSchema,
-    onSubmit: async (values, { setSubmitting, resetForm, setErrors }) => {
+    onSubmit: (values, { setSubmitting, resetForm, setErrors }) => {
       try {
         let data = ''
         if (isEdit) {

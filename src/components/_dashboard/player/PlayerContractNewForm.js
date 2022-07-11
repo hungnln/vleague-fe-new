@@ -65,7 +65,7 @@ export default function PlayerContractNewForm({ isEdit, currentContract }) {
       Number: currentContract?.number || ''
     },
     validationSchema: NewPlayerSchema,
-    onSubmit: async (values, { setSubmitting, resetForm, setErrors }) => {
+    onSubmit: (values, { setSubmitting, resetForm, setErrors }) => {
       try {
         let data = ''
         if (isEdit) {
@@ -90,7 +90,6 @@ export default function PlayerContractNewForm({ isEdit, currentContract }) {
         }
 
       } catch (error) {
-        console.error(error);
         setSubmitting(false);
         setErrors(error);
       }

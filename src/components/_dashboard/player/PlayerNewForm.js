@@ -63,7 +63,7 @@ export default function PlayerNewForm({ isEdit, currentPlayer }) {
       ImageURL: currentPlayer?.imageURL || null,
     },
     validationSchema: NewPlayerSchema,
-    onSubmit: async (values, { setSubmitting, resetForm, setErrors }) => {
+    onSubmit: (values, { setSubmitting, resetForm, setErrors }) => {
       try {
         let data = ''
         if (isEdit) {

@@ -54,7 +54,7 @@ export default function RefereeNewForm({ isEdit, currentReferee }) {
 
     },
     validationSchema: NewRefereeSchema,
-    onSubmit: async (values, { setSubmitting, resetForm, setErrors }) => {
+    onSubmit: (values, { setSubmitting, resetForm, setErrors }) => {
       try {
         let data = ''
         if (isEdit) {

@@ -55,7 +55,7 @@ export default function StaffNewForm({ isEdit, currentStaff }) {
       ImageURL: currentStaff?.imageURL || null,
     },
     validationSchema: NewStaffSchema,
-    onSubmit: async (values, { setSubmitting, resetForm, setErrors }) => {
+    onSubmit: (values, { setSubmitting, resetForm, setErrors }) => {
       try {
         let data = ''
         if (isEdit) {

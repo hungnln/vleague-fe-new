@@ -82,13 +82,12 @@ export default function BlogNewPostForm({ isEdit, currentPost }) {
       ClubIDs: currentPost?.clubs || [],
     },
     validationSchema: NewBlogSchema,
-    onSubmit: async (values, { setSubmitting, resetForm }) => {
+    onSubmit: (values, { setSubmitting, resetForm }) => {
       try {
         if (!isEdit) {
           const data = {
             ...values, ThumbnailImageURL: values.ThumbnailImageURL.base64, PlayerIDs: values.PlayerIDs.reduce((obj, item) => [...obj, item.id], []), ClubIDs: values.ClubIDs.reduce((obj, item) => [...obj, item.id], [])
           }
-          console.log(data, "check value");
           dispatch(createPost(data, (value) => { setErrorState(value); }))
         } else {
           let data = ''
@@ -101,7 +100,6 @@ export default function BlogNewPostForm({ isEdit, currentPost }) {
               ...values, ThumbnailImageURL: values.ThumbnailImageURL.base64, PlayerIDs: values.PlayerIDs.reduce((obj, item) => [...obj, item.id], []), ClubIDs: values.ClubIDs.reduce((obj, item) => [...obj, item.id], [])
             }
           }
-          console.log(data, "check value");
           dispatch(editPost(data, (value) => { setErrorState(value); }))
         }
         // await fakeRequest(500);

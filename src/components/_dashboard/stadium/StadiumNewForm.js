@@ -55,7 +55,7 @@ export default function StadiumNewForm({ isEdit, currentStadium }) {
       ImageURL: currentStadium?.imageURL || null,
     },
     validationSchema: NewStadiumSchema,
-    onSubmit: async (values, { setSubmitting, resetForm, setErrors }) => {
+    onSubmit: (values, { setSubmitting, resetForm, setErrors }) => {
       try {
         let data = ''
         if (isEdit) {
@@ -67,7 +67,7 @@ export default function StadiumNewForm({ isEdit, currentStadium }) {
           dispatch(editStadium(data, value => setErrorState(value)))
 
         } else {
-          data = { ...values }
+          data = { ...values, ImageURL: values.ImageURL.base64 }
           dispatch(createStadium(data, value => setErrorState(value)))
         }
       } catch (error) {

@@ -58,7 +58,7 @@ export default function StaffContractNewForm({ isEdit, currentContract }) {
       Club: currentContract?.club || null
     },
     validationSchema: NewStaffSchema,
-    onSubmit: async (values, { setSubmitting, resetForm, setErrors }) => {
+    onSubmit: (values, { setSubmitting, resetForm, setErrors }) => {
       try {
         let data = ''
         if (isEdit) {
@@ -81,7 +81,6 @@ export default function StaffContractNewForm({ isEdit, currentContract }) {
         }
 
       } catch (error) {
-        console.error(error);
         setSubmitting(false);
         setErrors(error);
       }

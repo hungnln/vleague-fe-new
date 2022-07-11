@@ -100,11 +100,11 @@ const slice = createSlice({
 export default slice.reducer;
 // Actions
 export const { onToggleFollow, deleteMatch, openModal, closeModal } = slice.actions;
-export function getMatchList(tournamentId, roundId) {
+export function getMatchList(tournamentId, roundId, stadiumId) {
   return async (dispatch) => {
     dispatch(slice.actions.startLoading());
     try {
-      const response = await axios.get(`/api/matches?TournamentID=${tournamentId}&RoundID=${roundId}`);
+      const response = await axios.get(`/api/matches?TournamentID=${tournamentId}&RoundID=${roundId}&StadiumID=${stadiumId}`);
       dispatch(slice.actions.getMatchListSuccess(response.data.result));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
