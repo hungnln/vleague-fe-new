@@ -41,6 +41,7 @@ export default function EventNewForm({ onCancel, isExtra, isSecondHalf }) {
   const [errorState, setErrorState] = useState();
   const { enqueueSnackbar } = useSnackbar();
   const { selectedHomePlayer, setSelectedHomePlayer } = useState([])
+ 
   const NewActivitySchema = Yup.object().shape({
     Type: Yup.mixed().required("Type is required"),
     MinuteInMatch: Yup.number().required("MinuteInMatch is required"),
@@ -70,7 +71,7 @@ export default function EventNewForm({ onCancel, isExtra, isSecondHalf }) {
       PlayerReverse: [],
     },
     validationSchema: isExtra ? NewTimeActivitySchema : NewActivitySchema,
-    onSubmit: async (values, { setSubmitting, resetForm, setErrors }) => {
+    onSubmit: (values, { setSubmitting, resetForm, setErrors }) => {
       try {
         let data = ''
         if (values.Type === 15) {

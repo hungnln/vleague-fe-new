@@ -54,7 +54,7 @@ export default function ClubNewForm({ isEdit, currentClub }) {
       HeadQuarter: currentClub?.headQuarter || ''
     },
     validationSchema: NewClubSchema,
-    onSubmit: async (values, { setSubmitting, resetForm, setErrors }) => {
+    onSubmit: (values, { setSubmitting, resetForm, setErrors }) => {
       try {
         let data = ''
         if (isEdit) {
@@ -69,7 +69,6 @@ export default function ClubNewForm({ isEdit, currentClub }) {
           dispatch(createClub(data, error => setErrorState(error)))
         }
       } catch (error) {
-        console.error(error);
         setSubmitting(false);
         setErrors(error);
       }
@@ -100,111 +99,111 @@ export default function ClubNewForm({ isEdit, currentClub }) {
     },
     [setFieldValue]
   );
-  return (  
-      <FormikProvider value={formik}>
-        <Form noValidate autoComplete="off" onSubmit={handleSubmit}>
-          <Grid container spacing={3}>
-            <Grid item xs={12} md={4}>
-              <Card sx={{ py: 10, px: 3 }}>
-                {isEdit && (
-                  <Label
-                    color={values.status !== 'active' ? 'error' : 'success'}
-                    sx={{ textTransform: 'uppercase', position: 'absolute', top: 24, right: 24 }}
-                  >
-                    {values.status}
-                  </Label>
-                )}
+  return (
+    <FormikProvider value={formik}>
+      <Form noValidate autoComplete="off" onSubmit={handleSubmit}>
+        <Grid container spacing={3}>
+          <Grid item xs={12} md={4}>
+            <Card sx={{ py: 10, px: 3 }}>
+              {isEdit && (
+                <Label
+                  color={values.status !== 'active' ? 'error' : 'success'}
+                  sx={{ textTransform: 'uppercase', position: 'absolute', top: 24, right: 24 }}
+                >
+                  {values.status}
+                </Label>
+              )}
 
-                <Box sx={{ mb: 5 }}>
-                  <UploadAvatar
-                    accept="image/*"
-                    file={values.ImageURL}
-                    maxSize={3145728}
-                    onDrop={handleDrop}
-                    error={Boolean(touched.ImageURL && errors.ImageURL)}
-                    caption={
-                      <Typography
-                        variant="caption"
-                        sx={{
-                          mt: 2,
-                          mx: 'auto',
-                          display: 'block',
-                          textAlign: 'center',
-                          color: 'text.secondary'
-                        }}
-                      >
-                        Allowed *.jpeg, *.jpg, *.png, *.gif
-                        <br /> max size of {fData(3145728)}
-                      </Typography>
-                    }
-                  />
-                  <FormHelperText error sx={{ px: 2, textAlign: 'center' }}>
-                    {touched.ImageURL && errors.ImageURL}
-                  </FormHelperText>
-                </Box>
-              </Card>
-            </Grid>
-
-            <Grid item xs={12} md={4}>
-              <Card sx={{ p: 3 }}>
-                <Stack spacing={3}>
-                  <Stack direction={{ xs: 'column', }} spacing={3}>
-                    <TextField
-                      fullWidth
-                      label="Full name"
-                      {...getFieldProps('Name')}
-                      error={Boolean(touched.Name && errors.Name)}
-                      helperText={touched.Name && errors.Name}
-                    />
-                    <TextField
-                      fullWidth
-                      label="HeadQuarter"
-                      {...getFieldProps('HeadQuarter')}
-                      error={Boolean(touched.HeadQuarter && errors.HeadQuarter)}
-                      helperText={touched.HeadQuarter && errors.HeadQuarter}
-                    />
-                    <Autocomplete
-                      isOptionEqualToValue={(option, value) => option.id === value.id}
-                      fullWidth
-                      options={stadiumList}
-                      autoHighlight
-                      value={values.Stadium}
-                      getOptionLabel={(option) => option.name}
-                      onChange={(event, newValue) => {
-                        setFieldValue('Stadium', newValue);
+              <Box sx={{ mb: 5 }}>
+                <UploadAvatar
+                  accept="image/*"
+                  file={values.ImageURL}
+                  maxSize={3145728}
+                  onDrop={handleDrop}
+                  error={Boolean(touched.ImageURL && errors.ImageURL)}
+                  caption={
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        mt: 2,
+                        mx: 'auto',
+                        display: 'block',
+                        textAlign: 'center',
+                        color: 'text.secondary'
                       }}
-                      renderOption={(props, option) => (
-                        <Box component="li" sx={{ '& > img': { mr: 2, flexShrink: 0 } }} {...props}>
-                          <Avatar alt="Travis Howard" src={option?.imageURL} sx={{ width: 20, height: 20, marginRight: '5px' }} />
-                          {option.name}
-                        </Box>
-                      )}
-                      renderInput={(params) => (
-                        <TextField
-                          helperText={touched.Stadium && errors.Stadium}
-                          error={Boolean(touched.Stadium && errors.Stadium)}
-                          {...params}
-                          label="Stadium"
-                          inputProps={{
-                            ...params.inputProps,
-                            autoComplete: 'new-password', // disable autocomplete and autofill
-                          }}
-                        />
-                      )}
-                    />
-                  </Stack>
-                  {errorState?.isError ? <Alert severity="warning">{errorState.Message}</Alert> : ''}
-                  <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
-                    <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
-                      {!isEdit ? 'Create Club' : 'Save Changes'}
-                    </LoadingButton>
-                  </Box>
-                </Stack>
-              </Card>
-            </Grid>
+                    >
+                      Allowed *.jpeg, *.jpg, *.png, *.gif
+                      <br /> max size of {fData(3145728)}
+                    </Typography>
+                  }
+                />
+                <FormHelperText error sx={{ px: 2, textAlign: 'center' }}>
+                  {touched.ImageURL && errors.ImageURL}
+                </FormHelperText>
+              </Box>
+            </Card>
           </Grid>
-        </Form>
-      </FormikProvider>
+
+          <Grid item xs={12} md={4}>
+            <Card sx={{ p: 3 }}>
+              <Stack spacing={3}>
+                <Stack direction={{ xs: 'column', }} spacing={3}>
+                  <TextField
+                    fullWidth
+                    label="Full name"
+                    {...getFieldProps('Name')}
+                    error={Boolean(touched.Name && errors.Name)}
+                    helperText={touched.Name && errors.Name}
+                  />
+                  <TextField
+                    fullWidth
+                    label="HeadQuarter"
+                    {...getFieldProps('HeadQuarter')}
+                    error={Boolean(touched.HeadQuarter && errors.HeadQuarter)}
+                    helperText={touched.HeadQuarter && errors.HeadQuarter}
+                  />
+                  <Autocomplete
+                    isOptionEqualToValue={(option, value) => option.id === value.id}
+                    fullWidth
+                    options={stadiumList}
+                    autoHighlight
+                    value={values.Stadium}
+                    getOptionLabel={(option) => option.name}
+                    onChange={(event, newValue) => {
+                      setFieldValue('Stadium', newValue);
+                    }}
+                    renderOption={(props, option) => (
+                      <Box component="li" sx={{ '& > img': { mr: 2, flexShrink: 0 } }} {...props}>
+                        <Avatar alt="Travis Howard" src={option?.imageURL} sx={{ width: 20, height: 20, marginRight: '5px' }} />
+                        {option.name}
+                      </Box>
+                    )}
+                    renderInput={(params) => (
+                      <TextField
+                        helperText={touched.Stadium && errors.Stadium}
+                        error={Boolean(touched.Stadium && errors.Stadium)}
+                        {...params}
+                        label="Stadium"
+                        inputProps={{
+                          ...params.inputProps,
+                          autoComplete: 'new-password', // disable autocomplete and autofill
+                        }}
+                      />
+                    )}
+                  />
+                </Stack>
+                {errorState?.isError ? <Alert severity="warning">{errorState.Message}</Alert> : ''}
+                <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
+                  <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
+                    {!isEdit ? 'Create Club' : 'Save Changes'}
+                  </LoadingButton>
+                </Box>
+              </Stack>
+            </Card>
+          </Grid>
+        </Grid>
+      </Form>
+    </FormikProvider>
 
   );
 }

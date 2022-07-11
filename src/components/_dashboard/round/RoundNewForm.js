@@ -47,7 +47,7 @@ export default function RoundNewForm({ tournamentID, currentRound, onCancel }) {
       Name: currentRound?.name || '',
     },
     validationSchema: NewRoundSchema,
-    onSubmit: async (values, { setSubmitting, resetForm, setErrors }) => {
+    onSubmit: (values, { setSubmitting, resetForm, setErrors }) => {
       try {
         if (isEdit) {
           dispatch(editRound(values, (value) => setErrorState(value)))

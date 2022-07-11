@@ -76,8 +76,19 @@ export default function Router() {
         </AuthGuard>
       ),
       children: [
-        { element: <Navigate to="/dashboard/app" replace /> },
+        { element: <Navigate to="/dashboard/blog" replace /> },
         { path: 'app', element: <GeneralApp /> },
+        {
+          path: 'blog',
+          children: [
+            { element: <Navigate to="/dashboard/blog/posts" replace /> },
+            { path: 'posts', element: <BlogPosts /> },
+            { path: 'post/:id', element: <BlogPost /> },
+            { path: 'new-post', element: <BlogNewPost /> },
+            { path: 'edit/:id', element: <BlogNewPost /> },
+
+          ]
+        },
         // { path: 'ecommerce', element: <GeneralEcommerce /> },
         // { path: 'analytics', element: <GeneralAnalytics /> },
         // { path: 'banking', element: <GeneralBanking /> },
@@ -178,17 +189,7 @@ export default function Router() {
             { path: ':id/match/:matchId', element: <MatchDetail /> }
           ]
         },
-        {
-          path: 'blog',
-          children: [
-            { element: <Navigate to="/dashboard/blog/posts" replace /> },
-            { path: 'posts', element: <BlogPosts /> },
-            { path: 'post/:id', element: <BlogPost /> },
-            { path: 'new-post', element: <BlogNewPost /> },
-            { path: 'edit/:id', element: <BlogNewPost /> },
 
-          ]
-        },
         {
           path: 'mail',
           children: [
@@ -232,7 +233,7 @@ export default function Router() {
         <DashboardLayout />
       </AuthGuard>,
       children: [
-        { element: <Navigate to="/dashboard/app" replace /> },
+        { element: <Navigate to="/dashboard/blog" replace /> },
         //   { element: <LandingPage /> },
         //   { path: 'about-us', element: <About /> },
         //   { path: 'contact-us', element: <Contact /> },

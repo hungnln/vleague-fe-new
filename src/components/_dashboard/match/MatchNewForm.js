@@ -62,7 +62,6 @@ export default function MatchNewForm({ tournamentID, currentMatch, onCancel, rou
       dispatch(getMatchPlayerContract(currentMatch?.homeClub.id, currentMatch?.awayClub.id))
     }
   }, [dispatch])
-  console.log('selected', selectedHomePlayer);
   const formik = useFormik({
     enableReinitialize: true,
     initialValues: (isEdit ?
@@ -84,12 +83,9 @@ export default function MatchNewForm({ tournamentID, currentMatch, onCancel, rou
         Round: currentMatch?.round || roundSelected,
       }),
     validationSchema: (isEdit ? EditMatchSchema : NewMatchSchema),
-    onSubmit: async (values, { setSubmitting, resetForm, setErrors }) => {
+    onSubmit: (values, { setSubmitting, resetForm, setErrors }) => {
       try {
-        if (isEdit) {
-          console.log('currentMatch', values);
-          // dispatch(editMatch(values, (value) => setErrorState(value)))
-        } else {
+        if (!isEdit) {
           const data = {
             StartDate: values.StartDate,
             HomeClubID: values.HomeClub.id,
@@ -100,7 +96,6 @@ export default function MatchNewForm({ tournamentID, currentMatch, onCancel, rou
           dispatch(createMatch(data, (value) => setErrorState(value)))
         }
       } catch (error) {
-        console.error(error);
         setSubmitting(false);
         setErrors(error);
       }
@@ -108,24 +103,19 @@ export default function MatchNewForm({ tournamentID, currentMatch, onCancel, rou
   });
   useEffect(() => {
     if (!_.isEmpty(errorState)) {
-      console.log('check state', errorState);
-
       if (!errorState.isError) {
-        console.log('ko error');
         formik.resetForm();
         onCancel();
         enqueueSnackbar(currentMatch ? 'Create success' : 'Update success', { variant: 'success' });
         // navigate(PATH_DASHBOARD.match.list);
-      } else {
-        console.log('bị error');
       }
     }
 
   }, [errorState])
-  useEffect(() => {
-    console.log('listPlayer', formik.values.HomePlayer);
+  // useEffect(() => {
+  //   console.log('listPlayer', formik.values.HomePlayer);
 
-  }, [formik.values.HomePlayer])
+  // }, [formik.values.HomePlayer])
   const { errors, values, touched, handleSubmit, isSubmitting, setFieldValue, getFieldProps } = formik;
   return (
     <FormikProvider value={formik}>

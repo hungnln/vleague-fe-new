@@ -24,7 +24,11 @@ import {
   Grid,
   Paper,
   Box,
-  LinearProgress
+  LinearProgress,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem
 } from '@mui/material';
 // redux
 import { useDispatch, useSelector } from '../../../redux/store';
@@ -99,8 +103,8 @@ export default function MatchList({ roundSelected }) {
   const { roundList } = useSelector((state) => state.round);
   const { clubList } = useSelector((state) => state.club);
   const { stadiumList } = useSelector((state) => state.stadium);
-
-
+  const [selectedRound, setSelectedRound] = useState('')
+  const [selectedStadium, setSelectedStadium] = useState('')
 
   const { tournamentDetail } = useSelector(state => state.tournament)
   const [page, setPage] = useState(0);
@@ -120,8 +124,9 @@ export default function MatchList({ roundSelected }) {
   }, [dispatch]);
 
   useEffect(() => {
-    dispatch(getMatchList(tournamentDetail.id, roundSelected?.id));
-  }, [roundSelected])
+    console.log(selectedStadium, "check");
+    dispatch(getMatchList(tournamentDetail.id, selectedRound, selectedStadium));
+  }, [selectedRound, selectedStadium])
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
     setOrder(isAsc ? 'desc' : 'asc');
@@ -136,7 +141,12 @@ export default function MatchList({ roundSelected }) {
     }
     setSelected([]);
   };
-
+  const handleChangeRound = (event) => {
+    setSelectedRound(event.target.value);
+  };
+  const handleChangeStadium = (event) => {
+    setSelectedStadium(event.target.value);
+  };
   const handleClick = (event, name) => {
     const selectedIndex = selected.indexOf(name);
     let newSelected = [];
@@ -210,6 +220,44 @@ export default function MatchList({ roundSelected }) {
               New Match
             </Button>
           </Box>
+        </Stack>
+        <Stack direction='row' alignItems='center' justifyContent='flex-start' sx={{ px: 3, mb: 3 }} spacing={2}>
+          <FormControl sx={{ minWidth: 120 }}>
+            <InputLabel id="demo-simple-select-filled-label">Round</InputLabel>
+            <Select
+              labelId="demo-simple-select-filled-label"
+              id="demo-simple-select-filled"
+              value={selectedRound}
+              label="Round"
+              onChange={handleChangeRound}
+            >
+              <MenuItem value="">
+                <em>All</em>
+              </MenuItem>
+              {roundList.map((round, index) => {
+                return <MenuItem value={round.id}>{round.name}</MenuItem>
+
+              })}
+            </Select>
+          </FormControl>
+          <FormControl sx={{ minWidth: 120 }}>
+            <InputLabel id="demo-simple-select-filled-label">Stadium</InputLabel>
+            <Select
+              labelId="demo-simple-select-filled-label"
+              id="demo-simple-select-filled"
+              value={selectedStadium}
+              label="Round"
+              onChange={handleChangeStadium}
+            >
+              <MenuItem value="">
+                <em>All</em>
+              </MenuItem>
+              {stadiumList.map((stadium, index) => {
+                return <MenuItem value={stadium.id}>{stadium.name}</MenuItem>
+
+              })}
+            </Select>
+          </FormControl>
         </Stack>
         {/* <MatchListToolbar numSelected={selected.length} filterName={filterName} onFilterName={handleFilterByName} /> */}
 

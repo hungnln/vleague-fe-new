@@ -6,6 +6,7 @@ import SvgIconStyle from '../../components/SvgIconStyle';
 import SportsOutlinedIcon from '@mui/icons-material/SportsOutlined';
 import EmojiEventsOutlinedIcon from '@mui/icons-material/EmojiEventsOutlined';
 import GroupsOutlinedIcon from '@mui/icons-material/GroupsOutlined';
+import EmojiTransportationIcon from '@mui/icons-material/EmojiTransportation';
 // ----------------------------------------------------------------------
 
 const getIcon = (name) => (
@@ -13,6 +14,7 @@ const getIcon = (name) => (
 );
 
 const ICONS = {
+  stadium: <EmojiTransportationIcon />,
   referee: <SportsOutlinedIcon />,
   tournament: <EmojiEventsOutlinedIcon />,
   club: <GroupsOutlinedIcon />,
@@ -37,10 +39,20 @@ const sidebarConfig = [
     subheader: 'dashboard',
     items: [
       {
-        title: 'app',
-        path: PATH_DASHBOARD.general.app,
-        icon: ICONS.dashboard
+        title: 'news',
+        path: PATH_DASHBOARD.blog.root,
+        icon: ICONS.blog,
+        // children: [
+        //   { title: 'posts', path: PATH_DASHBOARD.blog.posts },
+        //   { title: 'post', path: PATH_DASHBOARD.blog.postById },
+        //   { title: 'new post', path: PATH_DASHBOARD.blog.newPost }
+        // ]
       },
+      // {
+      //   title: 'app',
+      //   path: PATH_DASHBOARD.general.app,
+      //   icon: ICONS.dashboard
+      // },
       // { title: 'e-commerce1', path: PATH_DASHBOARD.general.ecommerce, icon: ICONS.ecommerce },
 
       // { title: 'e-commerce', path: PATH_DASHBOARD.general.ecommerce, icon: ICONS.ecommerce },
@@ -56,7 +68,7 @@ const sidebarConfig = [
 
   {
     subheader: 'tournament',
-    items: [
+    items: [  
       {
         title: 'tournament',
         path: PATH_DASHBOARD.tournament.root,
@@ -112,7 +124,7 @@ const sidebarConfig = [
       {
         title: 'stadium',
         path: PATH_DASHBOARD.stadium.root,
-        icon: ICONS.user,
+        icon: ICONS.stadium,
         // children: [
         //   // { title: 'profile', path: PATH_DASHBOARD.player.profile },
         //   // { title: 'cards', path: PATH_DASHBOARD.player.cards },
@@ -125,11 +137,11 @@ const sidebarConfig = [
     ]
   },
   {
-    subheader: 'management',
+    subheader: 'account',
     items: [
       // MANAGEMENT : USER
       {
-        title: 'account',
+        title: 'user',
         path: PATH_DASHBOARD.user.root,
         icon: ICONS.user,
         // children: [
@@ -172,38 +184,29 @@ const sidebarConfig = [
       // },
 
       // MANAGEMENT : BLOG
-      {
-        title: 'news',
-        path: PATH_DASHBOARD.blog.root,
-        icon: ICONS.blog,
-        // children: [
-        //   { title: 'posts', path: PATH_DASHBOARD.blog.posts },
-        //   { title: 'post', path: PATH_DASHBOARD.blog.postById },
-        //   { title: 'new post', path: PATH_DASHBOARD.blog.newPost }
-        // ]
-      }
+      
     ]
   },
   // APP
   // ----------------------------------------------------------------------
-  {
-    subheader: 'app',
-    items: [
-      {
-        title: 'mail',
-        path: PATH_DASHBOARD.mail.root,
-        icon: ICONS.mail,
-        info: <Label color="error">2</Label>
-      },
-      { title: 'chat', path: PATH_DASHBOARD.chat.root, icon: ICONS.chat },
-      { title: 'calendar', path: PATH_DASHBOARD.calendar, icon: ICONS.calendar },
-      {
-        title: 'kanban',
-        path: PATH_DASHBOARD.kanban,
-        icon: ICONS.kanban
-      }
-    ]
-  }
+  // {
+  //   subheader: 'app',
+  //   items: [
+  //     {
+  //       title: 'mail',
+  //       path: PATH_DASHBOARD.mail.root,
+  //       icon: ICONS.mail,
+  //       info: <Label color="error">2</Label>
+  //     },
+  //     { title: 'chat', path: PATH_DASHBOARD.chat.root, icon: ICONS.chat },
+  //     { title: 'calendar', path: PATH_DASHBOARD.calendar, icon: ICONS.calendar },
+  //     {
+  //       title: 'kanban',
+  //       path: PATH_DASHBOARD.kanban,
+  //       icon: ICONS.kanban
+  //     }
+  //   ]
+  // }
 ];
 
 export default sidebarConfig;

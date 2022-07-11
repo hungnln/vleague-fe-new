@@ -48,7 +48,7 @@ export default function TournamentNewForm({ onCancel, currentTournament }) {
       To: currentTournament?.to || ''
     },
     validationSchema: NewTournamentSchema,
-    onSubmit: async (values, { setSubmitting, resetForm, setErrors }) => {
+    onSubmit: (values, { setSubmitting, resetForm, setErrors }) => {
       try {
         if (isEdit) {
           dispatch(editTournament(values, (value) => setErrorState(value)))
