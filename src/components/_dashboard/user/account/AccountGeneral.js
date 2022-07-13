@@ -28,17 +28,9 @@ export default function AccountGeneral() {
   const formik = useFormik({
     enableReinitialize: true,
     initialValues: {
-      displayName: user.displayName || '',
-      email: user.email,
-      photoURL: user.photoURL,
-      phoneNumber: user.phoneNumber,
-      country: user.country,
-      address: user.address,
-      state: user.state,
-      city: user.city,
-      zipCode: user.zipCode,
-      about: user.about,
-      isPublic: user.isPublic
+      displayName: user?.displayName || '',
+      email: user?.email || '',
+      photoURL: user?.photoURL || '',
     },
 
     validationSchema: UpdateUserSchema,
@@ -79,11 +71,11 @@ export default function AccountGeneral() {
         <Grid container spacing={3}>
           <Grid item xs={12} md={4}>
             <Card sx={{ py: 10, px: 3, textAlign: 'center' }}>
-            <Box sx={{ mb: 5 }} display="flex"
+              <Box sx={{ mb: 5 }} display="flex"
                 justifyContent="center"
                 alignItems="center">
                 <Avatar alt={values.name} src={values.photoURL} sx={{ width: 126, height: 126 }} />
-              {/* <UploadAvatar
+                {/* <UploadAvatar
                 accept="image/*"
                 file={values.photoURL}
                 maxSize={3145728}
@@ -110,7 +102,7 @@ export default function AccountGeneral() {
                 {touched.photoURL && errors.photoURL}
               </FormHelperText> */}
 
-              {/* <FormControlLabel
+                {/* <FormControlLabel
                 control={<Switch {...getFieldProps('isPublic')} color="primary" />}
                 labelPlacement="start"
                 label="Public Profile"

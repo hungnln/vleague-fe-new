@@ -46,8 +46,8 @@ import { CollapseDrawerProvider } from './contexts/CollapseDrawerContext';
 // components
 import LoadingScreen from './components/LoadingScreen';
 
-// import { AuthProvider } from './contexts/JWTContext';
-import { AuthProvider } from './contexts/FirebaseContext';
+import { AuthProvider } from './contexts/JWTContext';
+// import { AuthProvider } from './contexts/FirebaseContext';
 // import { AuthProvider } from './contexts/AwsCognitoContext';
 // import { AuthProvider } from './contexts/Auth0Context';
 
