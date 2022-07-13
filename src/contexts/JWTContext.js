@@ -68,20 +68,33 @@ function AuthProvider({ children }) {
     const initialize = async () => {
       try {
         const accessToken = window.localStorage.getItem('accessToken');
+        console.log("check token", accessToken);
 
         if (accessToken && isValidToken(accessToken)) {
           setSession(accessToken);
+          const x = JSON.parse(atob(accessToken.split('.')[1]))
+          console.log("check valid token", x);
+          if (x?.role === "Admin") {
+            dispatch({
+              type: 'INITIALIZE',
+              payload: {
+                isAuthenticated: true,
+                user: { role: 'Admin', displayName: 'Admin' }
+              }
+            });
+          }
+          else {
+            dispatch({
+              type: 'INITIALIZE',
+              payload: {
+                isAuthenticated: false,
+                user: null
+              }
+            });
+          }
+          // const response = await axios.post('/api/login/admin');
 
-          const response = await axios.post('/api/login/admin');
-          const { user } = response.data;
 
-          dispatch({
-            type: 'INITIALIZE',
-            payload: {
-              isAuthenticated: true,
-              user
-            }
-          });
         } else {
           dispatch({
             type: 'INITIALIZE',
