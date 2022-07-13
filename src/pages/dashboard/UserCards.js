@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 import { Container, Grid, Skeleton } from '@mui/material';
 // redux
 import { useDispatch, useSelector } from '../../redux/store';
-import { getUsers } from '../../redux/slices/user';
+// import { getUsers } from '../../redux/slices/user';
 // routes
 import { PATH_DASHBOARD } from '../../routes/paths';
 // hooks
@@ -31,7 +31,7 @@ export default function UserCards() {
   const { users } = useSelector((state) => state.user);
 
   useEffect(() => {
-    dispatch(getUsers());
+    // dispatch(getUsers());
   }, [dispatch]);
 
   return (

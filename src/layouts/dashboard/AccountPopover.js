@@ -26,11 +26,11 @@ const MENU_OPTIONS = [
     icon: homeFill,
     linkTo: '/'
   },
-  // {
-  //   label: 'Profile',
-  //   icon: personFill,
-  //   linkTo: PATH_DASHBOARD.user.profile
-  // },
+  {
+    label: 'Profile',
+    icon: personFill,
+    linkTo: PATH_DASHBOARD.user.account
+  },
   // {
   //   label: 'Settings',
   //   icon: settings2Fill,

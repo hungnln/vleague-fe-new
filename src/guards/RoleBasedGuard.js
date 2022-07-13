@@ -17,7 +17,17 @@ const useCurrentRole = () => {
 export default function RoleBasedGuard({ accessibleRoles, children }) {
   const currentRole = useCurrentRole();
 
-  if (!accessibleRoles.includes(currentRole)) {
+  // if (!accessibleRoles.includes(currentRole)) {
+  //   return (
+  //     <Container>
+  //       <Alert severity="error">
+  //         <AlertTitle>Permission Denied</AlertTitle>
+  //         You do not have permission to access this page
+  //       </Alert>
+  //     </Container>
+  //   );
+  // }
+  if (!(accessibleRoles === currentRole)) {
     return (
       <Container>
         <Alert severity="error">

@@ -3,7 +3,7 @@ import { useSnackbar } from 'notistack';
 import { useCallback } from 'react';
 import { Form, FormikProvider, useFormik } from 'formik';
 // material
-import { Box, Grid, Card, Stack, Switch, TextField, FormControlLabel, Typography, FormHelperText } from '@mui/material';
+import { Box, Grid, Card, Stack, Switch, TextField, FormControlLabel, Typography, FormHelperText, Avatar } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 // hooks
 import useAuth from '../../../../hooks/useAuth';
@@ -79,7 +79,11 @@ export default function AccountGeneral() {
         <Grid container spacing={3}>
           <Grid item xs={12} md={4}>
             <Card sx={{ py: 10, px: 3, textAlign: 'center' }}>
-              <UploadAvatar
+            <Box sx={{ mb: 5 }} display="flex"
+                justifyContent="center"
+                alignItems="center">
+                <Avatar alt={values.name} src={values.photoURL} sx={{ width: 126, height: 126 }} />
+              {/* <UploadAvatar
                 accept="image/*"
                 file={values.photoURL}
                 maxSize={3145728}
@@ -104,26 +108,28 @@ export default function AccountGeneral() {
 
               <FormHelperText error sx={{ px: 2, textAlign: 'center' }}>
                 {touched.photoURL && errors.photoURL}
-              </FormHelperText>
+              </FormHelperText> */}
 
-              <FormControlLabel
+              {/* <FormControlLabel
                 control={<Switch {...getFieldProps('isPublic')} color="primary" />}
                 labelPlacement="start"
                 label="Public Profile"
                 sx={{ mt: 5 }}
-              />
+              /> */}
+              </Box>
             </Card>
           </Grid>
 
-          <Grid item xs={12} md={8}>
+          <Grid item xs={12} md={5}>
             <Card sx={{ p: 3 }}>
-              <Stack spacing={{ xs: 2, md: 3 }}>
-                <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
+              <Stack spacing={3}>
+                <Stack direction={{ xs: 'column' }} spacing={3}>
                   <TextField fullWidth label="Name" {...getFieldProps('displayName')} />
                   <TextField fullWidth disabled label="Email Address" {...getFieldProps('email')} />
                 </Stack>
+              </Stack>
 
-                <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
+              {/* <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
                   <TextField fullWidth label="Phone Number" {...getFieldProps('phoneNumber')} />
                   <TextField fullWidth label="Address" {...getFieldProps('address')} />
                 </Stack>
@@ -155,13 +161,13 @@ export default function AccountGeneral() {
                 </Stack>
 
                 <TextField {...getFieldProps('about')} fullWidth multiline minRows={4} maxRows={4} label="About" />
-              </Stack>
+              </Stack> */}
 
-              <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
+              {/* <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
                 <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
                   Save Changes
                 </LoadingButton>
-              </Box>
+              </Box> */}
             </Card>
           </Grid>
         </Grid>

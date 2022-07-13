@@ -72,9 +72,9 @@ export default function Login() {
 
       <MHidden width="mdDown">
         <SectionStyle>
-          {/* <Typography variant="h3" sx={{ px: 5, mt: 10, mb: 5 }}>
+          <Typography variant="h3" sx={{ px: 5, mt: 10, mb: 5 }}>
             Hi, Welcome Back
-          </Typography> */}
+          </Typography>
           <img src="/static/illustrations/login-image.png" alt="login" />
           {/* <img src="/static/illustrations/login-second.png" alt="login" /> */}
 
@@ -88,7 +88,7 @@ export default function Login() {
               <Typography variant="h4" gutterBottom>
                 Sign in to V League
               </Typography>
-              {/* <Typography sx={{ color: 'text.secondary' }}>Enter your details below.</Typography> */}
+              <Typography sx={{ color: 'text.secondary' }}>Enter your details below.</Typography>
             </Box>
 
             <Tooltip title={capitalCase(method)}>
@@ -100,13 +100,13 @@ export default function Login() {
             Use email : <strong>demo@minimals.cc</strong> / password :<strong>&nbsp;demo1234</strong>
           </Alert> */}
 
-          {/* {method !== 'auth0' ? (
+          {method !== 'auth0' ? (
             <LoginForm />
           ) : (
             <Button fullWidth size="large" type="submit" variant="contained" onClick={handleLoginAuth0}>
               Login
             </Button>
-          )} */}
+          )}
 
           <MHidden width="smUp">
             <Typography variant="body2" align="center" sx={{ mt: 3 }}>

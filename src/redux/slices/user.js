@@ -9,16 +9,73 @@ const initialState = {
   isLoading: false,
   error: false,
   myProfile: null,
-  posts: [],
-  users: [],
-  userList: [],
-  followers: [],
-  friends: [],
-  gallery: [],
-  cards: null,
-  addressBook: [],
-  invoices: [],
-  notifications: null
+  userDetail: {},
+  role: {},
+  userList: [{
+    id: 'lsXGrmgi8EPEcoMl42YHXIDsM532',
+    name: 'Nguyen Le Nguyen Hung K14 HCM',
+    imageURL: 'https://lh3.googleusercontent.com/a-/AOh14GjHTdTGoDiHoV4YhjpTOeFrZRKbRCNKks7p2G0yzQ=s96-c',
+    email: 'hungnlnse140018@fpt.edu.vn',
+    isBanned: false
+  },
+  {
+    id: 'ZrnyrIUcasSEsPl6Ucff7l5iVaM2',
+    name: 'Truong Quang Phien',
+    imageURL: 'https://lh3.googleusercontent.com/a-/AOh14GiV2n4ncOhQdo2bLAMP3KhuA-J1fnMAvOpv5Sk60w=s96-c',
+    email: 'phientqse140851@fpt.edu.vn',
+    isBanned: false
+  },
+  {
+    id: 'XxrP7edxoEW7BsC16Yy6CnZ2nh62',
+    name: 'Call me is Phiênnn',
+    imageURL: 'https://lh3.googleusercontent.com/a-/AOh14GjrbBhzz6BwUu2IUUuMiqkIyY7KATj_U9jNZocbYQ=s96-c',
+    email: 'phientruong20@gmail.com',
+    isBanned: false
+  },
+  {
+    id: 'c1fOEuS5OkZVheCBKdQMcVchlyI2',
+    name: 'Minh Duc Nguyen',
+    imageURL: 'https://lh3.googleusercontent.com/a-/AOh14GguHNSGxyEmM497Jyp7oMzgoBod7-c6I0QH1Dr1=s96-c',
+    email: 'ducnmse140716@fpt.edu.vn',
+    isBanned: false
+  },
+  {
+    id: '22nbM8LDUxfFGll3DG89QPvKD4m2',
+    name: 'Nguyen Thanh Cong (K15 HCM)',
+    imageURL: 'https://lh3.googleusercontent.com/a-/AOh14GjGhl9zllKmYDVyLFchG05hSE-XNu4yv075WchZ=s96-c',
+    email: 'congntse151288@fpt.edu.vn',
+    isBanned: false
+  },
+  {
+    id: 'giGofxG1TaY0slM0H5i9RoWk2Q32',
+    name: 'Tran Vinh An (K15 HCM)',
+    imageURL: 'https://lh3.googleusercontent.com/a-/AOh14GhRCqm7NEl4sy_TDDXXBKZGY3KWTppVXfQFXpsNxw=s96-c',
+    email: 'antvse151316@fpt.edu.vn',
+    isBanned: false
+  },
+  {
+    id: 'G9b6gVhuvZNOdY2GyZdUUnhHpud2',
+    name: 'Hưng Nguyên',
+    imageURL: 'https://lh3.googleusercontent.com/a/AATXAJxhqNwQKXG5F0MWSnMnQGTBwMBg_g13cUWDMznP=s96-c',
+    email: 'nguyenhung09082000@yahoo.com',
+    isBanned: false
+  },
+  {
+    id: 'rc5AVhSpocWIbDBqZvF73hMFGR92',
+    name: 'Thành Công Nguyễn',
+    imageURL: 'https://lh3.googleusercontent.com/a-/AFdZucqZ4MhQwrQ9VIeGhhj3hLll4yjJ4vDE89Os_PLbcw=s96-c',
+    email: 'inuyashathanhcongnguyen@gmail.com',
+    isBanned: false
+  },
+  {
+    id: 'p1uxeOulvmTGjNk6pkgDptBMMbr1',
+    name: 'Mỹ Chi',
+    imageURL: 'https://lh3.googleusercontent.com/a-/AFdZucoSduK6jcHWHbr8_k7QXVbXfcZdpaCLBBXEQ9gf=s96-c',
+    email: 'ntmchi146@gmail.com',
+    isBanned: false
+  }],
+  isOpenModal: false,
+
 };
 
 const slice = createSlice({
@@ -41,88 +98,22 @@ const slice = createSlice({
       state.isLoading = false;
       state.myProfile = action.payload;
     },
-
-    // GET POSTS
-    getPostsSuccess(state, action) {
+    getUserDetail(state, action) {
       state.isLoading = false;
-      state.posts = action.payload;
+      state.userDetail = action.payload;
     },
 
-    // GET USERS
-    getUsersSuccess(state, action) {
-      state.isLoading = false;
-      state.users = action.payload;
-    },
-
-    // DELETE USERS
-    deleteUser(state, action) {
-      const deleteUser = filter(state.userList, (user) => user.id !== action.payload);
-      state.userList = deleteUser;
-    },
-
-    // GET FOLLOWERS
-    getFollowersSuccess(state, action) {
-      state.isLoading = false;
-      state.followers = action.payload;
-    },
-
-    // ON TOGGLE FOLLOW
-    onToggleFollow(state, action) {
-      const followerId = action.payload;
-
-      const handleToggle = map(state.followers, (follower) => {
-        if (follower.id === followerId) {
-          return {
-            ...follower,
-            isFollowed: !follower.isFollowed
-          };
-        }
-        return follower;
-      });
-
-      state.followers = handleToggle;
-    },
-
-    // GET FRIENDS
-    getFriendsSuccess(state, action) {
-      state.isLoading = false;
-      state.friends = action.payload;
-    },
-
-    // GET GALLERY
-    getGallerySuccess(state, action) {
-      state.isLoading = false;
-      state.gallery = action.payload;
-    },
-
-    // GET MANAGE USERS
     getUserListSuccess(state, action) {
       state.isLoading = false;
       state.userList = action.payload;
     },
-
-    // GET CARDS
-    getCardsSuccess(state, action) {
-      state.isLoading = false;
-      state.cards = action.payload;
+    openModal(state) {
+      state.isOpenModal = true;
     },
 
-    // GET ADDRESS BOOK
-    getAddressBookSuccess(state, action) {
-      state.isLoading = false;
-      state.addressBook = action.payload;
-    },
-
-    // GET INVOICES
-    getInvoicesSuccess(state, action) {
-      state.isLoading = false;
-      state.invoices = action.payload;
-    },
-
-    // GET NOTIFICATIONS
-    getNotificationsSuccess(state, action) {
-      state.isLoading = false;
-      state.notifications = action.payload;
+    // CLOSE MODAL
+    closeModal(state) {
+      state.isOpenModal = false;
     }
   }
 });
@@ -131,79 +122,39 @@ const slice = createSlice({
 export default slice.reducer;
 
 // Actions
-export const { onToggleFollow, deleteUser } = slice.actions;
+export const { onToggleFollow, deleteUser, openModal, closeModal } = slice.actions;
 
 // ----------------------------------------------------------------------
 
-export function getProfile() {
+// ----------------------------------------------------------------------
+export function getUserDetail(id) {
   return async (dispatch) => {
     dispatch(slice.actions.startLoading());
     try {
-      const response = await axios.get('/api/user/profile');
-      dispatch(slice.actions.getProfileSuccess(response.data.profile));
+      const response = await axios.get(`/api/accounts/${id}`);
+      dispatch(slice.actions.getUserDetail(response.data.result));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
     }
   };
 }
-
-// ----------------------------------------------------------------------
-
-export function getPosts() {
+export function updateUserStatus(userID, isBanned, callback) {
   return async (dispatch) => {
     dispatch(slice.actions.startLoading());
     try {
-      const response = await axios.get('/api/user/posts');
-      dispatch(slice.actions.getPostsSuccess(response.data.posts));
+      const response = await axios.put(`/api/accounts/${userID}?isBanned=${isBanned}`);
+      if (response.data.statusCode === 200) {
+        callback({ IsError: response.data.IsError })
+        // dispatch(slice.actions.editStadium(response.data.result));
+
+      }
+      // dispatch(slice.actions.getUserDetail(response.data.result));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
+      callback(error.response.data)
     }
   };
 }
-
-// ----------------------------------------------------------------------
-
-export function getFollowers() {
-  return async (dispatch) => {
-    dispatch(slice.actions.startLoading());
-    try {
-      const response = await axios.get('/api/user/social/followers');
-      dispatch(slice.actions.getFollowersSuccess(response.data.followers));
-    } catch (error) {
-      dispatch(slice.actions.hasError(error));
-    }
-  };
-}
-
-// ----------------------------------------------------------------------
-
-export function getFriends() {
-  return async (dispatch) => {
-    dispatch(slice.actions.startLoading());
-    try {
-      const response = await axios.get('/api/user/social/friends');
-      dispatch(slice.actions.getFriendsSuccess(response.data.friends));
-    } catch (error) {
-      dispatch(slice.actions.hasError(error));
-    }
-  };
-}
-
-// ----------------------------------------------------------------------
-
-export function getGallery() {
-  return async (dispatch) => {
-    dispatch(slice.actions.startLoading());
-    try {
-      const response = await axios.get('/api/user/social/gallery');
-      dispatch(slice.actions.getGallerySuccess(response.data.gallery));
-    } catch (error) {
-      dispatch(slice.actions.hasError(error));
-    }
-  };
-}
-
-// ----------------------------------------------------------------------
 
 export function getUserList() {
   return async (dispatch) => {
@@ -212,7 +163,6 @@ export function getUserList() {
       const response = await axios.get('/api/accounts');
       dispatch(slice.actions.getUserListSuccess(response.data.result));
     } catch (error) {
-      console.log(error, 'error');
       dispatch(slice.actions.hasError(error));
     }
   };
@@ -228,78 +178,38 @@ export const loginToServer = () => {
       localStorage.setItem('tokenExpire', response.data.result.tokenExpiresAt)
       console.log(response.data.result.token, "api token")
     } catch (error) {
-      console.log(error, 'error');
       dispatch(slice.actions.hasError(error));
     }
   };
 }
-
-// ----------------------------------------------------------------------
-
-export function getCards() {
+export const loginAdmin = (values) => {
   return async (dispatch) => {
     dispatch(slice.actions.startLoading());
     try {
-      const response = await axios.get('/api/user/account/cards');
-      dispatch(slice.actions.getCardsSuccess(response.data.cards));
+      const response = await axios.post('/api/login/admin', values);
+      dispatch(slice.actions.getProfileSuccess(response.data.result));
+      localStorage.setItem('accessToken', response.data.result.token)
+      localStorage.setItem('tokenExpire', response.data.result.tokenExpiresAt)
+      console.log(response.data.result.token, "api token")
     } catch (error) {
       dispatch(slice.actions.hasError(error));
     }
   };
 }
+// export const loginAdmin = (values) => {
+//   return async (dispatch) => {
+//     dispatch(slice.actions.startLoading());
+//     try {
+//       const response = await axios.post('/api/login/admin', values);
+//       dispatch(slice.actions.getProfileSuccess(response.data.result));
+//       localStorage.setItem('accessToken', response.data.result.token)
+//       localStorage.setItem('tokenExpire', response.data.result.tokenExpiresAt)
+//       console.log(response.data.result.token, "api token")
+//     } catch (error) {
+//       dispatch(slice.actions.hasError(error));
+//     }
+//   };
+// }
+
 
 // ----------------------------------------------------------------------
-
-export function getAddressBook() {
-  return async (dispatch) => {
-    dispatch(slice.actions.startLoading());
-    try {
-      const response = await axios.get('/api/user/account/address-book');
-      dispatch(slice.actions.getAddressBookSuccess(response.data.addressBook));
-    } catch (error) {
-      dispatch(slice.actions.hasError(error));
-    }
-  };
-}
-
-// ----------------------------------------------------------------------
-
-export function getInvoices() {
-  return async (dispatch) => {
-    dispatch(slice.actions.startLoading());
-    try {
-      const response = await axios.get('/api/user/account/invoices');
-      dispatch(slice.actions.getInvoicesSuccess(response.data.invoices));
-    } catch (error) {
-      dispatch(slice.actions.hasError(error));
-    }
-  };
-}
-
-// ----------------------------------------------------------------------
-
-export function getNotifications() {
-  return async (dispatch) => {
-    dispatch(slice.actions.startLoading());
-    try {
-      const response = await axios.get('/api/user/account/notifications-settings');
-      dispatch(slice.actions.getNotificationsSuccess(response.data.notifications));
-    } catch (error) {
-      dispatch(slice.actions.hasError(error));
-    }
-  };
-}
-
-// ----------------------------------------------------------------------
-
-export function getUsers() {
-  return async (dispatch) => {
-    dispatch(slice.actions.startLoading());
-    try {
-      const response = await axios.get('/api/user/all');
-      dispatch(slice.actions.getUsersSuccess(response.data.users));
-    } catch (error) {
-      dispatch(slice.actions.hasError(error));
-    }
-  };
-}

@@ -5,7 +5,7 @@ import { useParams, useLocation } from 'react-router-dom';
 import { Container } from '@mui/material';
 // redux
 import { useDispatch, useSelector } from '../../redux/store';
-import { getUserList } from '../../redux/slices/user';
+import { getUserDetail, getUserList } from '../../redux/slices/user';
 // routes
 import { PATH_DASHBOARD } from '../../routes/paths';
 // hooks
@@ -21,28 +21,28 @@ export default function UserCreate() {
   const { themeStretch } = useSettings();
   const dispatch = useDispatch();
   const { pathname } = useLocation();
-  const { name } = useParams();
-  const { userList } = useSelector((state) => state.user);
+  const { id } = useParams();
+  const { userList, userDetail } = useSelector((state) => state.user);
   const isEdit = pathname.includes('edit');
-  const currentUser = userList.find((user) => paramCase(user.name) === name);
+  // const currentUser = userList.find((user) => paramCase(user.name) === name);
 
   useEffect(() => {
-    dispatch(getUserList());
+    dispatch(getUserDetail(id));
   }, [dispatch]);
 
   return (
-    <Page title="User: Create a new user | Minimal-UI">
+    <Page title="User: View profile | V League">
       <Container maxWidth={themeStretch ? false : 'lg'}>
         <HeaderBreadcrumbs
-          heading={!isEdit ? 'Create a new user' : 'Edit user'}
+          heading={`View ${userDetail.name} profile`}
           links={[
             { name: 'Dashboard', href: PATH_DASHBOARD.root },
             { name: 'User', href: PATH_DASHBOARD.user.root },
-            { name: !isEdit ? 'New user' : name }
+            { name: userDetail?.name }
           ]}
         />
 
-        <UserNewForm isEdit={isEdit} currentUser={currentUser} />
+        <UserNewForm currentUser={userDetail} />
       </Container>
     </Page>
   );

@@ -1,12 +1,12 @@
 import * as Yup from 'yup';
 import PropTypes from 'prop-types';
-import { useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useSnackbar } from 'notistack';
 import { useNavigate } from 'react-router-dom';
 import { Form, FormikProvider, useFormik } from 'formik';
 // material
 import { LoadingButton } from '@mui/lab';
-import { Box, Card, Grid, Stack, Switch, TextField, Typography, FormHelperText, FormControlLabel } from '@mui/material';
+import { Box, Card, Grid, Stack, Switch, TextField, Typography, FormHelperText, FormControlLabel, DialogActions, Button, Avatar } from '@mui/material';
 // utils
 import { toBase64 } from 'src/utils/base64/base64';
 import { fData } from '../../../utils/formatNumber';
@@ -17,6 +17,9 @@ import { PATH_DASHBOARD } from '../../../routes/paths';
 import Label from '../../Label';
 import { UploadAvatar } from '../../upload';
 import countries from './countries';
+import { useDispatch } from 'react-redux';
+import { updateUserStatus } from 'src/redux/slices/user';
+import _ from 'lodash';
 
 // ----------------------------------------------------------------------
 
@@ -25,13 +28,15 @@ UserNewForm.propTypes = {
   currentUser: PropTypes.object
 };
 
-export default function UserNewForm({ isEdit, currentUser }) {
+export default function UserNewForm({ isEdit, currentUser, onCancel }) {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const [errorState, setErrorState] = useState()
   const { enqueueSnackbar } = useSnackbar();
 
   const NewUserSchema = Yup.object().shape({
-    name: Yup.string().required('Name is required'),
-    email: Yup.string().required('Email is required').email(),
+    // name: Yup.string().required('Name is required'),
+    // email: Yup.string().required('Email is required').email(),
     // phoneNumber: Yup.string().required('Phone number is required'),
     // address: Yup.string().required('Address is required'),
     // country: Yup.string().required('country is required'),
@@ -39,7 +44,7 @@ export default function UserNewForm({ isEdit, currentUser }) {
     // state: Yup.string().required('State is required'),
     // city: Yup.string().required('City is required'),
     // role: Yup.string().required('Role Number is required'),
-    ImageURL: Yup.mixed().required('Avatar is required')
+    // ImageURL: Yup.mixed().required('Avatar is required')
   });
 
   const formik = useFormik({
@@ -48,28 +53,13 @@ export default function UserNewForm({ isEdit, currentUser }) {
       id: currentUser?.id || '',
       name: currentUser?.name || '',
       email: currentUser?.email || '',
-      // phoneNumber: currentUser?.phoneNumber || '',
-      // address: currentUser?.address || '',
-      // country: currentUser?.country || '',
-      // state: currentUser?.state || '',
-      // city: currentUser?.city || '',
-      // zipCode: currentUser?.zipCode || '',
-      ImageURL: currentUser?.ImageURL || null,
-      // isVerified: currentUser?.isVerified || true,
-      // status: currentUser?.status,
-      // company: currentUser?.company || '',
-      // role: currentUser?.role || ''
+      imageURL: currentUser?.imageURL || null,
+      isBanned: currentUser?.isBanned,
     },
     validationSchema: NewUserSchema,
     onSubmit: async (values, { setSubmitting, resetForm, setErrors }) => {
       try {
-        await fakeRequest(500);
-        const data = { ...values, ImageURL: values.ImageURL.base64 }
-        console.log("formik", data);
-        resetForm();
-        setSubmitting(false);
-        enqueueSnackbar(!isEdit ? 'Create success' : 'Update success', { variant: 'success' });
-        navigate(PATH_DASHBOARD.user.list);
+        dispatch(updateUserStatus(values.id, values.isBanned, value => setErrorState(value))).then()
       } catch (error) {
         console.error(error);
         setSubmitting(false);
@@ -77,6 +67,16 @@ export default function UserNewForm({ isEdit, currentUser }) {
       }
     }
   });
+  useEffect(() => {
+    if (!_.isEmpty(errorState)) {
+      if (!errorState.IsError) {
+        formik.resetForm();
+        enqueueSnackbar(!isEdit ? 'Create success' : 'Update success', { variant: 'success' });
+        onCancel()
+      }
+    }
+
+  }, [errorState])
 
   const { errors, values, touched, handleSubmit, isSubmitting, setFieldValue, getFieldProps } = formik;
 
@@ -84,7 +84,7 @@ export default function UserNewForm({ isEdit, currentUser }) {
     (acceptedFiles) => {
       const file = acceptedFiles[0];
       if (file) {
-        setFieldValue('ImageURL', {
+        setFieldValue('imageURL', {
           ...file,
           base64: toBase64(file),
           preview: URL.createObjectURL(file)
@@ -98,19 +98,20 @@ export default function UserNewForm({ isEdit, currentUser }) {
     <FormikProvider value={formik}>
       <Form noValidate autoComplete="off" onSubmit={handleSubmit}>
         <Grid container spacing={3}>
-          <Grid item xs={12} md={4}>
-            <Card sx={{ py: 10, px: 3 }}>
-              {isEdit && (
-                <Label
-                  color={values.status !== 'active' ? 'error' : 'success'}
-                  sx={{ textTransform: 'uppercase', position: 'absolute', top: 24, right: 24 }}
-                >
-                  {values.status}
-                </Label>
-              )}
+          <Grid item xs={12} md={5}>
+            <Stack sx={{ py: 10, px: 3, position: 'relative' }}>
+              <Label
+                color={values.isBanned ? 'error' : 'success'}
+                sx={{ textTransform: 'uppercase', position: 'absolute', top: 24, right: 24 }}
+              >
+                {values.isBanned ? 'Banned' : 'Active'}
+              </Label>
+              <Box sx={{ mb: 5 }} display="flex"
+                justifyContent="center"
+                alignItems="center">
+                <Avatar alt={values.name} src={values.imageURL} sx={{ width: 126, height: 126 }} />
 
-              <Box sx={{ mb: 5 }}>
-                <UploadAvatar
+                {/* <UploadAvatar
                   accept="image/*"
                   file={values.ImageURL}
                   maxSize={3145728}
@@ -131,34 +132,16 @@ export default function UserNewForm({ isEdit, currentUser }) {
                       <br /> max size of {fData(3145728)}
                     </Typography>
                   }
-                />
-                <FormHelperText error sx={{ px: 2, textAlign: 'center' }}>
-                  {touched.ImageURL && errors.ImageURL}
-                </FormHelperText>
+                /> */}
+                {/* <FormHelperText error sx={{ px: 2, textAlign: 'center' }}>
+                  {touched.imageURL && errors.imageURL}
+                </FormHelperText> */}
               </Box>
 
-              {/* {isEdit && (
-                <FormControlLabel
-                  labelPlacement="start"
-                  control={
-                    <Switch
-                      onChange={(event) => setFieldValue('status', event.target.checked ? 'banned' : 'active')}
-                      checked={values.status !== 'active'}
-                    />
-                  }
-                  label={
-                    <>
-                      <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
-                        Banned
-                      </Typography>
-                      <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                        Apply disable account
-                      </Typography>
-                    </>
-                  }
-                  sx={{ mx: 0, mb: 3, width: 1, justifyContent: 'space-between' }}
-                />
-              )} */}
+
+
+
+
 
               {/* <FormControlLabel
                 labelPlacement="start"
@@ -175,30 +158,54 @@ export default function UserNewForm({ isEdit, currentUser }) {
                 }
                 sx={{ mx: 0, width: 1, justifyContent: 'space-between' }}
               /> */}
-            </Card>
+            </Stack>
           </Grid>
 
-          <Grid item xs={12} md={6}>
-            <Card sx={{ p: 3 }}>
-              <Stack spacing={3}>
-                <Stack direction={{ xs: 'column', }} spacing={{ xs: 3, sm: 1 }}>
-                  <TextField
-                    fullWidth
-                    label="Full Name"
-                    {...getFieldProps('name')}
-                    error={Boolean(touched.name && errors.name)}
-                    helperText={touched.name && errors.name}
-                  />
-                  <TextField
-                    fullWidth
-                    label="Email Address"
-                    {...getFieldProps('email')}
-                    error={Boolean(touched.email && errors.email)}
-                    helperText={touched.email && errors.email}
-                  />
-                </Stack>
+          <Grid item xs={12} md={7}>
+            <Stack spacing={3} sx={{ p: 3 }}>
 
-                {/* <Stack direction={{ xs: 'column', sm: 'row' }} spacing={{ xs: 3, sm: 2 }}>
+              <TextField
+                InputProps={{
+                  readOnly: true,
+                }}
+                fullWidth
+                label="Full Name"
+                {...getFieldProps('name')}
+                error={Boolean(touched.name && errors.name)}
+                helperText={touched.name && errors.name}
+              />
+              <TextField
+                InputProps={{
+                  readOnly: true,
+                }}
+                fullWidth
+                label="Email Address"
+                {...getFieldProps('email')}
+                error={Boolean(touched.email && errors.email)}
+                helperText={touched.email && errors.email}
+              />
+
+              <FormControlLabel
+                labelPlacement="start"
+                control={
+                  <Switch
+                    onChange={(event) => setFieldValue('isBanned', event.target.checked)}
+                    checked={values.isBanned}
+                  />
+                }
+                label={
+                  <>
+                    <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
+                      Banned
+                    </Typography>
+                    <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                      Apply disable account
+                    </Typography>
+                  </>
+                }
+                sx={{ mx: 0, mb: 3, width: 1, justifyContent: 'space-between' }}
+              />
+              {/* <Stack direction={{ xs: 'column', sm: 'row' }} spacing={{ xs: 3, sm: 2 }}>
                   <TextField
                     fullWidth
                     label="Phone Number"
@@ -270,15 +277,25 @@ export default function UserNewForm({ isEdit, currentUser }) {
                   />
                 </Stack> */}
 
-                <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
-                  <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
-                    {!isEdit ? 'Create User' : 'Save Changes'}
-                  </LoadingButton>
-                </Box>
-              </Stack>
-            </Card>
+              {/* <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
+                <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
+                  {!isEdit ? 'Create User' : 'Save Changes'}
+                </LoadingButton>
+              </Box> */}
+
+            </Stack>
+            <DialogActions>
+              <Box sx={{ flexGrow: 1 }} />
+              <Button type="button" variant="outlined" color="inherit" onClick={onCancel}>
+                Cancel
+              </Button>
+              <LoadingButton type="submit" variant="contained" loading={isSubmitting} loadingIndicator="Loading...">
+                Update User
+              </LoadingButton>
+            </DialogActions>
           </Grid>
         </Grid>
+
       </Form>
     </FormikProvider>
   );

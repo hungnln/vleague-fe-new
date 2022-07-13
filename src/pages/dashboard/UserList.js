@@ -4,6 +4,8 @@ import { sentenceCase } from 'change-case';
 import { useState, useEffect } from 'react';
 import plusFill from '@iconify/icons-eva/plus-fill';
 import { Link as RouterLink } from 'react-router-dom';
+import eyeFill from '@iconify/icons-eva/eye-fill';
+
 // material
 import { useTheme } from '@mui/material/styles';
 import {
@@ -20,11 +22,13 @@ import {
   Typography,
   TableContainer,
   TablePagination,
-  LinearProgress
+  LinearProgress,
+  DialogTitle,
+  IconButton
 } from '@mui/material';
 // redux
 import { useDispatch, useSelector } from '../../redux/store';
-import { getUserList, deleteUser } from '../../redux/slices/user';
+import { getUserList, deleteUser, openModal, closeModal } from '../../redux/slices/user';
 // routes
 import { PATH_DASHBOARD } from '../../routes/paths';
 // hooks
@@ -37,6 +41,10 @@ import SearchNotFound from '../../components/SearchNotFound';
 import HeaderBreadcrumbs from '../../components/HeaderBreadcrumbs';
 import { UserListHead, UserListToolbar, UserMoreMenu } from '../../components/_dashboard/user/list';
 import { removePlayer } from 'src/redux/slices/player';
+import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
+import UserNewForm from 'src/components/_dashboard/user/UserNewForm';
+import { DialogAnimate } from 'src/components/animate';
+import RemoveRedEyeOutlinedIcon from '@mui/icons-material/RemoveRedEyeOutlined';
 
 // ----------------------------------------------------------------------
 
@@ -45,8 +53,9 @@ const TABLE_HEAD = [
   { id: 'email', label: 'Email', alignRight: false },
   // { id: 'role', label: 'Role', alignRight: false },
   // { id: 'isVerified', label: 'Verified', alignRight: false },
-  // { id: 'status', label: 'Status', alignRight: false },
-  { id: '' }
+  { id: 'status', label: 'Status', alignRight: false },
+  { id: '', label: 'Action', alignRight: true },
+
 ];
 
 // ----------------------------------------------------------------------
@@ -84,14 +93,21 @@ export default function UserList() {
   const { themeStretch } = useSettings();
   const theme = useTheme();
   const dispatch = useDispatch();
-  const { userList } = useSelector((state) => state.user);
+  const { userList, isOpenModal } = useSelector((state) => state.user);
   const [page, setPage] = useState(0);
   const [order, setOrder] = useState('asc');
   const [selected, setSelected] = useState([]);
   const [orderBy, setOrderBy] = useState('name');
   const [filterName, setFilterName] = useState('');
   const [rowsPerPage, setRowsPerPage] = useState(5);
-
+  const [currentUser, setCurrentUser] = useState({})
+  const handleCloseModal = () => {
+    dispatch(closeModal());
+  };
+  const handleViewProfile = (user) => {
+    setCurrentUser(user);
+    dispatch(openModal());
+  }
   useEffect(() => {
     dispatch(getUserList());
   }, [dispatch]);
@@ -192,7 +208,7 @@ export default function UserList() {
                       <TableCell colSpan={4}> <LinearProgress /></TableCell>
                     </TableRow>)}
                   {filteredUsers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
-                    const { id, name, email, imageURL, isVerified } = row;
+                    const { id, name, email, imageURL, isBanned } = row;
                     const isItemSelected = selected.indexOf(name) !== -1;
 
                     return (
@@ -218,18 +234,20 @@ export default function UserList() {
                         <TableCell align="left">{email}</TableCell>
                         {/* <TableCell align="left">{role}</TableCell> */}
                         {/* <TableCell align="left">{isVerified ? 'Yes' : 'No'}</TableCell> */}
-                        {/* <TableCell align="left">
+                        <TableCell align="left" width={50}>
                           <Label
                             variant={theme.palette.mode === 'light' ? 'ghost' : 'filled'}
-                            color={(status === 'banned' && 'error') || 'success'}
+                            color={(isBanned && 'error') || 'success'}
                           >
-                            {sentenceCase(status)}
+                            {sentenceCase(!isBanned ? 'Active' : 'Banned')}
                           </Label>
-                        </TableCell> */}
+                        </TableCell>
 
-                        {/* <TableCell align="right">
-                          <UserMoreMenu onDelete={() => { handleDeleteUser(id) }} userID={id} />
-                        </TableCell> */}
+                        <TableCell align="right">
+                          <IconButton onClick={() => { handleViewProfile(row) }}>
+                            <Icon icon={eyeFill} width={24} height={24} />
+                          </IconButton>
+                        </TableCell>
                       </TableRow>
                     );
                   })}
@@ -262,6 +280,11 @@ export default function UserList() {
             onRowsPerPageChange={handleChangeRowsPerPage}
           />
         </Card>
+        <DialogAnimate width="sm" open={isOpenModal} onClose={handleCloseModal}>
+          <DialogTitle>{`View ${currentUser.name} profile`}</DialogTitle>
+
+          <UserNewForm onCancel={handleCloseModal} currentUser={currentUser} />
+        </DialogAnimate>
       </Container>
     </Page>
   );
