@@ -74,7 +74,7 @@ ReactDOM.render(
           </SettingsProvider>
         </LocalizationProvider>
       </PersistGate>
-  </ReduxProvider>
+    </ReduxProvider>
   </HelmetProvider>,
   document.getElementById('root')
 );

@@ -10,7 +10,6 @@ import roundAccountBox from '@iconify/icons-ic/round-account-box';
 import { Container, Tab, Box, Tabs, Stack } from '@mui/material';
 // redux
 import { useDispatch } from '../../redux/store';
-import { getCards, getProfile, getInvoices, getAddressBook, getNotifications } from '../../redux/slices/user';
 // routes
 import { PATH_DASHBOARD } from '../../routes/paths';
 // hooks
@@ -69,19 +68,20 @@ export default function UserAccount() {
   };
 
   return (
-    <Page title="User: Account Settings | Minimal-UI">
+    <Page title="User: Account | V League">
       <Container maxWidth={themeStretch ? false : 'lg'}>
         <HeaderBreadcrumbs
           heading="Account"
           links={[
             { name: 'Dashboard', href: PATH_DASHBOARD.root },
             { name: 'User', href: PATH_DASHBOARD.user.root },
-            { name: 'Account Settings' }
+            { name: 'View' }
           ]}
         />
 
         <Stack spacing={5}>
-          <Tabs
+        <AccountGeneral />
+          {/* <Tabs
             value={currentTab}
             scrollButtons="auto"
             variant="scrollable"
@@ -96,7 +96,7 @@ export default function UserAccount() {
           {ACCOUNT_TABS.map((tab) => {
             const isMatched = tab.value === currentTab;
             return isMatched && <Box key={tab.value}>{tab.component}</Box>;
-          })}
+          })} */}
         </Stack>
       </Container>
     </Page>

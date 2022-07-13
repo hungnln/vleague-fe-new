@@ -43,6 +43,11 @@ export default function MatchNewForm({ tournamentID, currentMatch, onCancel, rou
   const { roundList } = useSelector((state) => state.round);
   const { homeContractList, awayContractList } = useSelector(state => state.player)
   const { selectedHomePlayer, setSelectedHomePlayer } = useState([])
+  const [selectedClub, setSelectedClub] = useState([])
+  const disableOption = (option, field) => {
+    console.log(option, field, selectedClub, "check valid");
+    return (!!selectedClub?.find(club => club?.id === option?.id)) && (!_.isEmpty(field) ? (field?.id !== option?.id) : true)
+  }
   const NewMatchSchema = Yup.object().shape({
     StartDate: Yup.string().required('StartDate is required'),
     HomeClub: Yup.mixed().required('HomeClub is required'),
@@ -112,11 +117,15 @@ export default function MatchNewForm({ tournamentID, currentMatch, onCancel, rou
     }
 
   }, [errorState])
+
   // useEffect(() => {
   //   console.log('listPlayer', formik.values.HomePlayer);
 
   // }, [formik.values.HomePlayer])
   const { errors, values, touched, handleSubmit, isSubmitting, setFieldValue, getFieldProps } = formik;
+  useEffect(() => {
+    setSelectedClub([{ ...values.HomeClub }, { ...values.AwayClub }])
+  }, [values])
   return (
     <FormikProvider value={formik}>
       <Form noValidate autoComplete="off" onSubmit={handleSubmit}>
@@ -151,10 +160,11 @@ export default function MatchNewForm({ tournamentID, currentMatch, onCancel, rou
               )}
             />
             <Autocomplete
+              getOptionDisabled={option => disableOption(option, values.HomeClub)}
               fullWidth
               options={clubList}
               autoHighlight
-              {...isEdit ? { value: formik.values.HomeClub, disabled: 'true' } : {}}
+              value={values.HomeClub}
               getOptionLabel={(option) => option.name}
               onChange={(event, newValue) => {
                 setFieldValue('HomeClub', newValue);
@@ -179,10 +189,11 @@ export default function MatchNewForm({ tournamentID, currentMatch, onCancel, rou
               )}
             />
             <Autocomplete
+              getOptionDisabled={option => disableOption(option, values.AwayClub)}
               fullWidth
               options={clubList}
               autoHighlight
-              {...isEdit ? { value: formik.values.AwayClub, disabled: 'true' } : {}}
+              value={values.AwayClub}
               getOptionLabel={(option) => option.name}
               onChange={(event, newValue) => {
                 setFieldValue('AwayClub', newValue);

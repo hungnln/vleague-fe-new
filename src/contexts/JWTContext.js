@@ -72,7 +72,7 @@ function AuthProvider({ children }) {
         if (accessToken && isValidToken(accessToken)) {
           setSession(accessToken);
 
-          const response = await axios.get('/api/account/my-account');
+          const response = await axios.post('/api/login/admin');
           const { user } = response.data;
 
           dispatch({
@@ -106,18 +106,19 @@ function AuthProvider({ children }) {
     initialize();
   }, []);
 
-  const login = async (email, password) => {
-    const response = await axios.post('/api/account/login', {
-      email,
-      password
+  const login = async (Username, Password) => {
+    console.log(Username, Password);
+    const response = await axios.post('/api/login/admin', {
+      Username,
+      Password
     });
-    const { accessToken, user } = response.data;
+    const { token, account } = response.data.result;
 
-    setSession(accessToken);
+    setSession(token);
     dispatch({
       type: 'LOGIN',
       payload: {
-        user
+        user: account
       }
     });
   };
@@ -145,9 +146,9 @@ function AuthProvider({ children }) {
     dispatch({ type: 'LOGOUT' });
   };
 
-  const resetPassword = () => {};
+  const resetPassword = () => { };
 
-  const updateProfile = () => {};
+  const updateProfile = () => { };
 
   return (
     <AuthContext.Provider
