@@ -41,7 +41,7 @@ export default function EventNewForm({ onCancel, isExtra, isSecondHalf }) {
   const [errorState, setErrorState] = useState();
   const { enqueueSnackbar } = useSnackbar();
   const { selectedHomePlayer, setSelectedHomePlayer } = useState([])
- 
+
   const NewActivitySchema = Yup.object().shape({
     Type: Yup.mixed().required("Type is required"),
     MinuteInMatch: Yup.number().required("MinuteInMatch is required"),
@@ -83,7 +83,7 @@ export default function EventNewForm({ onCancel, isExtra, isSecondHalf }) {
             StaffContractIDs: [],
             RefereeIDs: [],
           }
-          dispatch(addActivity(data, (value) => { setErrorState(value); }))
+          dispatch(addActivity(data, (value) => { if (isSecondHalf && !value.IsError) { dispatch(addActivity({ ...data, Type: 17 }, value => { setErrorState(value) })) } else { setErrorState(value) } }))
         } else {
           if (values.Player.length > 0) {
             if (values.Type !== 18) {

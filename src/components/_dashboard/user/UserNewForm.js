@@ -99,7 +99,7 @@ export default function UserNewForm({ isEdit, currentUser, onCancel }) {
       <Form noValidate autoComplete="off" onSubmit={handleSubmit}>
         <Grid container spacing={3}>
           <Grid item xs={12} md={5}>
-            <Stack sx={{ py: 10, px: 3, position: 'relative' }}>
+            <Stack sx={{ pt: 10, px: 3, position: 'relative' }}>
               <Label
                 color={values.isBanned ? 'error' : 'success'}
                 sx={{ textTransform: 'uppercase', position: 'absolute', top: 24, right: 24 }}

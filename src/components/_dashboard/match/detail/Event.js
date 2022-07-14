@@ -8,7 +8,7 @@ import SaveIcon from '@mui/icons-material/Save';
 import PrintIcon from '@mui/icons-material/Print';
 import ShareIcon from '@mui/icons-material/Share';
 import { useEffect, useState } from 'react';
-import { addActivity, closeModal, openModal } from 'src/redux/slices/match';
+import { addActivity, closeModal, getMatchDetail, openModal } from 'src/redux/slices/match';
 import { useSnackbar } from 'notistack';
 import _ from 'lodash';
 import { DialogAnimate } from 'src/components/animate';
@@ -17,6 +17,9 @@ import LooksOneOutlinedIcon from '@mui/icons-material/LooksOneOutlined';
 import LooksTwoOutlinedIcon from '@mui/icons-material/LooksTwoOutlined';
 import MoreTimeOutlinedIcon from '@mui/icons-material/MoreTimeOutlined';
 import EventAvailableOutlinedIcon from '@mui/icons-material/EventAvailableOutlined';
+import SportsSoccerIcon from '@mui/icons-material/SportsSoccer';
+import FlagIcon from '@mui/icons-material/Flag';
+import PlayCircleFilledWhiteIcon from '@mui/icons-material/PlayCircleFilledWhite';
 //
 
 // ----------------------------------------------------------------------
@@ -26,6 +29,15 @@ Event.propTypes = {
 };
 
 export default function Event() {
+    const listIcon = {
+        "StartFirstHalf": <>PlayCircleFilledWhiteIcon</>,
+        "Goal": <SportsSoccerIcon />,
+        "OwnGoal": <SportsSoccerIcon />,
+        "RedCard": <></>,
+        "Offside": <FlagIcon />,
+        "KickOff": <></>,
+        "Start": <></>
+    }
     const { currentMatch, isOpenModal } = useSelector(state => state.match);
     const { activities, homeClub, awayClub, homeClubID } = currentMatch;
     const [errorState, setErrorState] = useState();

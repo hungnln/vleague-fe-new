@@ -38,7 +38,7 @@ export default function LoginForm() {
       remember: true
     },
     validationSchema: LoginSchema,
-    onSubmit: async(values, { setErrors, setSubmitting, resetForm }) => {
+    onSubmit: async (values, { setErrors, setSubmitting, resetForm }) => {
       try {
         await login(values.Username, values.Password);
         enqueueSnackbar('Login success', {
@@ -79,7 +79,7 @@ export default function LoginForm() {
             fullWidth
             autoComplete="username"
             // type="Username"
-            label="Email address"
+            label="Username"
             {...getFieldProps('Username')}
             error={Boolean(touched.Username && errors.Username)}
             helperText={touched.Username && errors.Username}
@@ -101,7 +101,7 @@ export default function LoginForm() {
               )
             }}
             error={Boolean(touched.Password && errors.Password)}
-            helperText={touched.Password && errors.password}
+            helperText={touched.Password && errors.Password}
           />
         </Stack>
 

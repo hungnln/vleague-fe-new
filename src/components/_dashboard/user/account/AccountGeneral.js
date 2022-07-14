@@ -116,7 +116,7 @@ export default function AccountGeneral() {
             <Card sx={{ p: 3 }}>
               <Stack spacing={3}>
                 <Stack direction={{ xs: 'column' }} spacing={3}>
-                  <TextField fullWidth label="Name" {...getFieldProps('displayName')} />
+                  <TextField fullWidth disabled label="Name" {...getFieldProps('displayName')} />
                   <TextField fullWidth disabled label="Email Address" {...getFieldProps('email')} />
                 </Stack>
               </Stack>

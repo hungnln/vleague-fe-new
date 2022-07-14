@@ -37,8 +37,8 @@ export default function PlayerNewForm({ isEdit, currentPlayer }) {
     Name: Yup.string().required('Name is required'),
     DateOfBirth: Yup.string().required('Birthday is required'),
     ImageURL: Yup.mixed().required('Avatar is required'),
-    HeightCm: Yup.number().required('Height is required').min(0),
-    WeightKg: Yup.number().required('Weight is required').min(0),
+    HeightCm: Yup.number().min(0),
+    WeightKg: Yup.number().min(0),
 
   });
   useEffect(() => {

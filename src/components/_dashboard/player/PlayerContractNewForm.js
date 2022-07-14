@@ -45,7 +45,6 @@ export default function PlayerContractNewForm({ isEdit, currentContract }) {
     Salary: Yup.number().required('Salary is required'),
     Start: Yup.mixed().required('Start date is required'),
     End: Yup.mixed().required('End date is required'),
-    Description: Yup.mixed().required('Description is required'),
     Number: Yup.number().required('Number is required').min(Number(1))
   });
   useEffect(() => {
@@ -266,8 +265,8 @@ export default function PlayerContractNewForm({ isEdit, currentContract }) {
                     maxRows={5}
                     label="Description"
                     {...getFieldProps('Description')}
-                    error={Boolean(touched.Description && errors.Description)}
-                    helperText={touched.Description && errors.Description}
+                    // error={Boolean(touched.Description && errors.Description)}
+                    // helperText={touched.Description && errors.Description}
                   />
                 </Stack>
                 {errorState?.IsError ? <Alert severity="warning">{errorState.Message}</Alert> : ''}

@@ -65,10 +65,29 @@ export default function MatchDetail() {
     const { homeClub, awayClub, homeGoals, awayGoals, startDate, endDate, activities, round, homeClubID, awayClubID } = currentMatch
     useEffect(() => {
         dispatch(getMatchDetail(matchId))
-        dispatch(getPlayerList())
-        dispatch(getStaffList())
-        dispatch(getRefereeList())
+        if (_.isEmpty(currentMatch) && _.isEmpty(playerList) && _.isEmpty(staffList) && _.isEmpty(refereeList)) {
+            dispatch(getPlayerList())
+            dispatch(getStaffList())
+            dispatch(getRefereeList())
+        }
+
+        console.log('render dispatch');
+
     }, [dispatch]);
+    useEffect(() => {
+        console.log('render init');
+        dispatch(getMatchParticipation(matchId, homeClubID, awayClubID, playerList, staffList, refereeList))
+
+        const getDetail = setInterval(() => {
+            dispatch(getMatchDetail(matchId))
+        }, 10000);
+        return () => clearTimeout(getDetail);
+
+        // if (!_.isEmpty(currentMatch) && !_.isEmpty(playerList) && !_.isEmpty(staffList) && !_.isEmpty(refereeList)) {
+        //     dispatch(getMatchParticipation(matchId, homeClubID, awayClubID, playerList, staffList, refereeList))
+        // }
+
+    }, [])
     useEffect(() => {
         if (!_.isEmpty(currentMatch) && !_.isEmpty(playerList) && !_.isEmpty(staffList) && !_.isEmpty(refereeList)) {
             dispatch(getMatchParticipation(matchId, homeClubID, awayClubID, playerList, staffList, refereeList))
@@ -81,6 +100,10 @@ export default function MatchDetail() {
     if (!currentMatch) {
         return null;
     }
+    // setInterval(() => {
+    //     console.log("check render");
+    //     // dispatch(getMatchDetail(matchId))
+    // }, 10000);
     const PROFILE_TABS = [
         {
             value: 'happening',
@@ -90,7 +113,7 @@ export default function MatchDetail() {
         {
             value: 'lineup',
             icon: <Icon icon={roundAccountBox} width={20} height={20} />,
-            component: <Lineup matchParticiation={matchParticiation} />
+            component: <Lineup />
         },
         // {
         //     value: 'statistic',
