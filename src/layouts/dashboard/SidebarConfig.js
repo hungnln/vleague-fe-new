@@ -7,6 +7,7 @@ import SportsOutlinedIcon from '@mui/icons-material/SportsOutlined';
 import EmojiEventsOutlinedIcon from '@mui/icons-material/EmojiEventsOutlined';
 import GroupsOutlinedIcon from '@mui/icons-material/GroupsOutlined';
 import EmojiTransportationIcon from '@mui/icons-material/EmojiTransportation';
+import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 // ----------------------------------------------------------------------
 
 const getIcon = (name) => (
@@ -22,7 +23,9 @@ const ICONS = {
   cart: getIcon('ic_cart'),
   chat: getIcon('ic_chat'),
   mail: getIcon('ic_mail'),
-  user: getIcon('ic_user'),
+  player: getIcon('ic_user'),
+  staff: getIcon('ic_user'),
+  user: <ManageAccountsIcon />,
   kanban: getIcon('ic_kanban'),
   banking: getIcon('ic_banking'),
   calendar: getIcon('ic_calendar'),
@@ -68,7 +71,7 @@ const sidebarConfig = [
 
   {
     subheader: 'tournament',
-    items: [  
+    items: [
       {
         title: 'tournament',
         path: PATH_DASHBOARD.tournament.root,
@@ -101,7 +104,7 @@ const sidebarConfig = [
       {
         title: 'player',
         path: PATH_DASHBOARD.player.root,
-        icon: ICONS.user,
+        icon: ICONS.player,
         // children: [
         //   // { title: 'profile', path: PATH_DASHBOARD.player.profile },
         //   // { title: 'cards', path: PATH_DASHBOARD.player.cards },
@@ -115,7 +118,7 @@ const sidebarConfig = [
       {
         title: 'staff',
         path: PATH_DASHBOARD.staff.root,
-        icon: ICONS.user,
+        icon: ICONS.staff,
         // children: [   
         //   { title: 'list', path: PATH_DASHBOARD.staff.list },        
         //   { title: 'contract', path: PATH_DASHBOARD.staff.contract },
@@ -184,7 +187,7 @@ const sidebarConfig = [
       // },
 
       // MANAGEMENT : BLOG
-      
+
     ]
   },
   // APP

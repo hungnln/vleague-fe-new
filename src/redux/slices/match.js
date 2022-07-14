@@ -44,6 +44,7 @@ const slice = createSlice({
     deleteMatch(state, action) {
       const deleteMatch = filter(state.matchList, (match) => match.id !== action.payload);
       state.matchList = deleteMatch;
+      state.currentMatch = {}
     },
 
     getMatchListSuccess(state, action) {
@@ -92,6 +93,7 @@ const slice = createSlice({
       const newActivity = [...oldActivity, action.payload]
       state.currentMatch.activities = newActivity
     },
+
   },
 
 });
@@ -177,6 +179,7 @@ export const getMatchParticipation = (matchId, homeClubID, awayClubID, playerLis
   return async (dispatch) => {
     dispatch(slice.actions.startLoading());
     try {
+      // const response = await axios.get(`/api/matches/${matchId}/participation`);
       const DEFENDER = "Defender"
       const GOALKEEPER = "GoalKeeper"
       const MIDFIELDER = "Midfielder"

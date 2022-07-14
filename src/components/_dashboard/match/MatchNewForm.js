@@ -45,7 +45,6 @@ export default function MatchNewForm({ tournamentID, currentMatch, onCancel, rou
   const { selectedHomePlayer, setSelectedHomePlayer } = useState([])
   const [selectedClub, setSelectedClub] = useState([])
   const disableOption = (option, field) => {
-    console.log(option, field, selectedClub, "check valid");
     return (!!selectedClub?.find(club => club?.id === option?.id)) && (!_.isEmpty(field) ? (field?.id !== option?.id) : true)
   }
   const NewMatchSchema = Yup.object().shape({

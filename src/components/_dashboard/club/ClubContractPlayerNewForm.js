@@ -38,7 +38,7 @@ export default function ClubContractPlayerNewForm({ isEdit, currentContract, cur
     Start: Yup.mixed().required('Start is required'),
     End: Yup.mixed().required('End is required'),
     Player: Yup.mixed().required('Player is required'),
-    Description: Yup.string().required('Description is required'),
+    // Description: Yup.string().required('Description is required'),
     Salary: Yup.number().required('Salary is required'),
   });
 
@@ -231,8 +231,8 @@ export default function ClubContractPlayerNewForm({ isEdit, currentContract, cur
                     maxRows={5}
                     label="Description"
                     {...getFieldProps('Description')}
-                    error={Boolean(touched.Description && errors.Description)}
-                    helperText={touched.Description && errors.Description}
+                    // error={Boolean(touched.Description && errors.Description)}
+                    // helperText={touched.Description && errors.Description}
                   />
                 </Stack>
                 {errorState?.IsError ? <Alert severity="warning">{errorState.Message}</Alert> : ''}

@@ -110,7 +110,7 @@ export function getAllPosts(PageNumber) {
   return async (dispatch) => {
     dispatch(slice.actions.startLoading());
     try {
-      const response = await axios.get(`/api/news?Include=author,clubs,players&PageNumber=${PageNumber || 1}`);
+      const response = await axios.get(`/api/news?Include=clubs,players&PageNumber=${PageNumber || 1}`);
       const results = response.data.result.length;
       const { totalCount } = response.data.pagination;
 
@@ -180,7 +180,7 @@ export function getPostsInitial(step) {
   return async (dispatch) => {
     dispatch(slice.actions.startLoading());
     try {
-      const response = await axios.get(`/api/news?Include=author,clubs,players&PageNumber=${step || 1}`);
+      const response = await axios.get(`/api/news?Include=clubs,players&PageNumber=${step || 1}`);
       const results = response.data.result.length;
       const { totalCount } = response.data.pagination;
 
@@ -201,7 +201,7 @@ export function getPost(id) {
   return async (dispatch) => {
     dispatch(slice.actions.startLoading());
     try {
-      const response = await axios.get(`/api/news/${id}?Include=author,players,clubs`);
+      const response = await axios.get(`/api/news/${id}?Include=players,clubs`);
       dispatch(slice.actions.getPostSuccess(response.data.result));
     } catch (error) {
       console.error(error);

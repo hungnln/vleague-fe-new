@@ -9,7 +9,7 @@ import instagramFilled from '@iconify/icons-ant-design/instagram-filled';
 import { alpha, useTheme, styled } from '@mui/material/styles';
 import { Box, Avatar, SpeedDial, Typography, SpeedDialAction, useMediaQuery } from '@mui/material';
 // utils
-import { fDate } from '../../../utils/formatTime';
+import { fDate, fDateTime } from '../../../utils/formatTime';
 import { PATH_DASHBOARD } from 'src/routes/paths';
 import { useDispatch } from 'react-redux';
 import { deletePost } from 'src/redux/slices/blog';
@@ -94,7 +94,7 @@ BlogPostHero.propTypes = {
 };
 
 export default function BlogPostHero({ post, ...other }) {
-  const { thumbnailImageURL, title, author, createdAt } = post;
+  const { thumbnailImageURL, title, createdAt } = post;
   const theme = useTheme();
   const navigate = useNavigate()
   const dispatch = useDispatch();
@@ -132,13 +132,13 @@ export default function BlogPostHero({ post, ...other }) {
 
       <FooterStyle>
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          <Avatar alt={author.name} src={author.imageURL} sx={{ width: 48, height: 48 }} />
+          {/* <Avatar alt={author.name} src={author.imageURL} sx={{ width: 48, height: 48 }} /> */}
           <Box sx={{ ml: 2 }}>
-            <Typography variant="subtitle1" sx={{ color: 'common.white' }}>
+            {/* <Typography variant="subtitle1" sx={{ color: 'common.white' }}>
               {author.name}
-            </Typography>
+            </Typography> */}
             <Typography variant="body2" sx={{ color: 'grey.500' }}>
-              {fDate(createdAt)}
+              {fDateTime(createdAt)}
             </Typography>
           </Box>
         </Box>

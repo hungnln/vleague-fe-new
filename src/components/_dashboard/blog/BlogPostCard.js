@@ -117,7 +117,7 @@ export default function BlogPostCard({ post, index }) {
               ...((latestPostLarge || latestPost) && { display: 'none' })
             }}
           />
-          <AvatarStyle
+          {/* <AvatarStyle
             alt={author.name}
             src={author.imageURL}
             sx={{
@@ -129,7 +129,7 @@ export default function BlogPostCard({ post, index }) {
                 height: 40
               })
             }}
-          />
+          /> */}
 
           <CoverImgStyle alt={title} src={thumbnailImageURL} />
         </CardMediaStyle>

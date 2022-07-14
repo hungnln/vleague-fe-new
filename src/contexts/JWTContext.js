@@ -120,7 +120,6 @@ function AuthProvider({ children }) {
   }, []);
 
   const login = async (Username, Password) => {
-    console.log(Username, Password);
     const response = await axios.post('/api/login/admin', {
       Username,
       Password
@@ -131,7 +130,7 @@ function AuthProvider({ children }) {
     dispatch({
       type: 'LOGIN',
       payload: {
-        user: account
+        user: { role: 'Admin', displayName: 'Admin' }
       }
     });
   };
