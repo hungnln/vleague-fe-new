@@ -75,10 +75,10 @@ export default function BlogPosts() {
     <Page title="News: Posts | V League">
       <Container maxWidth={themeStretch ? false : 'lg'}>
         <HeaderBreadcrumbs
-          heading="Blog"
+          heading="News"
           links={[
             { name: 'Dashboard', href: PATH_DASHBOARD.root },
-            { name: 'Blog', href: PATH_DASHBOARD.blog.root },
+            { name: 'News', href: PATH_DASHBOARD.blog.root },
             { name: 'Posts' }
           ]}
           action={

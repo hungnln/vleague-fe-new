@@ -60,20 +60,8 @@ function AuthProvider({ children }) {
     () =>
       firebase.auth().onAuthStateChanged((user) => {
         if (user) {
-          // const docRef = firebase.firestore().collection('users').doc(user.uid);
           user.getIdToken().then((idToken) => { localStorage.setItem('accessToken', idToken); console.log(idToken, "firebase token"); })
           dispatchUser(loginToServer())
-          // docRef
-          //   .get()
-          //   .then((doc) => {
-          //     if (doc.exists) {
-          //       setProfile(doc.data());
-          //     }
-          //   })
-          //   .catch((error) => {
-          //     console.error(error);
-          //   });
-
           dispatch({
             type: 'INITIALISE',
             payload: { isAuthenticated: true, user }

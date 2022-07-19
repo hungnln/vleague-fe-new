@@ -18,7 +18,7 @@ import useSettings from 'src/hooks/useSettings';
 import { useDispatch, useSelector } from 'react-redux';
 import Event from 'src/components/_dashboard/match/detail/Event';
 import { PATH_DASHBOARD } from 'src/routes/paths';
-import { getMatchDetail, getMatchParticipation } from 'src/redux/slices/match';
+import { getMatchDetail, getMatchParticipation, getMatchStatistic } from 'src/redux/slices/match';
 import { useParams } from 'react-router';
 import Lineup from 'src/components/_dashboard/match/detail/Lineup';
 import { format } from 'date-fns';
@@ -30,6 +30,7 @@ import { getPlayerList } from 'src/redux/slices/player';
 import { getStaffList } from 'src/redux/slices/staff';
 import { getRefereeList } from 'src/redux/slices/referee';
 import AccessTimeOutlinedIcon from '@mui/icons-material/AccessTimeOutlined';
+import Statistic from 'src/components/_dashboard/match/detail/Statistic';
 
 // ----------------------------------------------------------------------
 
@@ -65,6 +66,7 @@ export default function MatchDetail() {
     const { homeClub, awayClub, homeGoals, awayGoals, startDate, endDate, activities, round, homeClubID, awayClubID } = currentMatch
     useEffect(() => {
         dispatch(getMatchDetail(matchId))
+        dispatch(getMatchStatistic(matchId))
         if (_.isEmpty(currentMatch) && _.isEmpty(playerList) && _.isEmpty(staffList) && _.isEmpty(refereeList)) {
             dispatch(getPlayerList())
             dispatch(getStaffList())
@@ -77,16 +79,10 @@ export default function MatchDetail() {
     useEffect(() => {
         console.log('render init');
         dispatch(getMatchParticipation(matchId, homeClubID, awayClubID, playerList, staffList, refereeList))
-
         const getDetail = setInterval(() => {
             dispatch(getMatchDetail(matchId))
         }, 10000);
         return () => clearTimeout(getDetail);
-
-        // if (!_.isEmpty(currentMatch) && !_.isEmpty(playerList) && !_.isEmpty(staffList) && !_.isEmpty(refereeList)) {
-        //     dispatch(getMatchParticipation(matchId, homeClubID, awayClubID, playerList, staffList, refereeList))
-        // }
-
     }, [])
     useEffect(() => {
         if (!_.isEmpty(currentMatch) && !_.isEmpty(playerList) && !_.isEmpty(staffList) && !_.isEmpty(refereeList)) {
@@ -115,11 +111,11 @@ export default function MatchDetail() {
             icon: <Icon icon={roundAccountBox} width={20} height={20} />,
             component: <Lineup />
         },
-        // {
-        //     value: 'statistic',
-        //     icon: <Icon icon={roundAccountBox} width={20} height={20} />,
-        //     component: <Event activities={activities} />
-        // },
+        {
+            value: 'statistic',
+            icon: <Icon icon={roundAccountBox} width={20} height={20} />,
+            component: <Statistic activities={activities} />
+        },
         // {
         //     value: 'news',
         //     icon: <Icon icon={roundAccountBox} width={20} height={20} />,

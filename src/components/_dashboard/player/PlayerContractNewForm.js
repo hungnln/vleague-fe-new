@@ -110,6 +110,12 @@ export default function PlayerContractNewForm({ isEdit, currentContract }) {
     border: `2px solid ${theme.palette.background.paper}`,
   }));
   const { errors, values, touched, handleSubmit, isSubmitting, setFieldValue, getFieldProps } = formik;
+  const disableStartDate = (date) => {
+    return new Date(date) > new Date(values.End)
+  }
+  const disableEndDate = (date) => {
+    return new Date(date) < new Date(values.Start)
+  }
   return (
     <FormikProvider value={formik}>
       <Form noValidate autoComplete="off" onSubmit={handleSubmit}>
@@ -211,6 +217,7 @@ export default function PlayerContractNewForm({ isEdit, currentContract }) {
                 <Stack direction={{ xs: 'column', md: 'row' }} spacing={3}>
                   <Stack direction={{ xs: 'row' }} spacing={3}>
                     <DatePicker
+                      shouldDisableDate={(date) => disableStartDate(date)}
                       inputFormat='dd/MM/yyyy'
                       disabled={isEdit}
                       label="Start"
@@ -224,8 +231,8 @@ export default function PlayerContractNewForm({ isEdit, currentContract }) {
                         helperText={touched.Start && errors.Start} />}
                     />
                     <DatePicker
+                      shouldDisableDate={(date) => disableEndDate(date)}
                       inputFormat='dd/MM/yyyy'
-                      disablePast
                       label="End"
                       openTo="year"
                       views={['year', 'month', 'day']}
@@ -265,8 +272,8 @@ export default function PlayerContractNewForm({ isEdit, currentContract }) {
                     maxRows={5}
                     label="Description"
                     {...getFieldProps('Description')}
-                    // error={Boolean(touched.Description && errors.Description)}
-                    // helperText={touched.Description && errors.Description}
+                  // error={Boolean(touched.Description && errors.Description)}
+                  // helperText={touched.Description && errors.Description}
                   />
                 </Stack>
                 {errorState?.IsError ? <Alert severity="warning">{errorState.Message}</Alert> : ''}
