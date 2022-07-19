@@ -20,8 +20,9 @@ import EventAvailableOutlinedIcon from '@mui/icons-material/EventAvailableOutlin
 import SportsSoccerIcon from '@mui/icons-material/SportsSoccer';
 import FlagIcon from '@mui/icons-material/Flag';
 import PlayCircleFilledWhiteIcon from '@mui/icons-material/PlayCircleFilledWhite';
-//
-
+import ViewCarouselIcon from '@mui/icons-material/ViewCarousel';
+import ReportProblemIcon from '@mui/icons-material/ReportProblem';
+import SportsScoreIcon from '@mui/icons-material/SportsScore';
 // ----------------------------------------------------------------------
 
 Statistic.propTypes = {
@@ -30,16 +31,16 @@ Statistic.propTypes = {
 
 export default function Statistic() {
     const listIcon = {
-        "Foul": <></>,
-        "RedCard": <></>,
-        "YellowCard": <></>,
-        "Offside": <FlagIcon />,
-        "KickOff": <></>,
-        "Penalty": <></>,
-        "Corner": <></>,
-        "ThrowIn": <></>,
-        "Header": <></>,
-        "BackHeel": <></>,
+        "Foul": <ReportProblemIcon sx={{ color: 'yellow' }} />,
+        "RedCard": <ViewCarouselIcon sx={{ color: 'red' }} />,
+        "YellowCard": <ViewCarouselIcon sx={{ color: 'yellow' }} />,
+        "Offside": <FlagIcon sx={{ color: 'yellow' }} />,
+        // "KickOff": <></>,
+        // "Penalty": <></>,
+        "Corner": <SportsScoreIcon />,
+        // "ThrowIn": <></>,
+        // "Header": <></>,
+        // "BackHeel": <></>,
     }
     const { matchStatistic, currentMatch } = useSelector(state => state.match);
     const { homeClub, awayClub, homeClubID, awayClubID } = currentMatch;

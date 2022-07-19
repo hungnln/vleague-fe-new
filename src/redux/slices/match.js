@@ -159,7 +159,11 @@ export const getMatchDetail = (matchId) => {
     try {
       const response = await axios.get(`/api/matches/${matchId}?include=homeClub, awayClub`);
       if (response.data.statusCode === 200) {
-        dispatch(slice.actions.getMatchDetail(response.data.result));
+        const { stadiumID, roundID } = response.data.result;
+        const stadiumRespone = await axios.get(`/api/stadiums/${stadiumID}`)
+        const roundRespone = await axios.get(`/api/rounds/${roundID}`)
+
+        dispatch(slice.actions.getMatchDetail({ ...response.data.result, stadium: stadiumRespone.data.result, round: roundRespone.data.result }));
       }
     } catch (error) {
       dispatch(slice.actions.hasError(error));
