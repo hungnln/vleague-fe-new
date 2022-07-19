@@ -35,7 +35,7 @@ export default function Lineup() {
     const { enqueueSnackbar } = useSnackbar();
     const { HomeLineUp, HomeReverse, HomeStaff, AwayLineUp, AwayReverse, AwayStaff, Referee } = matchParticipation
     const [homeSelected, setHomeSelected] = useState()
-    const { homeClub, awayClub } = currentMatch
+    const { homeClub, awayClub, stadium, round } = currentMatch
     const [errorState, setErrorState] = useState()
     const handleAddHomeLineup = () => {
         setComponent(
@@ -357,7 +357,7 @@ export default function Lineup() {
                                     <TableHead>
                                         <TableRow>
                                             <TableCell colSpan={2} >Ra sân</TableCell>
-                                            <TableCell >{ }</TableCell>
+                                            <TableCell />
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>
@@ -372,7 +372,7 @@ export default function Lineup() {
                                     <TableHead>
                                         <TableRow>
                                             <TableCell colSpan={2} >Dự bị</TableCell>
-                                            <TableCell >{ }</TableCell>
+                                            <TableCell />
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>
@@ -389,7 +389,7 @@ export default function Lineup() {
                                     <TableHead>
                                         <TableRow>
                                             <TableCell colSpan={1} align='left'>Staff</TableCell>
-                                            <TableCell >{ }</TableCell>
+                                            <TableCell />
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>
@@ -419,7 +419,7 @@ export default function Lineup() {
                                 <Table size='small'>
                                     <TableHead>
                                         <TableRow>
-                                            <TableCell >{ }</TableCell>
+                                            <TableCell />
                                             <TableCell colSpan={2} align="right">Ra sân</TableCell>
                                         </TableRow>
                                     </TableHead>
@@ -434,7 +434,7 @@ export default function Lineup() {
                                 <Table size='small'>
                                     <TableHead>
                                         <TableRow>
-                                            <TableCell >{ }</TableCell>
+                                            <TableCell />
                                             <TableCell colSpan={2} align="right" >Dự bị</TableCell>
                                         </TableRow>
                                     </TableHead>
@@ -451,7 +451,7 @@ export default function Lineup() {
                                 <Table size='small'>
                                     <TableHead>
                                         <TableRow>
-                                            <TableCell >{ }</TableCell>
+                                            <TableCell />
                                             <TableCell colSpan={1} align="right">Staff</TableCell>
                                         </TableRow>
                                     </TableHead>
@@ -483,12 +483,19 @@ export default function Lineup() {
                             <Table size="small" aria-label="a dense table">
                                 <TableHead>
                                     <TableRow>
-                                        <TableCell colSpan={1}>Referee</TableCell>
-                                        <TableCell align='right' ><MatchLineUpMoreMenu onReferee={handleAddReferee} /></TableCell>
+                                        <TableCell colSpan={1}>More infomation</TableCell>
+                                        <TableCell />
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
-                                    {renderReferee(matchParticipation?.Referee)}
+                                    <TableRow>
+                                        <TableCell colSpan={1}>Stadium</TableCell>
+                                        <TableCell colSpan={1}>{stadium.name}</TableCell>
+                                    </TableRow>
+                                    <TableRow>
+                                        <TableCell colSpan={1}>Round</TableCell>
+                                        <TableCell colSpan={1}>{round.name}</TableCell>
+                                    </TableRow>
                                 </TableBody>
                             </Table>
                         </Card>

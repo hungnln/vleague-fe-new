@@ -59,7 +59,7 @@ export default function UserNewForm({ isEdit, currentUser, onCancel }) {
     validationSchema: NewUserSchema,
     onSubmit: async (values, { setSubmitting, resetForm, setErrors }) => {
       try {
-        dispatch(updateUserStatus(values.id, values.isBanned, value => setErrorState(value))).then()
+        dispatch(updateUserStatus(values.id, values.isBanned, value => setErrorState(value)))
       } catch (error) {
         console.error(error);
         setSubmitting(false);
@@ -68,6 +68,7 @@ export default function UserNewForm({ isEdit, currentUser, onCancel }) {
     }
   });
   useEffect(() => {
+    console.log("check errorstate", errorState);
     if (!_.isEmpty(errorState)) {
       if (!errorState.IsError) {
         formik.resetForm();

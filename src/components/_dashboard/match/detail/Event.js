@@ -20,7 +20,14 @@ import EventAvailableOutlinedIcon from '@mui/icons-material/EventAvailableOutlin
 import SportsSoccerIcon from '@mui/icons-material/SportsSoccer';
 import FlagIcon from '@mui/icons-material/Flag';
 import PlayCircleFilledWhiteIcon from '@mui/icons-material/PlayCircleFilledWhite';
-//
+import ViewCarouselIcon from '@mui/icons-material/ViewCarousel';
+import RestartAltIcon from '@mui/icons-material/RestartAlt';
+import AspectRatioIcon from '@mui/icons-material/AspectRatio';
+import ReportProblemIcon from '@mui/icons-material/ReportProblem';
+import LocationSearchingIcon from '@mui/icons-material/LocationSearching';
+import SportsScoreIcon from '@mui/icons-material/SportsScore';
+import ChangeCircleOutlinedIcon from '@mui/icons-material/ChangeCircleOutlined';
+
 
 // ----------------------------------------------------------------------
 
@@ -30,13 +37,20 @@ Event.propTypes = {
 
 export default function Event() {
     const listIcon = {
-        "StartFirstHalf": <>PlayCircleFilledWhiteIcon</>,
+        // "StartFirstHalf": <>PlayCircleFilledWhiteIcon</>,
         "Goal": <SportsSoccerIcon />,
         "OwnGoal": <SportsSoccerIcon />,
-        "RedCard": <></>,
+        "RedCard": <ViewCarouselIcon sx={{ color: 'red' }} />,
+        "YellowCard": <ViewCarouselIcon sx={{ color: 'yellow' }} />,
         "Offside": <FlagIcon />,
-        "KickOff": <></>,
-        "Start": <></>
+        "KickOff": <RestartAltIcon />,
+        "Penalty": <AspectRatioIcon />,
+        "Foul": <ReportProblemIcon />,
+        "Header": <LocationSearchingIcon />,
+        "Corner": <SportsScoreIcon />,
+        "BackHeel": <ReportProblemIcon />,
+        "Substitution": <ChangeCircleOutlinedIcon />
+
     }
     const { currentMatch, isOpenModal } = useSelector(state => state.match);
     const { activities, homeClub, awayClub, homeClubID } = currentMatch;
@@ -75,7 +89,9 @@ export default function Event() {
                     <Typography>{activity.playersInvolved.map((contract, index) => { return ` ${contract?.playerContract?.number}-${contract?.playerContract?.player?.name}` })}</Typography>
                 </TimelineOppositeContent>
                 <TimelineSeparator>
-                    <TimelineDot color="secondary" />
+                    <TimelineDot color="secondary" >
+                        {listIcon[activity.type]}
+                    </TimelineDot>
                     <TimelineConnector />
                 </TimelineSeparator>
                 <TimelineContent>
@@ -86,7 +102,9 @@ export default function Event() {
             (<TimelineItem TimelineItem key={activity?.id} >
                 <TimelineOppositeContent>{activity.minuteInMatch}"</TimelineOppositeContent>
                 <TimelineSeparator>
-                    <TimelineDot color="error" />
+                    <TimelineDot color="error" >
+                        {listIcon[activity.type]}
+                    </TimelineDot>
                     <TimelineConnector />
                 </TimelineSeparator>
                 <TimelineContent>
