@@ -46,6 +46,8 @@ import RoundNewForm from 'src/components/_dashboard/round/RoundNewForm';
 import { DialogAnimate } from 'src/components/animate';
 import { getTournamentDetail, getTournamentList } from 'src/redux/slices/tournament';
 import MatchList from '../Match/MatchList';
+import Standing from '../Standing/Standing';
+import Ranking from '../Ranking/Ranking';
 
 // ----------------------------------------------------------------------
 
@@ -290,6 +292,9 @@ export default function RoundList() {
               </Card>
             </Grid>
             <Grid item xs={12} md={8}><MatchList roundSelected={roundSelected} /></Grid>
+            <Grid item xs={12} md={12}><Standing tournamentID={tournamentDetail.id} /></Grid>
+            <Grid item xs={12} md={12}><Ranking tournamentID={tournamentDetail.id} /></Grid>
+
           </Grid>
 
           <DialogAnimate open={isOpenModal} onClose={handleCloseModal}>

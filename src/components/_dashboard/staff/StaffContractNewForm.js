@@ -101,6 +101,12 @@ export default function StaffContractNewForm({ isEdit, currentContract }) {
     height: 22,
     border: `2px solid ${theme.palette.background.paper}`,
   }));
+  const disableStartDate = (date) => {
+    return new Date(date) > new Date(values.End)
+  }
+  const disableEndDate = (date) => {
+    return new Date(date) < new Date(values.Start)
+  }
   const { errors, values, touched, handleSubmit, isSubmitting, setFieldValue, getFieldProps } = formik;
   return (
     <FormikProvider value={formik}>
@@ -203,6 +209,8 @@ export default function StaffContractNewForm({ isEdit, currentContract }) {
                 <Stack direction={{ xs: 'column', md: 'row' }} spacing={3}>
                   <Stack direction={{ xs: 'row' }} spacing={3}>
                     <DatePicker
+                      shouldDisableDate={(date) => disableStartDate(date)}
+
                       inputFormat='dd/MM/yyyy'
                       disabled={isEdit}
                       label="Start"
@@ -217,7 +225,7 @@ export default function StaffContractNewForm({ isEdit, currentContract }) {
                     />
                     <DatePicker
                       inputFormat='dd/MM/yyyy'
-                      disablePast
+                      shouldDisableDate={(date) => disableEndDate(date)}
                       label="End"
                       openTo="year"
                       views={['year', 'month', 'day']}

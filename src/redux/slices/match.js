@@ -13,6 +13,7 @@ const initialState = {
   matchList: [],
   currentMatch: {},
   matchParticipation: {},
+  matchStatistic: {},
   lineup: {},
   playerMatch: {
     HomeClub: [],
@@ -50,6 +51,10 @@ const slice = createSlice({
     getMatchListSuccess(state, action) {
       state.isLoading = false;
       state.matchList = action.payload;
+    },
+    getMatchStatistic(state, action) {
+      state.isLoading = false;
+      state.matchStatistic = action.payload;
     },
 
     addMatch(state, action) {
@@ -316,6 +321,20 @@ export function addActivity(values, callback) {
     } catch (error) {
       dispatch(slice.actions.hasError(error));
       callback(error.response.data)
+    }
+  };
+}
+export function getMatchStatistic(matchId) {
+  console.log(matchId, 'checkid');
+  return async (dispatch) => {
+    dispatch(slice.actions.startLoading());
+    try {
+      const response = await axios.get(`/api/matches/${matchId}/stats`);
+      if (response.data.statusCode === 200) {
+        dispatch(slice.actions.getMatchStatistic(response.data.result))
+      }
+    } catch (error) {
+      dispatch(slice.actions.hasError(error));
     }
   };
 }

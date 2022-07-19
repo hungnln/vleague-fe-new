@@ -72,7 +72,14 @@ export default function TournamentNewForm({ onCancel, currentTournament }) {
     }
 
   }, [errorState])
+
   const { errors, values, touched, handleSubmit, isSubmitting, setFieldValue, getFieldProps } = formik;
+  const disableFromDate = (date) => {
+    return new Date(date) > new Date(values.To)
+  }
+  const disableToDate = (date) => {
+    return new Date(date) < new Date(values.From)
+  }
   return (
     <FormikProvider value={formik}>
       <Form noValidate autoComplete="off" onSubmit={handleSubmit}>
@@ -87,6 +94,8 @@ export default function TournamentNewForm({ onCancel, currentTournament }) {
                 helperText={touched.Name && errors.Name}
               />
               <DatePicker
+                inputFormat='dd/MM/yyyy'
+                shouldDisableDate={(date) => disableFromDate(date)}
                 disabled={isEdit}
                 label="From"
                 openTo="year"
@@ -99,7 +108,8 @@ export default function TournamentNewForm({ onCancel, currentTournament }) {
                   helperText={touched.From && errors.From} />}
               />
               <DatePicker
-                disablePast
+                inputFormat='dd/MM/yyyy'
+                shouldDisableDate={(date) => disableToDate(date)}
                 label="To"
                 openTo="year"
                 views={['year', 'month', 'day']}

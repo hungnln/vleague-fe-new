@@ -26,10 +26,10 @@ export default function AuthGuard({ children }) {
     return <Login />;
   }
 
-  if (!isValidToken(localStorage.getItem('accessToken')) && isAuthenticated) {
-    logout();
-    localStorage.removeItem('accessToken')
-  }
+  // if (!isValidToken(localStorage.getItem('accessToken'))) {
+  //   logout();
+  //   localStorage.removeItem('accessToken')
+  // }
 
 
   if (requestedLocation && pathname !== requestedLocation) {

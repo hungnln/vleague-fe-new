@@ -101,6 +101,12 @@ export default function ClubContractStaffNewForm({ isEdit, currentContract, curr
     height: 22,
     border: `2px solid ${theme.palette.background.paper}`,
   }));
+  const disableStartDate = (date) => {
+    return new Date(date) > new Date(values.End)
+  }
+  const disableEndDate = (date) => {
+    return new Date(date) < new Date(values.Start)
+  }
   return (
     <FormikProvider value={formik}>
       <Form noValidate autoComplete="off" onSubmit={handleSubmit}>
@@ -172,6 +178,7 @@ export default function ClubContractStaffNewForm({ isEdit, currentContract, curr
                 <Stack direction={{ xs: 'column', md: 'row' }} spacing={3}>
                   <Stack direction={{ xs: 'row' }} spacing={3}>
                     <DatePicker
+                      shouldDisableDate={(date) => disableStartDate(date)}
                       inputFormat='dd/MM/yyyy'
                       disabled={isEdit}
                       label="Start"
@@ -185,6 +192,7 @@ export default function ClubContractStaffNewForm({ isEdit, currentContract, curr
                         helperText={touched.Start && errors.Start} />}
                     />
                     <DatePicker
+                      shouldDisableDate={(date) => disableEndDate(date)}
                       inputFormat='dd/MM/yyyy'
                       disablePast
                       label="End"

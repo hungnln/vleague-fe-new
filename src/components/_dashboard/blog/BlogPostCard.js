@@ -105,7 +105,7 @@ export default function BlogPostCard({ post, index }) {
             })
           }}
         >
-          <SvgIconStyle
+          {/* <SvgIconStyle
             color="paper"
             src="/static/icons/shape-avatar.svg"
             sx={{
@@ -116,7 +116,7 @@ export default function BlogPostCard({ post, index }) {
               position: 'absolute',
               ...((latestPostLarge || latestPost) && { display: 'none' })
             }}
-          />
+          /> */}
           {/* <AvatarStyle
             alt={author.name}
             src={author.imageURL}

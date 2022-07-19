@@ -156,7 +156,13 @@ export default function ClubList() {
   const filteredClubs = applySortFilter(clubList, getComparator(order, orderBy), filterName);
 
   const isClubNotFound = filteredClubs.length === 0 && clubList.length > 0;
-
+  const handleLoading = () => {
+    setTimeout(() => {
+      <TableRow sx={{ width: '100%' }}>
+        <TableCell colSpan={5}> <LinearProgress /></TableCell>
+      </TableRow>
+    }, 3000);
+  }
   return (
     <Page title="Club: List | V League">
       <Container maxWidth={themeStretch ? false : 'lg'}>
@@ -199,7 +205,8 @@ export default function ClubList() {
                   {clubList.length <= 0 &&
                     (<TableRow sx={{ width: '100%' }}>
                       <TableCell colSpan={5}> <LinearProgress /></TableCell>
-                    </TableRow>)}
+                    </TableRow>)
+                  }
                   {filteredClubs.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
                     const { id, name, headQuarter, imageURL, stadium } = row;
                     const isItemSelected = selected.indexOf(name) !== -1;

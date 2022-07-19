@@ -12,6 +12,12 @@ const initialState = {
   isOpenModal: false,
   tournamentList: [],
   tournamentDetail: {},
+  ranks: {
+    Goals: [],
+    RedCards: [],
+    YellowCards: [],
+  },
+  standings: [],
 };
 
 const slice = createSlice({
@@ -37,6 +43,14 @@ const slice = createSlice({
     getTournamentListSuccess(state, action) {
       state.isLoading = false;
       state.tournamentList = action.payload;
+    },
+    getTournamentRank(state, action) {
+      state.isLoading = false;
+      state.ranks = action.payload;
+    },
+    getTournamentStanding(state, action) {
+      state.isLoading = false;
+      state.standings = action.payload;
     },
 
     addTournament(state, action) {
@@ -84,7 +98,6 @@ export function getTournamentList() {
       const response = await axios.get('/api/tournaments');
       dispatch(slice.actions.getTournamentListSuccess(response.data.result));
     } catch (error) {
-      console.log(error, 'error');
       dispatch(slice.actions.hasError(error));
     }
   };
@@ -96,7 +109,6 @@ export function getTournamentDetail(tournamentID) {
       const response = await axios.get(`/api/tournaments/${tournamentID}`);
       dispatch(slice.actions.getTournamentDetail(response.data.result));
     } catch (error) {
-      console.log(error, 'error');
       dispatch(slice.actions.hasError(error));
     }
   };
@@ -112,7 +124,6 @@ export const createTournament = (data, callback) => {
         callback({ IsError: response.data.IsError })
       }
     } catch (error) {
-      console.log(error, 'error');
       dispatch(slice.actions.hasError(error));
       callback(error.response.data)
 
@@ -130,7 +141,6 @@ export const editTournament = (data, callback) => {
         callback({ IsError: response.data.IsError })
       }
     } catch (error) {
-      console.log(error, 'error');
       dispatch(slice.actions.hasError(error));
       callback(error.response.data)
 
@@ -144,7 +154,32 @@ export const removeTournament = (id) => {
       const response = await axios.delete(`/api/tournaments/${id}`);
       dispatch(slice.actions.deleteTournament(id))
     } catch (error) {
-      console.log(error, 'error');
+      dispatch(slice.actions.hasError(error));
+    }
+  }
+}
+export const getTournamentRank = (tournamentID) => {
+  return async dispatch => {
+    dispatch(slice.actions.startLoading());
+    try {
+      const response = await axios.get(`/api/tournaments/${tournamentID}/ranks`);
+      if (response.data.statusCode === 200) {
+        dispatch(slice.actions.getTournamentRank(response.data.result));
+      }
+    } catch (error) {
+      dispatch(slice.actions.hasError(error));
+    }
+  }
+}
+export const getTournamentStanding = (tournamentID) => {
+  return async dispatch => {
+    dispatch(slice.actions.startLoading());
+    try {
+      const response = await axios.get(`/api/tournaments/${tournamentID}/standings`);
+      if (response.data.statusCode === 200) {
+        dispatch(slice.actions.getTournamentStanding(response.data.result));
+      }
+    } catch (error) {
       dispatch(slice.actions.hasError(error));
     }
   }
