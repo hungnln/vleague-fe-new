@@ -65,7 +65,7 @@ export default function ClubNewForm({ isEdit, currentClub }) {
           }
           dispatch(editClub(data, error => setErrorState(error)))
         } else {
-          data = { ...values, StadiumId: values.Stadium.id }
+          data = { ...values, StadiumId: values.Stadium.id, ImageURL: values.ImageURL.base64 }
           dispatch(createClub(data, error => setErrorState(error)))
         }
       } catch (error) {

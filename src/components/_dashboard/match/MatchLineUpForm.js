@@ -2,7 +2,7 @@ import * as Yup from 'yup';
 import PropTypes, { element } from 'prop-types';
 import { Fragment, useCallback, useEffect, useState } from 'react';
 import { useSnackbar } from 'notistack';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Form, FormikProvider, useFormik } from 'formik';
 // material
 import { DatePicker, LoadingButton, MobileDateTimePicker } from '@mui/lab';
@@ -35,34 +35,48 @@ MatchLineUpForm.propTypes = {
 
 export default function MatchLineUpForm({ onCancel, clubId, addMember, changeSelected, currentLineUp, isReverse, isHome }) {
   const dispatch = useDispatch();
-  const { currentMatch, lineup } = useSelector((state) => state.match);
-  const { HomeLineUp, HomeReverse, AwayLineUp, AwayReverse } = lineup
+  const { currentMatch, matchParticipation } = useSelector((state) => state.match);
+  const { HomeLineUp, HomeReverse, AwayLineUp, AwayReverse } = matchParticipation
   const [errorState, setErrorState] = useState();
   const { enqueueSnackbar } = useSnackbar();
   const { clubContractList } = useSelector(state => state.player)
   const [selectedPlayer, setSelectedPlayer] = useState([])
   const [selected, setSelected] = useState([])
-  const NewMatchSchema = Yup.object().shape({
+  const lineupSchema = Yup.object().shape({
     GoalKeeper: Yup.mixed().required('Goal Keeper is required'),
+  });
+  const reverseChema = Yup.object().shape({
+    // GoalKeeper: Yup.mixed().required('Goal Keeper is required'),
   });
   const [open, setOpen] = useState(false);
   const [options, setOptions] = useState([]);
-  const loading = open && options.length === 0;
+  const loading = open && options.length === 0
   function sleep(delay = 0) {
     return new Promise((resolve) => {
       setTimeout(resolve, delay);
     });
   }
   useEffect(() => {
+    // console.log("check loading");
+    const active = true
     if (!loading) {
       return undefined;
     }
+    (async () => {
+      if (clubContractList.length <= 0) {
+        await sleep(1e3);
+      }
+      // For demo purposes.
 
-    if (clubContractList.length !== 0) {
-      setOptions([...clubContractList]);
-    }
+      if (active && clubContractList.length > 0) {
+        setOptions([...clubContractList]);
+      }
+    })();
+    // if (active && clubContractList.length !== 0) {
+    //   setLoading(false)
+    //   setOptions([...clubContractList]);
+    // }
   }, [loading]);
-
   useEffect(() => {
     if (!open) {
       setOptions([]);
@@ -85,7 +99,7 @@ export default function MatchLineUpForm({ onCancel, clubId, addMember, changeSel
       const AwayLineUpSelected = !_.isEmpty(AwayLineUp) ? [AwayLineUp.GoalKeeper, ...AwayLineUp.Defender, ...AwayLineUp.Midfielder, ...AwayLineUp.Forward] : []
       setSelected([...AwayReverseSelected, ...AwayLineUpSelected])
     }
-  }, [lineup])
+  }, [])
   const formik = useFormik({
     enableReinitialize: true,
     initialValues: {
@@ -95,7 +109,7 @@ export default function MatchLineUpForm({ onCancel, clubId, addMember, changeSel
       Forward: currentLineUp?.Forward || [],
 
     },
-    validationSchema: NewMatchSchema,
+    validationSchema: isReverse ? reverseChema : lineupSchema,
     onSubmit: async (values, { setSubmitting, resetForm, setErrors }) => {
       try {
         console.log(isReverse, isHome, selectedPlayer, '1');
@@ -108,7 +122,7 @@ export default function MatchLineUpForm({ onCancel, clubId, addMember, changeSel
             setErrorState({ isError: true, Message: "Lineup must have 11 player" })
           }
         } else {
-          if (selectedPlayer.length === 9) {
+          if (selectedPlayer.length <= 9) {
             onCancel()
             addMember(values)
             changeSelected(selectedPlayer)
@@ -126,6 +140,7 @@ export default function MatchLineUpForm({ onCancel, clubId, addMember, changeSel
       }
     }
   });
+  useEffect(() => { console.log(selected, 'selected'); }, [selected])
   useEffect(() => {
     if (!_.isEmpty(errorState)) {
       console.log('check state', errorState);
@@ -142,7 +157,7 @@ export default function MatchLineUpForm({ onCancel, clubId, addMember, changeSel
 
   }, [errorState])
   const disableOption = (option, field) => {
-    return (!!selectedPlayer?.find(element => element?.id === option?.id) || selectedPlayer.length >= 11 || !!selected?.find(element => element?.id === option?.id)) && (Array.isArray(field) ? !field.find(element => element?.id === option?.id) : field?.id !== option?.id)
+    return (!!selectedPlayer?.find(element => element?.id === option?.id) || (!isReverse ? selectedPlayer.length >= 11 : selectedPlayer.length >= 9) || !!selected?.find(element => element?.id === option?.id)) && (Array.isArray(field) ? !field.find(element => element?.id === option?.id) : field?.id !== option?.id)
   }
   const { errors, values, touched, handleSubmit, isSubmitting, setFieldValue, getFieldProps } = formik;
   useEffect(() => {
