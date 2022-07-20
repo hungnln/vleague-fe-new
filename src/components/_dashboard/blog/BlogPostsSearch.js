@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import { Icon } from '@iconify/react';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { paramCase } from 'change-case';
 import parse from 'autosuggest-highlight/parse';
 import match from 'autosuggest-highlight/match';
@@ -15,6 +15,7 @@ import axios from '../../../utils/axios';
 import { PATH_DASHBOARD } from '../../../routes/paths';
 //
 import SearchNotFound from '../../SearchNotFound';
+import { debounce } from 'lodash';
 
 // ----------------------------------------------------------------------
 
@@ -55,9 +56,6 @@ export default function BlogPostsSearch({ sx }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const linkTo = (id) => `${PATH_DASHBOARD.blog.root}/post/${id}`;
-  const handleClickAway = () => {
-    setSearchQuery('')
-  }
   const handleChangeSearch = async (event) => {
     try {
       const { value } = event.target;
@@ -73,7 +71,12 @@ export default function BlogPostsSearch({ sx }) {
 
     }
   };
-  useEffect(() => { console.log("check", searchQuery); }, [searchQuery])
+  const debounceSearch = useCallback(debounce((nextValue) => handleChangeSearch(nextValue), 1000), [])
+  const handleInputOnchange = (e) => {
+    // console.log(value, 123);
+    // setKeyword(value);
+    debounceSearch(e);
+  }
   return (
     <RootStyle
       sx={{
@@ -90,7 +93,7 @@ export default function BlogPostsSearch({ sx }) {
         disablePortal
         popupIcon={null}
         options={searchResults}
-        onInputChange={handleChangeSearch}
+        onInputChange={handleInputOnchange}
         getOptionLabel={(post) => post.title}
         noOptionsText={<SearchNotFound searchQuery={searchQuery} />}
         renderInput={(params) => (
