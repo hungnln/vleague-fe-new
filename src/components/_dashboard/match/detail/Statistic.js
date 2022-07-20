@@ -52,6 +52,10 @@ export default function Statistic() {
                 </Grid>
                 <Grid item xs={2} textAlign="center">
                     {value}
+                    <Typography variant="subtitle2" noWrap>
+                        {key}
+                    </Typography>
+
                 </Grid>
                 <Grid item xs={5} textAlign="left">
                     {matchStatistic[awayClubID][key]}
