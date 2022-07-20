@@ -132,7 +132,7 @@ export function createPost(values, callback) {
       const response = await axios.post('/api/news', values);
       if (response.data.statusCode === 200) {
         const { id } = response.data.result
-        const responsePost = await axios.get(`/api/news/${id}?Include=author,players,clubs`);
+        const responsePost = await axios.get(`/api/news/${id}?Include=players,clubs`);
         dispatch(slice.actions.addPost(responsePost.data.result));
         callback({ IsError: response.data.IsError })
       }
@@ -151,7 +151,7 @@ export function editPost(values, callback) {
     try {
       const response = await axios.put(`/api/news/${values.id}`, values);
       if (response.data.statusCode === 200) {
-        const responsePost = await axios.get(`/api/news/${values.id}?Include=author,players,clubs`);
+        const responsePost = await axios.get(`/api/news/${values.id}?Include=players,clubs`);
         dispatch(slice.actions.editPost(responsePost.data.result))
         callback({ IsError: response.data.IsError })
       }
