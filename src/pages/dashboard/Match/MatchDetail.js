@@ -65,30 +65,22 @@ export default function MatchDetail() {
     const [findFriends, setFindFriends] = useState('');
     const { homeClub, awayClub, homeGoals, awayGoals, startDate, endDate, activities, round, homeClubID, awayClubID } = currentMatch
     useEffect(() => {
+        console.log(1);
         dispatch(getMatchDetail(matchId))
         dispatch(getMatchStatistic(matchId))
-        if (_.isEmpty(currentMatch) && _.isEmpty(playerList) && _.isEmpty(staffList) && _.isEmpty(refereeList)) {
-            dispatch(getPlayerList())
-            dispatch(getStaffList())
-            dispatch(getRefereeList())
-        }
+        setTimeout(() => {
+            console.log(2);
+            dispatch(getMatchParticipation(matchId))
+        }, 2000);
 
-        console.log('render dispatch');
 
     }, [dispatch]);
     useEffect(() => {
-        console.log('render init');
-        dispatch(getMatchParticipation(matchId, homeClubID, awayClubID, playerList, staffList, refereeList))
         const getDetail = setInterval(() => {
             dispatch(getMatchDetail(matchId))
         }, 10000);
         return () => clearTimeout(getDetail);
     }, [])
-    useEffect(() => {
-        if (!_.isEmpty(currentMatch) && !_.isEmpty(playerList) && !_.isEmpty(staffList) && !_.isEmpty(refereeList)) {
-            dispatch(getMatchParticipation(matchId, homeClubID, awayClubID, playerList, staffList, refereeList))
-        }
-    }, [currentMatch, playerList, staffList, refereeList])
     const handleChangeTab = (event, newValue) => {
         setCurrentTab(newValue);
     };

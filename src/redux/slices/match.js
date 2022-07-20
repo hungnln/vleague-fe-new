@@ -15,15 +15,24 @@ const initialState = {
   matchParticipation: {},
   matchStatistic: {},
   lineup: {},
-  playerMatch: {
-    HomeClub: [],
-    AwayClub: []
-  },
-  staffMatch: [],
-  RefereeMatch: [],
+  // playerMatch: {
+  //   HomeClub: [],
+  //   AwayClub: []
+  // },
+  // staffMatch: [],
+  // RefereeMatch: [],
 
 };
-
+const DEFENDER = "Defender"
+const GOALKEEPER = "GoalKeeper"
+const MIDFIELDER = "Midfielder"
+const FORWARD = "Forward"
+const HEADCOACH = "HeadCoach"
+const ASSISTANTCOACH = "AssistantCoach"
+const MEDICALTEAM = "MedicalTeam"
+const HEADREFEREE = "HeadReferee"
+const ASSISTANTREFEREE = "AssistantReferee"
+const MONITORINGREFEREE = "MonitoringReferee"
 const slice = createSlice({
   name: 'match',
   initialState,
@@ -77,8 +86,75 @@ const slice = createSlice({
       state.currentMatch = action.payload
     },
     getMatchParticipationSuccess(state, action) {
+      const { players, staffs, referees } = action.payload
+
       state.isLoading = false;
-      state.matchParticipation = action.payload
+
+      const convertGoalKeeper = (clubID, inLineups) => {
+        return players.filter((contract) => contract.role === GOALKEEPER && contract.inLineups === inLineups && contract.playerContract.clubID === clubID).reduce((obj, item) => { return { ...item.playerContract } }, {})
+      }
+      const convertPlayerRoleArr = (clubID, role, inLineups) => {
+        return players.filter((contract) => contract.role === role && contract.inLineups === inLineups && contract.playerContract.clubID === clubID).reduce((obj, item) => { return [...obj, { ...item.playerContract }] }, [])
+      }
+      const convertHeadCoach = (clubID) => {
+        return staffs.filter((contract) => contract.role === HEADCOACH && contract.staffContract.clubID === clubID).reduce((obj, item) => { return { ...item.staffContract } }, {})
+      }
+      const convertStaffRoleArr = (clubID, role) => {
+        return staffs.filter((contract) => contract.role === role && contract.staffContract.clubID === clubID).reduce((obj, item) => { return [...obj, { ...item.staffContract }] }, [])
+      }
+      const convertHeadReferee = () => {
+        return referees.filter((contract) => contract.role === HEADREFEREE).reduce((obj, item) => { return { ...item.referee } }, {})
+      }
+      const convertRefereeRoleArr = (role) => {
+        return referees.filter((contract) => contract.role === role).reduce((obj, item) => { return [...obj, { ...item.referee }] }, [])
+      }
+      const { homeClubID, awayClubID } = state.currentMatch
+
+      console.log(state.currentMatch, 'check');
+      if (!_.isEmpty(players) && !_.isEmpty(staffs) && !_.isEmpty(referees)) {
+        const lineup = {
+          HomeLineUp: {
+            GoalKeeper: convertGoalKeeper(homeClubID, true),
+            Defender: convertPlayerRoleArr(homeClubID, DEFENDER, true),
+            Midfielder: convertPlayerRoleArr(homeClubID, MIDFIELDER, true),
+            Forward: convertPlayerRoleArr(homeClubID, FORWARD, true),
+          },
+          HomeReverse: {
+            GoalKeeper: convertGoalKeeper(homeClubID, false),
+            Defender: convertPlayerRoleArr(homeClubID, DEFENDER, false),
+            Midfielder: convertPlayerRoleArr(homeClubID, MIDFIELDER, false),
+            Forward: convertPlayerRoleArr(homeClubID, FORWARD, false),
+          },
+          AwayLineUp: {
+            GoalKeeper: convertGoalKeeper(awayClubID, true),
+            Defender: convertPlayerRoleArr(awayClubID, DEFENDER, true),
+            Midfielder: convertPlayerRoleArr(awayClubID, MIDFIELDER, true),
+            Forward: convertPlayerRoleArr(awayClubID, FORWARD, true),
+          },
+          AwayReverse: {
+            GoalKeeper: convertGoalKeeper(awayClubID, false),
+            Defender: convertPlayerRoleArr(awayClubID, DEFENDER, false),
+            Midfielder: convertPlayerRoleArr(awayClubID, MIDFIELDER, false),
+            Forward: convertPlayerRoleArr(awayClubID, FORWARD, false),
+          },
+          HomeStaff: {
+            HeadCoach: convertHeadCoach(homeClubID),
+            AssistantCoach: convertStaffRoleArr(homeClubID, ASSISTANTCOACH),
+            MedicalTeam: convertStaffRoleArr(homeClubID, MEDICALTEAM),
+          },
+          AwayStaff: {
+            HeadCoach: convertHeadCoach(awayClubID),
+            AssistantCoach: convertStaffRoleArr(awayClubID, ASSISTANTCOACH),
+            MedicalTeam: convertStaffRoleArr(awayClubID, MEDICALTEAM),
+          },
+          Referee: {
+            HeadReferee: convertHeadReferee(),
+            AssistantReferee: convertRefereeRoleArr(ASSISTANTREFEREE),
+            MonitoringReferee: convertRefereeRoleArr(MONITORINGREFEREE),
+          }
+        }
+        state.matchParticipation = lineup
+      }
     },
     openModal(state) {
       state.isOpenModal = true;
@@ -184,89 +260,93 @@ export const getMatchDetail = (matchId) => {
 //     }
 //   }
 // }
-export const getMatchParticipation = (matchId, homeClubID, awayClubID, playerList, staffList, refereeList) => {
+export const getMatchParticipation = (matchId, homeClubID, awayClubID) => {
   return async (dispatch) => {
     dispatch(slice.actions.startLoading());
     try {
       // const response = await axios.get(`/api/matches/${matchId}/participation`);
-      const DEFENDER = "Defender"
-      const GOALKEEPER = "GoalKeeper"
-      const MIDFIELDER = "Midfielder"
-      const FORWARD = "Forward"
-      const HEADCOACH = "HeadCoach"
-      const ASSISTANTCOACH = "AssistantCoach"
-      const MEDICALTEAM = "MedicalTeam"
-      const HEADREFEREE = "HeadReferee"
-      const ASSISTANTREFEREE = "AssistantReferee"
-      const MONITORINGREFEREE = "MonitoringReferee"
+      // const DEFENDER = "Defender"
+      // const GOALKEEPER = "GoalKeeper"
+      // const MIDFIELDER = "Midfielder"
+      // const FORWARD = "Forward"
+      // const HEADCOACH = "HeadCoach"
+      // const ASSISTANTCOACH = "AssistantCoach"
+      // const MEDICALTEAM = "MedicalTeam"
+      // const HEADREFEREE = "HeadReferee"
+      // const ASSISTANTREFEREE = "AssistantReferee"
+      // const MONITORINGREFEREE = "MonitoringReferee"
       const response = await axios.get(`/api/matches/${matchId}/participation`);
-      const { players, staffs, referees } = response.data.result
-      const convertGoalKeeper = (clubID, inLineups) => {
-        return players.filter((contract) => contract.role === GOALKEEPER && contract.inLineups === inLineups && contract.playerContract.clubID === clubID).reduce((obj, item) => { return { ...item.playerContract, player: playerList.find(player => player.id === item.playerContract.playerID) } }, {})
-      }
-      const convertPlayerRoleArr = (clubID, role, inLineups) => {
-        return players.filter((contract) => contract.role === role && contract.inLineups === inLineups && contract.playerContract.clubID === clubID).reduce((obj, item) => { return [...obj, { ...item.playerContract, player: playerList.find(player => player.id === item.playerContract.playerID) }] }, [])
-      }
-      const convertHeadCoach = (clubID) => {
-        return staffs.filter((contract) => contract.role === HEADCOACH && contract.staffContract.clubID === clubID).reduce((obj, item) => { return { ...item.staffContract, staff: staffList.find(staff => staff.id === item.staffContract.staffID) } }, {})
-      }
-      const convertStaffRoleArr = (clubID, role) => {
-        return staffs.filter((contract) => contract.role === role && contract.staffContract.clubID === clubID).reduce((obj, item) => { return [...obj, { ...item.staffContract, staff: staffList.find(staff => staff.id === item.staffContract.staffID) }] }, [])
-      }
-      const convertHeadReferee = () => {
-        return referees.filter((contract) => contract.role === HEADREFEREE).reduce((obj, item) => { return { ...item.referee, referee: refereeList.find(referee => referee.id === item.refereeID) } }, {})
-      }
-      const convertRefereeRoleArr = (role) => {
-        return referees.filter((contract) => contract.role === role).reduce((obj, item) => { return [...obj, { ...item.referee, referee: refereeList.find(referee => referee.id === item.refereeID) }] }, [])
-      }
-      if (!_.isEmpty(players) && !_.isEmpty(staffs) && !_.isEmpty(referees)) {
-        const lineup = {
-          HomeLineUp: {
-            GoalKeeper: convertGoalKeeper(homeClubID, true),
-            Defender: convertPlayerRoleArr(homeClubID, DEFENDER, true),
-            Midfielder: convertPlayerRoleArr(homeClubID, MIDFIELDER, true),
-            Forward: convertPlayerRoleArr(homeClubID, FORWARD, true),
-          },
-          HomeReverse: {
-            GoalKeeper: convertGoalKeeper(homeClubID, false),
-            Defender: convertPlayerRoleArr(homeClubID, DEFENDER, false),
-            Midfielder: convertPlayerRoleArr(homeClubID, MIDFIELDER, false),
-            Forward: convertPlayerRoleArr(homeClubID, FORWARD, false),
-          },
-          AwayLineUp: {
-            GoalKeeper: convertGoalKeeper(awayClubID, true),
-            Defender: convertPlayerRoleArr(awayClubID, DEFENDER, true),
-            Midfielder: convertPlayerRoleArr(awayClubID, MIDFIELDER, true),
-            Forward: convertPlayerRoleArr(awayClubID, FORWARD, true),
-          },
-          AwayReverse: {
-            GoalKeeper: convertGoalKeeper(awayClubID, false),
-            Defender: convertPlayerRoleArr(awayClubID, DEFENDER, false),
-            Midfielder: convertPlayerRoleArr(awayClubID, MIDFIELDER, false),
-            Forward: convertPlayerRoleArr(awayClubID, FORWARD, false),
-          },
-          HomeStaff: {
-            HeadCoach: convertHeadCoach(homeClubID),
-            AssistantCoach: convertStaffRoleArr(homeClubID, ASSISTANTCOACH),
-            MedicalTeam: convertStaffRoleArr(homeClubID, MEDICALTEAM),
-          },
-          AwayStaff: {
-            HeadCoach: convertHeadCoach(awayClubID),
-            AssistantCoach: convertStaffRoleArr(awayClubID, ASSISTANTCOACH),
-            MedicalTeam: convertStaffRoleArr(awayClubID, MEDICALTEAM),
-          },
-          Referee: {
-            HeadReferee: convertHeadReferee(),
-            AssistantReferee: convertRefereeRoleArr(ASSISTANTREFEREE),
-            MonitoringReferee: convertRefereeRoleArr(MONITORINGREFEREE),
-          }
+      // const { players, staffs, referees } = response.data.result
+      // const convertGoalKeeper = (clubID, inLineups) => {
+      //   return players.filter((contract) => contract.role === GOALKEEPER && contract.inLineups === inLineups && contract.playerContract.clubID === clubID)
+      // }
+      // const convertPlayerRoleArr = (clubID, role, inLineups) => {
+      //   return players.filter((contract) => contract.role === role && contract.inLineups === inLineups && contract.playerContract.clubID === clubID)
+      // }
+      // const convertHeadCoach = (clubID) => {
+      //   return staffs.filter((contract) => contract.role === HEADCOACH && contract.staffContract.clubID === clubID)
+      // }
+      // const convertStaffRoleArr = (clubID, role) => {
+      //   return staffs.filter((contract) => contract.role === role && contract.staffContract.clubID === clubID)
+      // }
+      // const convertHeadReferee = () => {
+      //   return referees.filter((contract) => contract.role === HEADREFEREE)
+      // }
+      // const convertRefereeRoleArr = (role) => {
+      //   return referees.filter((contract) => contract.role === role)
+      // }
+      // // const { homeClubID, awayClubID } = slice.initialState.currentMatch
+      // console.log(matchId, homeClubID, awayClubID, 'check id');
 
-        }
-        dispatch(slice.actions.getMatchParticipationSuccess(lineup));
+      // console.log(players, staffs, referees, 'check');
+      // if (!_.isEmpty(players) && !_.isEmpty(staffs) && !_.isEmpty(referees)) {
+      //   const lineup = {
+      //     HomeLineUp: {
+      //       GoalKeeper: convertGoalKeeper(homeClubID, true),
+      //       Defender: convertPlayerRoleArr(homeClubID, DEFENDER, true),
+      //       Midfielder: convertPlayerRoleArr(homeClubID, MIDFIELDER, true),
+      //       Forward: convertPlayerRoleArr(homeClubID, FORWARD, true),
+      //     },
+      //     HomeReverse: {
+      //       GoalKeeper: convertGoalKeeper(homeClubID, false),
+      //       Defender: convertPlayerRoleArr(homeClubID, DEFENDER, false),
+      //       Midfielder: convertPlayerRoleArr(homeClubID, MIDFIELDER, false),
+      //       Forward: convertPlayerRoleArr(homeClubID, FORWARD, false),
+      //     },
+      //     AwayLineUp: {
+      //       GoalKeeper: convertGoalKeeper(awayClubID, true),
+      //       Defender: convertPlayerRoleArr(awayClubID, DEFENDER, true),
+      //       Midfielder: convertPlayerRoleArr(awayClubID, MIDFIELDER, true),
+      //       Forward: convertPlayerRoleArr(awayClubID, FORWARD, true),
+      //     },
+      //     AwayReverse: {
+      //       GoalKeeper: convertGoalKeeper(awayClubID, false),
+      //       Defender: convertPlayerRoleArr(awayClubID, DEFENDER, false),
+      //       Midfielder: convertPlayerRoleArr(awayClubID, MIDFIELDER, false),
+      //       Forward: convertPlayerRoleArr(awayClubID, FORWARD, false),
+      //     },
+      //     HomeStaff: {
+      //       HeadCoach: convertHeadCoach(homeClubID),
+      //       AssistantCoach: convertStaffRoleArr(homeClubID, ASSISTANTCOACH),
+      //       MedicalTeam: convertStaffRoleArr(homeClubID, MEDICALTEAM),
+      //     },
+      //     AwayStaff: {
+      //       HeadCoach: convertHeadCoach(awayClubID),
+      //       AssistantCoach: convertStaffRoleArr(awayClubID, ASSISTANTCOACH),
+      //       MedicalTeam: convertStaffRoleArr(awayClubID, MEDICALTEAM),
+      //     },
+      //     Referee: {
+      //       HeadReferee: convertHeadReferee(),
+      //       AssistantReferee: convertRefereeRoleArr(ASSISTANTREFEREE),
+      //       MonitoringReferee: convertRefereeRoleArr(MONITORINGREFEREE),
+      //     }
 
-      } else {
-        dispatch(slice.actions.getMatchParticipationSuccess(response.data.result));
-      }
+      //   }
+      //   dispatch(slice.actions.getMatchParticipationSuccess(lineup));
+
+      // } else {
+      dispatch(slice.actions.getMatchParticipationSuccess(response.data.result));
+      // }
     } catch (error) {
       dispatch(slice.actions.hasError(error));
     }

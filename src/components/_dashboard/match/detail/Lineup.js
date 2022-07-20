@@ -5,7 +5,7 @@ import { Box, Button, Card, DialogTitle, Grid, Stack, Table, TableBody, TableCel
 import Scrollbar from 'src/components/Scrollbar';
 import PlayerLineUpList from '../list/PlayerLineUpList';
 import { useDispatch, useSelector } from 'react-redux';
-import { addLineUp, addLineUpServer, closeModal, openModal } from 'src/redux/slices/match';
+import { addLineUp, addLineUpServer, closeModal, getMatchParticipation, openModal } from 'src/redux/slices/match';
 import { DialogAnimate } from 'src/components/animate';
 import MatchLineUpForm from '../MatchLineUpForm';
 import plusFill from '@iconify/icons-eva/plus-fill';
@@ -37,6 +37,8 @@ export default function Lineup() {
     const [homeSelected, setHomeSelected] = useState()
     const { homeClub, awayClub, stadium, round } = currentMatch
     const [errorState, setErrorState] = useState()
+    useEffect(() => {
+    }, [])
     const handleAddHomeLineup = () => {
         setComponent(
             <>
@@ -163,7 +165,7 @@ export default function Lineup() {
                     <TableCell align="right">{row?.player?.name}</TableCell>
                     <TableCell align="right" width={70}>{row.number}</TableCell>
                 </TableRow >)
-            })) : isHome ? ((<TableRow
+            })) : _.isEmpty(e) ? <></> : (isHome) ? ((<TableRow
                 key={e?.id}
                 sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
             >
