@@ -7,6 +7,7 @@ import roundFilterList from '@iconify/icons-ic/round-filter-list';
 import { useTheme, styled } from '@mui/material/styles';
 import { Box, Toolbar, Tooltip, IconButton, Typography, OutlinedInput, InputAdornment, TextField, Stack } from '@mui/material';
 import { DateTimePicker } from '@mui/lab';
+import { useFormik } from 'formik';
 
 // ----------------------------------------------------------------------
 
@@ -42,6 +43,20 @@ export default function TournamentListToolbar({ numSelected, filterName, onFilte
   const theme = useTheme();
   const isLight = theme.palette.mode === 'light';
 
+  const formik = useFormik({
+    enableReinitialize: true,
+    initialValues: {
+      From: start || '',
+      To: end || ''
+    }
+  })
+  const { errors, values, touched, handleSubmit, isSubmitting, setFieldValue, getFieldProps } = formik;
+  const disableFromDate = (date) => {
+    return new Date(date).getTime() >= new Date(values.To).getTime()
+  }
+  const disableToDate = (date) => {
+    return new Date(date).getTime() <= new Date(values.From).getTime()
+  }
   return (
     <RootStyle
       sx={{
@@ -69,17 +84,26 @@ export default function TournamentListToolbar({ numSelected, filterName, onFilte
             }
           />
           <DateTimePicker
+            shouldDisableDate={(date) => disableFromDate(date)}
             label="Date Start"
             inputFormat="dd/MM/yyyy h.mm a"
-            value={start}
-            onChange={onStart}
+            value={values.From}
+            onChange={(newValue) => {
+              onStart(newValue)
+              setFieldValue('From', newValue);
+
+            }}
             renderInput={(params) => <TextField {...params} error={false} />}
           />
           <DateTimePicker
+            shouldDisableDate={(date) => disableToDate(date)}
             label="Date End"
             inputFormat="dd/MM/yyyy h.mm a"
-            value={end}
-            onChange={onEnd}
+            value={values.To}
+            onChange={(newValue) => {
+              onEnd(newValue)
+              setFieldValue('To', newValue);
+            }}
 
             renderInput={(params) => <TextField {...params} error={false} />}
           />
