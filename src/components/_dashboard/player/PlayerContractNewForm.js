@@ -42,7 +42,7 @@ export default function PlayerContractNewForm({ isEdit, currentContract }) {
   const NewPlayerSchema = Yup.object().shape({
     Club: Yup.mixed().required('Club is required'),
     Player: Yup.mixed().required('Player is required'),
-    Salary: Yup.number().required('Salary is required'),
+    Salary: Yup.number().required('Salary is required').min(4000000, 'Salary have more than 4,000,000 vnd'),
     Start: Yup.mixed().required('Start date is required'),
     End: Yup.mixed().required('End date is required'),
     Number: Yup.number().required('Number is required').min(Number(1))
