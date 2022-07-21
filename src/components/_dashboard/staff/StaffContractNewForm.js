@@ -37,7 +37,7 @@ export default function StaffContractNewForm({ isEdit, currentContract }) {
   const NewStaffSchema = Yup.object().shape({
     Club: Yup.mixed().required('Club is required'),
     Staff: Yup.mixed().required('Staff is required'),
-    Salary: Yup.number().required('Salary is required'),
+    Salary: Yup.number().required('Salary is required').min(4000000, 'Salary have more than 4,000,000 vnd'),
     Start: Yup.mixed().required('Start date is required'),
     End: Yup.mixed().required('End date is required'),
     // Description: Yup.mixed().required('Description is required')
