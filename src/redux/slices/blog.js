@@ -50,6 +50,10 @@ const slice = createSlice({
 
 
     },
+    getPostSuccessNewTag(state, action) {
+      state.isLoading = false;
+      state.posts = action.payload
+    },
     addPost(state, action) {
       state.isLoading = false;
       state.posts = [...state.posts, action.payload]
@@ -106,11 +110,14 @@ export const { getMorePosts } = slice.actions;
 
 // ----------------------------------------------------------------------
 
-export function getAllPosts(PageNumber) {
+export function getAllPosts(PageNumber, players, clubs) {
   return async (dispatch) => {
     dispatch(slice.actions.startLoading());
     try {
-      const response = await axios.get(`/api/news?Include=clubs,players&PageNumber=${PageNumber || 1}`);
+      const playersQuery = players.map((player, index) => { return `&PlayerIDs=${player.id}` })
+      const clubsQuery = clubs.map((club, index) => { return `&ClubIDs=${club.id}` })
+
+      const response = await axios.get(`/api/news?Include=clubs,players&PageNumber=${PageNumber || 1}${playersQuery}${clubsQuery}`);
       const results = response.data.result.length;
       const { totalCount } = response.data.pagination;
 
@@ -119,12 +126,38 @@ export function getAllPosts(PageNumber) {
       if (results >= totalCount) {
         dispatch(slice.actions.noHasMore());
       }
-      dispatch(slice.actions.getPostsSuccess(response.data.result));
+      if (PageNumber !== 1) {
+        dispatch(slice.actions.getPostsSuccess(response.data.result));
+      } else {
+        dispatch(slice.actions.getPostSuccessNewTag(response.data.result))
+      }
     } catch (error) {
       dispatch(slice.actions.hasError(error));
     }
   };
 }
+// export function getAllPostsWithNewTag(PageNumber, players, clubs) {
+//   return async (dispatch) => {
+//     dispatch(slice.actions.startLoading());
+//     try {
+//       const playersQuery = players.map((player, index) => { return `&PlayerIDs=${player.id}` })
+//       const clubsQuery = clubs.map((club, index) => { return `&ClubIDs=${club.id}` })
+
+//       const response = await axios.get(`/api/news?Include=clubs,players&PageNumber=${PageNumber || 1}${playersQuery}${clubsQuery}`);
+//       const results = response.data.result.length;
+//       const { totalCount } = response.data.pagination;
+
+//       // dispatch(slice.actions.getPostsInitial(response.data.result));
+
+//       if (results >= totalCount) {
+//         dispatch(slice.actions.noHasMore());
+//       }
+//       dispatch(slice.actions.getPostsSuccess(response.data.result));
+//     } catch (error) {
+//       dispatch(slice.actions.hasError(error));
+//     }
+//   };
+// }
 export function createPost(values, callback) {
   return async (dispatch) => {
     dispatch(slice.actions.startLoading());

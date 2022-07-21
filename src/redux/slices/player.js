@@ -252,11 +252,11 @@ export const getMatchPlayerContract = (HomeClubID, AwayClub) => {
   }
 
 }
-export const getClubMatchContract = (ClubID) => {
+export const getClubMatchContract = (ClubID, start) => {
   return async dispatch => {
     dispatch(slice.actions.startLoading());
     try {
-      const response = await axios.get(`/api/player-contracts?ClubID=${ClubID}&IncludeEndedContracts=false&Include=player`);
+      const response = await axios.get(`/api/player-contracts?ClubID=${ClubID}&IncludeEndedContracts=false&Include=player&Start=${start}`);
       dispatch(slice.actions.getClubContractList(response.data.result))
     }
     catch (error) {

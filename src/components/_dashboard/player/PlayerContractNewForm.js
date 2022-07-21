@@ -96,7 +96,7 @@ export default function PlayerContractNewForm({ isEdit, currentContract }) {
   });
   useEffect(() => {
     if (!_.isEmpty(errorState)) {
-      if (!errorState.isError) {
+      if (!errorState.IsError) {
         formik.resetForm();
         enqueueSnackbar(!isEdit ? 'Create success' : 'Update success', { variant: 'success' });
         navigate(PATH_DASHBOARD.player.contract);
@@ -217,6 +217,7 @@ export default function PlayerContractNewForm({ isEdit, currentContract }) {
                 <Stack direction={{ xs: 'column', md: 'row' }} spacing={3}>
                   <Stack direction={{ xs: 'row' }} spacing={3}>
                     <DatePicker
+                      disablePast
                       shouldDisableDate={(date) => disableStartDate(date)}
                       inputFormat='dd/MM/yyyy'
                       disabled={isEdit}
