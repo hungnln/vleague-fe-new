@@ -154,6 +154,9 @@ const slice = createSlice({
           }
         }
         state.matchParticipation = lineup
+      } else {
+        state.matchParticipation = []
+
       }
     },
     openModal(state) {
