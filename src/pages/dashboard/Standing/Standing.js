@@ -44,7 +44,9 @@ import CheckCircleOutlinedIcon from '@mui/icons-material/CheckCircleOutlined';
 import RemoveCircleOutlineOutlinedIcon from '@mui/icons-material/RemoveCircleOutlineOutlined';
 import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined';
 import LoadingProgress from 'src/pages/LoadingProgress';
-// ----------------------------------------------------------------------
+// ------------------------------------------------------------
+import DoNotDisturbOnOutlinedIcon from '@mui/icons-material/DoNotDisturbOnOutlined';
+import Brightness1OutlinedIcon from '@mui/icons-material/Brightness1Outlined';
 
 const TABLE_HEAD = [
     { id: '', label: '', alignRight: false },
@@ -63,8 +65,9 @@ const TABLE_HEAD = [
 // ----------------------------------------------------------------------
 const iconList = {
     "WIN": <CheckCircleOutlinedIcon color="success" />,
-    "NOT_PLAYED": <RemoveCircleOutlineOutlinedIcon color="disabled" />,
-    "LOSS": <CancelOutlinedIcon color="error" />
+    "NOT_PLAYED": <Brightness1OutlinedIcon color="action" />,
+    "LOSS": <CancelOutlinedIcon color="error" />,
+    "DRAW": <DoNotDisturbOnOutlinedIcon color="disabled" />
 }
 
 function descendingComparator(a, b, orderBy) {
@@ -106,7 +109,7 @@ export default function Standing({ tournamentID }) {
     const [selected, setSelected] = useState([]);
     const [orderBy, setOrderBy] = useState('name');
     const [filterName, setFilterName] = useState('');
-    const [rowsPerPage, setRowsPerPage] = useState(5);
+    const [rowsPerPage, setRowsPerPage] = useState(20);
 
     useEffect(() => {
         dispatch(getTournamentStanding(tournamentID));
@@ -168,23 +171,25 @@ export default function Standing({ tournamentID }) {
     const isRefereeNotFound = filteredStandings.length === 0 && standings.length > 0;
 
     return (
-        <Card>
-            <Stack direction='row' alignItems='center' justifyContent='space-between' >
-                <Typography
-                    sx={{ flex: '1 1 100%', px: 3, pt: 3, mb: 3 }}
-                    variant="h6"
-                    id="tableTitle"
-                    component="div"
-                >
-                    Top standings
-                </Typography>
+        <>
+            {standings && (
+                <Card>
+                    <Stack direction='row' alignItems='center' justifyContent='space-between' >
+                        <Typography
+                            sx={{ flex: '1 1 100%', px: 3, pt: 3, mb: 3 }}
+                            variant="h6"
+                            id="tableTitle"
+                            component="div"
+                        >
+                            Top standings
+                        </Typography>
 
-            </Stack>
-            {/* <RefereeListToolbar numSelected={selected.length} filterName={filterName} onFilterName={handleFilterByName} /> */}
-            <Scrollbar>
-                <TableContainer sx={{ minWidth: 800 }}>
-                    <Table>
-                        {/* <RefereeListHead
+                    </Stack>
+                    {/* <RefereeListToolbar numSelected={selected.length} filterName={filterName} onFilterName={handleFilterByName} /> */}
+                    <Scrollbar>
+                        <TableContainer sx={{ minWidth: 800 }}>
+                            <Table>
+                                {/* <RefereeListHead
                             order={order}
                             orderBy={orderBy}
                             headLabel={TABLE_HEAD}
@@ -193,66 +198,66 @@ export default function Standing({ tournamentID }) {
                             onRequestSort={handleRequestSort}
                             onSelectAllClick={handleSelectAllClick}
                         /> */}
-                        <TableHead>
-                            <TableRow>
-                                <TableCell align='left' colSpan={2}>
-                                    Club
-                                </TableCell>
-                                <TableCell align="left">Played</TableCell>
-                                <TableCell align="left">Won</TableCell>
-                                <TableCell align="left">Draw</TableCell>
-                                <TableCell align="left">Loss</TableCell>
-                                <TableCell align="left">GF</TableCell>
-                                <TableCell align="left">GA</TableCell>
-                                <TableCell align="left">GD</TableCell>
-                                <TableCell align="left">Points</TableCell>
-                                <TableCell align="left">Manners</TableCell>
+                                <TableHead>
+                                    <TableRow>
+                                        <TableCell align='left' colSpan={2}>
+                                            Club
+                                        </TableCell>
+                                        <TableCell align="left">Played</TableCell>
+                                        <TableCell align="left">Won</TableCell>
+                                        <TableCell align="left">Draw</TableCell>
+                                        <TableCell align="left">Loss</TableCell>
+                                        <TableCell align="left">GF</TableCell>
+                                        <TableCell align="left">GA</TableCell>
+                                        <TableCell align="left">GD</TableCell>
+                                        <TableCell align="left">Points</TableCell>
+                                        <TableCell align="left">last 5 match</TableCell>
 
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {standings.length <= 0 && <LoadingProgress />}
-                            {filteredStandings.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => {
-                                const { club, mp, w, d, l, gf, ga, gd, pts, last5 } = row;
-                                // const isItemSelected = selected.indexOf(name) !== -1;
+                                    </TableRow>
+                                </TableHead>
+                                <TableBody>
+                                    {standings.length <= 0 && <LoadingProgress />}
+                                    {filteredStandings.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => {
+                                        const { club, mp, w, d, l, gf, ga, gd, pts, last5 } = row;
+                                        // const isItemSelected = selected.indexOf(name) !== -1;
 
-                                return (
-                                    <TableRow
-                                        hover
-                                        key={club.id}
-                                        tabIndex={-1}
-                                        role="checkbox"
-                                    // selected={isItemSelected}
-                                    // aria-checked={isItemSelected}
-                                    >
-                                        {/* <TableCell padding="checkbox">
+                                        return (
+                                            <TableRow
+                                                hover
+                                                key={club.id}
+                                                tabIndex={-1}
+                                                role="checkbox"
+                                            // selected={isItemSelected}
+                                            // aria-checked={isItemSelected}
+                                            >
+                                                {/* <TableCell padding="checkbox">
                           <Checkbox checked={isItemSelected} onChange={(event) => handleClick(event, name)} />
                         </TableCell> */}
-                                        <TableCell align="left">{index + 1}</TableCell>
-                                        <TableCell component="th" scope="row" padding="none">
-                                            <Stack direction="row" alignItems="center" spacing={2}>
-                                                <Avatar alt={club.name} src={club.imageURL} />
-                                                <Typography variant="subtitle2" noWrap>
-                                                    {club.name}
-                                                </Typography>
-                                            </Stack>
-                                        </TableCell>
-                                        <TableCell align="left">{mp}</TableCell>
-                                        <TableCell align="left">{w}</TableCell>
-                                        <TableCell align="left">{d}</TableCell>
-                                        <TableCell align="left">{l}</TableCell>
-                                        <TableCell align="left">{gf}</TableCell>
-                                        <TableCell align="left">{ga}</TableCell>
-                                        <TableCell align="left">{gd}</TableCell>
-                                        <TableCell align="left">{pts}</TableCell>
-                                        <TableCell align="left">
-                                            {last5.map((match, index) => { return iconList[match] })}
-                                        </TableCell>
+                                                <TableCell align="left">{index + 1}</TableCell>
+                                                <TableCell component="th" scope="row" padding="none">
+                                                    <Stack direction="row" alignItems="center" spacing={2}>
+                                                        <Avatar alt={club.name} src={club.imageURL} />
+                                                        <Typography variant="subtitle2" noWrap>
+                                                            {club.name}
+                                                        </Typography>
+                                                    </Stack>
+                                                </TableCell>
+                                                <TableCell align="left">{mp}</TableCell>
+                                                <TableCell align="left">{w}</TableCell>
+                                                <TableCell align="left">{d}</TableCell>
+                                                <TableCell align="left">{l}</TableCell>
+                                                <TableCell align="left">{gf}</TableCell>
+                                                <TableCell align="left">{ga}</TableCell>
+                                                <TableCell align="left">{gd}</TableCell>
+                                                <TableCell align="left">{pts}</TableCell>
+                                                <TableCell align="left">
+                                                    {last5.map((match, index) => { return iconList[match] })}
+                                                </TableCell>
 
 
-                                        {/* <TableCell align="left">{role}</TableCell> */}
-                                        {/* <TableCell align="left">{isVerified ? 'Yes' : 'No'}</TableCell> */}
-                                        {/* <TableCell align="left">
+                                                {/* <TableCell align="left">{role}</TableCell> */}
+                                                {/* <TableCell align="left">{isVerified ? 'Yes' : 'No'}</TableCell> */}
+                                                {/* <TableCell align="left">
                           <Label
                             variant={theme.palette.mode === 'light' ? 'ghost' : 'filled'}
                             color={(status === 'banned' && 'error') || 'success'}
@@ -261,41 +266,44 @@ export default function Standing({ tournamentID }) {
                           </Label>
                         </TableCell> */}
 
-                                        {/* <TableCell align="right">
+                                                {/* <TableCell align="right">
                                             <RefereeMoreMenu onDelete={() => handleDeleteReferee(id)} refereeName={name} refereeId={id} />
                                         </TableCell> */}
-                                    </TableRow>
-                                );
-                            })}
-                            {emptyRows > 0 && (
-                                <TableRow style={{ height: 53 * emptyRows }}>
-                                    <TableCell colSpan={6} />
-                                </TableRow>
-                            )}
-                        </TableBody>
-                        {isRefereeNotFound && (
-                            <TableBody>
-                                <TableRow>
-                                    <TableCell align="center" colSpan={6} sx={{ py: 3 }}>
-                                        <SearchNotFound searchQuery={filterName} />
-                                    </TableCell>
-                                </TableRow>
-                            </TableBody>
-                        )}
-                    </Table>
-                </TableContainer>
-            </Scrollbar>
+                                            </TableRow>
+                                        );
+                                    })}
+                                    {emptyRows > 0 && (
+                                        <TableRow style={{ height: 53 * emptyRows }}>
+                                            <TableCell colSpan={6} />
+                                        </TableRow>
+                                    )}
+                                </TableBody>
+                                {isRefereeNotFound && (
+                                    <TableBody>
+                                        <TableRow>
+                                            <TableCell align="center" colSpan={6} sx={{ py: 3 }}>
+                                                <SearchNotFound searchQuery={filterName} />
+                                            </TableCell>
+                                        </TableRow>
+                                    </TableBody>
+                                )}
+                            </Table>
+                        </TableContainer>
+                    </Scrollbar>
 
-            <TablePagination
-                rowsPerPageOptions={[5, 10, 25]}
+                    {/* <TablePagination
+                // rowsPerPageOptions={[5, 10, 25]}
                 component="div"
                 count={standings.length}
-                rowsPerPage={rowsPerPage}
-                page={page}
+                // rowsPerPage={rowsPerPage}
+                // page={page}
                 onPageChange={handleChangePage}
                 onRowsPerPageChange={handleChangeRowsPerPage}
-            />
-        </Card>
+            /> */}
+                </Card>
+            )}
+        </>
+
 
     );
 }

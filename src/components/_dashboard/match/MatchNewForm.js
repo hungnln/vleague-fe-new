@@ -39,6 +39,7 @@ export default function MatchNewForm({ tournamentID, currentMatch, onCancel, rou
   const [errorState, setErrorState] = useState();
   const { enqueueSnackbar } = useSnackbar();
   const { clubList } = useSelector((state) => state.club);
+  const { tournamentDetail } = useSelector(state => state.tournament)
   const { stadiumList } = useSelector((state) => state.stadium);
   const { roundList } = useSelector((state) => state.round);
   const { homeContractList, awayContractList } = useSelector(state => state.player)
@@ -116,7 +117,9 @@ export default function MatchNewForm({ tournamentID, currentMatch, onCancel, rou
     }
 
   }, [errorState])
-
+  const disableStartDate = (date) => {
+    return new Date(date) > new Date(tournamentDetail.to) || new Date(date) < new Date(tournamentDetail.from)
+  }
   // useEffect(() => {
   //   console.log('listPlayer', formik.values.HomePlayer);
 
@@ -245,8 +248,8 @@ export default function MatchNewForm({ tournamentID, currentMatch, onCancel, rou
               )}
             />
             <MobileDateTimePicker
+              shouldDisableDate={(date) => disableStartDate(date)}
               label="Start date"
-              disablePast
               value={values.StartDate}
               inputFormat="dd/MM/yyyy hh:mm a"
               onChange={(StartDate) => setFieldValue('StartDate', StartDate)}

@@ -99,7 +99,7 @@ export default function Goal({ list }) {
     const [selected, setSelected] = useState([]);
     const [orderBy, setOrderBy] = useState('name');
     const [filterName, setFilterName] = useState('');
-    const [rowsPerPage, setRowsPerPage] = useState(5);
+    const [rowsPerPage, setRowsPerPage] = useState(500);
     const handleRequestSort = (event, property) => {
         const isAsc = orderBy === property && order === 'asc';
         setOrder(isAsc ? 'desc' : 'asc');
@@ -203,7 +203,7 @@ export default function Goal({ list }) {
                                         <TableCell component="th" scope="row" padding="none">
                                             <Stack direction="row" alignItems="center" spacing={2}>
                                                 <Avatar alt={player.name} src={player.imageURL} />
-                                                <Typography variant="subtitle2" noWrap>
+                                                <Typography variant="subtitle2">
                                                     {player.name}
                                                 </Typography>
                                             </Stack>
@@ -257,7 +257,7 @@ export default function Goal({ list }) {
                 </TableContainer>
             </Scrollbar>
 
-            <TablePagination
+            {/* <TablePagination
                 rowsPerPageOptions={[5, 10, 25]}
                 component="div"
                 count={list.length}
@@ -265,7 +265,7 @@ export default function Goal({ list }) {
                 page={page}
                 onPageChange={handleChangePage}
                 onRowsPerPageChange={handleChangeRowsPerPage}
-            />
+            /> */}
         </Card>
 
     );

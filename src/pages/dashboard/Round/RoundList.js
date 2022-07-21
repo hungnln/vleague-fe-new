@@ -102,6 +102,7 @@ export default function RoundList() {
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [currentRound, setCurrentRound] = useState({})
   const [roundSelected, setRoundSelected] = useState(null)
+  const [rankModal, setRankModal] = useState(false)
   const { id } = useParams()
   useEffect(() => {
     dispatch(getTournamentDetail(id))
@@ -168,12 +169,19 @@ export default function RoundList() {
   const handleCloseModal = () => {
     dispatch(closeModal());
   };
+  const handleOpenRankModal = () => {
+    setRankModal(true)
+
+  }
+  const handleCloseRankModal = () => {
+    setRankModal(false)
+  }
 
   const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - roundList.length) : 0;
 
   const filteredRounds = applySortFilter(roundList, getComparator(order, orderBy), filterName);
 
-  const isRoundNotFound = filteredRounds.length === 0 ;
+  const isRoundNotFound = filteredRounds.length === 0;
 
   return (
     <Page title="Round: List | V League">
@@ -188,14 +196,24 @@ export default function RoundList() {
             { name: 'List round', href: `${PATH_DASHBOARD.tournament.root}/${id}/round` }
           ]}
           action={
-            <Button
-              variant="contained"
-              startIcon={<Icon icon={plusFill} />}
-              onClick={handleAddRound}
-              sx={{ whiteSpace: 'nowrap', minWidth: 'auto' }}
-            >
-              New Round
-            </Button>
+            <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
+              <Button
+                variant="contained"
+                startIcon={<Icon icon={plusFill} />}
+                onClick={handleOpenRankModal}
+                sx={{ whiteSpace: 'nowrap', minWidth: 'auto' }}
+              >
+                View Ranking
+              </Button>
+              <Button
+                variant="contained"
+                startIcon={<Icon icon={plusFill} />}
+                onClick={handleAddRound}
+                sx={{ whiteSpace: 'nowrap', minWidth: 'auto' }}
+              >
+                New Round
+              </Button>
+            </Stack>
           }
         />
           <Grid container spacing={3}>
@@ -217,7 +235,7 @@ export default function RoundList() {
                       />
                       <TableBody>
                         {roundList.length <= 0 &&
-                             <LoadingProgress />}
+                          <LoadingProgress />}
                         {filteredRounds.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
                           const { id, name, tournamentID } = row;
                           const isItemSelected = selected.indexOf(name) !== -1;
@@ -230,7 +248,7 @@ export default function RoundList() {
                               role="checkbox"
                               selected={isItemSelected}
                               aria-checked={isItemSelected}
-                              onClick={() => setRoundSelected(row)}
+                            // onClick={() => setRoundSelected(row)}
                             >
                               {/* <TableCell padding="checkbox">
                           <Checkbox checked={isItemSelected} onChange={(event) => handleClick(event, name)} />
@@ -291,11 +309,18 @@ export default function RoundList() {
               </Card>
             </Grid>
             <Grid item xs={12} md={8}><MatchList roundSelected={roundSelected} /></Grid>
-            <Grid item xs={12} md={12}><Standing tournamentID={tournamentDetail.id} /></Grid>
-            <Grid item xs={12} md={12}><Ranking tournamentID={tournamentDetail.id} /></Grid>
+            {/* <Grid item xs={12} md={12}><Standing tournamentID={tournamentDetail.id} /></Grid>
+            <Grid item xs={12} md={12}><Ranking tournamentID={tournamentDetail.id} /></Grid> */}
 
           </Grid>
-
+          <DialogAnimate width='lg' open={rankModal} onClose={handleCloseRankModal} scroll='body'>
+            <Stack spacing={3} sx={{ p: 3 }}>
+              <Grid container spacing={3}>
+                <Grid item xs={12} md={12}><Standing tournamentID={tournamentDetail.id} /></Grid>
+                <Grid item xs={12} md={12}><Ranking tournamentID={tournamentDetail.id} /></Grid>
+              </Grid>
+            </Stack>
+          </DialogAnimate>
           <DialogAnimate open={isOpenModal} onClose={handleCloseModal}>
             <DialogTitle>{_.isEmpty(currentRound) ? 'New round' : 'Edit round'}</DialogTitle>
 

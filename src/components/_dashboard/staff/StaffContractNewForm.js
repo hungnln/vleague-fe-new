@@ -209,8 +209,8 @@ export default function StaffContractNewForm({ isEdit, currentContract }) {
                 <Stack direction={{ xs: 'column', md: 'row' }} spacing={3}>
                   <Stack direction={{ xs: 'row' }} spacing={3}>
                     <DatePicker
+                      disablePast
                       shouldDisableDate={(date) => disableStartDate(date)}
-
                       inputFormat='dd/MM/yyyy'
                       disabled={isEdit}
                       label="Start"
@@ -255,8 +255,8 @@ export default function StaffContractNewForm({ isEdit, currentContract }) {
                     maxRows={5}
                     label="Description"
                     {...getFieldProps('Description')}
-                    // error={Boolean(touched.Description && errors.Description)}
-                    // helperText={touched.Description && errors.Description}
+                  // error={Boolean(touched.Description && errors.Description)}
+                  // helperText={touched.Description && errors.Description}
                   />
                 </Stack>
                 {errorState?.IsError ? <Alert severity="warning">{errorState.Message}</Alert> : ''}

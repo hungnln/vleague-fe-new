@@ -158,7 +158,7 @@ export default function YellowCard({ list }) {
     const isRefereeNotFound = filteredStandings.length === 0 && list.length > 0;
 
     return (
-        <Card>
+        <Card >
             <Stack direction='row' alignItems='center' justifyContent='space-between' >
                 <Typography
                     sx={{ flex: '1 1 100%', px: 3, pt: 3, mb: 3 }}
@@ -166,13 +166,13 @@ export default function YellowCard({ list }) {
                     id="tableTitle"
                     component="div"
                 >
-                    Top player yellow card
+                    Most yellow cards
                 </Typography>
 
             </Stack>
             {/* <RefereeListToolbar numSelected={selected.length} filterName={filterName} onFilterName={handleFilterByName} /> */}
             <Scrollbar>
-                <TableContainer sx={{ minWidth: 800 }}>
+                <TableContainer sx={{ minWidth: 300 }}>
                     <Table>
                         {/* <RefereeListHead
                             order={order}
@@ -259,7 +259,7 @@ export default function YellowCard({ list }) {
                 </TableContainer>
             </Scrollbar>
 
-            <TablePagination
+            {/* <TablePagination
                 rowsPerPageOptions={[5, 10, 25]}
                 component="div"
                 count={list.length}
@@ -267,7 +267,7 @@ export default function YellowCard({ list }) {
                 page={page}
                 onPageChange={handleChangePage}
                 onRowsPerPageChange={handleChangeRowsPerPage}
-            />
+            /> */}
         </Card>
 
     );

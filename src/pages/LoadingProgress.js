@@ -22,15 +22,12 @@ export default function LoadingProgress() {
     }
   }, []
   );
-  useEffect(() => {
-    console.log(loading, 'check data');
-  }, [loading])
   return (
     <TableRow sx={{ width: '100%' }}>
       <Fade in={loading}
         unmountOnExit
       >
-        <TableCell colSpan={6}> <LinearProgress /></TableCell>
+        <TableCell colSpan={20}> <LinearProgress /></TableCell>
       </Fade>
     </TableRow>
 

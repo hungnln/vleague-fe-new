@@ -8,7 +8,7 @@ import { Link as RouterLink } from 'react-router-dom';
 import searchFill from '@iconify/icons-eva/search-fill';
 // material
 import { styled } from '@mui/material/styles';
-import { Box, Link, TextField, Typography, Autocomplete, InputAdornment } from '@mui/material';
+import { Box, Link, TextField, Typography, Autocomplete, InputAdornment, Stack, Avatar } from '@mui/material';
 // utils
 import axios from '../../../utils/axios';
 // routes
@@ -16,6 +16,10 @@ import { PATH_DASHBOARD } from '../../../routes/paths';
 //
 import SearchNotFound from '../../SearchNotFound';
 import { debounce } from 'lodash';
+import { useDispatch, useSelector } from 'react-redux';
+import { getPlayerList } from 'src/redux/slices/player';
+import { getClubList } from 'src/redux/slices/club';
+import { Form, FormikProvider, useFormik } from 'formik';
 
 // ----------------------------------------------------------------------
 
@@ -56,10 +60,12 @@ export default function BlogPostsSearch({ sx }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const linkTo = (id) => `${PATH_DASHBOARD.blog.root}/post/${id}`;
+  const dispatch = useDispatch()
+
   const handleChangeSearch = async (event) => {
     try {
       const { value } = event.target;
-      setSearchQuery(value);
+      setSearchQuery(value)
       if (value.trim().length > 0) {
         const response = await axios.get(`/api/news?SearchText=${value}`);
         setSearchResults(response.data.result);
@@ -82,7 +88,14 @@ export default function BlogPostsSearch({ sx }) {
       sx={{
         ...(!searchQuery && {
           '& .MuiAutocomplete-noOptions': {
-            display: 'none'
+            display: 'none',
+
+          },
+          '.MuiAutocomplete-inputRoot': {
+            flexWrap: 'nowrap !important'
+          },
+          ' .Mui-focused': {
+            flexWrap: ' wrap !important'
           }
         }),
         ...sx
@@ -144,6 +157,6 @@ export default function BlogPostsSearch({ sx }) {
           );
         }}
       />
-    </RootStyle>
+    </RootStyle >
   );
 }

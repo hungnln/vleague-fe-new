@@ -166,13 +166,13 @@ export default function RedCard({ list }) {
                     id="tableTitle"
                     component="div"
                 >
-                    Top player redcard
+                    Most red cards
                 </Typography>
 
             </Stack>
             {/* <RefereeListToolbar numSelected={selected.length} filterName={filterName} onFilterName={handleFilterByName} /> */}
             <Scrollbar>
-                <TableContainer sx={{ minWidth: 800 }}>
+                <TableContainer sx={{ minWidth: 300 }}>
                     <Table>
                         {/* <RefereeListHead
                             order={order}
