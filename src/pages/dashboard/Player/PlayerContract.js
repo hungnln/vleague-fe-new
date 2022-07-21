@@ -44,6 +44,7 @@ import { fCurrency } from 'src/utils/formatNumber';
 import PlayerContractMoreMenu from 'src/components/_dashboard/player/contract/PlayerContractMoreMenu';
 import PlayerContractNewForm from 'src/components/_dashboard/player/PlayerContractNewForm';
 import AssignmentIndOutlinedIcon from '@mui/icons-material/AssignmentIndOutlined';
+import LoadingProgress from 'src/pages/LoadingProgress';
 
 // ----------------------------------------------------------------------
 
@@ -137,7 +138,7 @@ export default function PlayerConTract() {
 
   const filteredPlayers = applySortFilter(contractList, getComparator(order, orderBy), filterName);
 
-  const isPlayerNotFound = filteredPlayers.length === 0 && contractList > 0;
+  const isPlayerNotFound = filteredPlayers.length === 0;
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
@@ -213,9 +214,8 @@ export default function PlayerConTract() {
                   />
                   <TableBody>
                     {contractList.length <= 0 &&
-                      (<TableRow sx={{ width: '100%' }}>
-                        <TableCell colSpan={6}> <LinearProgress /></TableCell>
-                      </TableRow>)}
+                      <LoadingProgress />
+                    }
                     {filteredPlayers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
                       const { id, player, club, salary, start, end } = row;
                       const isItemSelected = selected.indexOf(id) !== -1;

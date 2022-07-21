@@ -322,7 +322,7 @@ export default function EventNewForm({ onCancel, isExtra, isSecondHalf }) {
           <Button type="button" variant="outlined" color="inherit" onClick={onCancel}>
             Cancel
           </Button>
-          <LoadingButton type="submit" variant="contained" loading={isSubmitting} loadingIndicator="Loading...">
+          <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
             Add
           </LoadingButton>
 

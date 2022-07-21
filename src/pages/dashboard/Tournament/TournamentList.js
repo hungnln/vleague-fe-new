@@ -42,6 +42,7 @@ import { ModeComment } from '@mui/icons-material';
 import moment from 'moment';
 import { DialogAnimate } from 'src/components/animate';
 import TournamentNewForm from 'src/components/_dashboard/tournament/TournamentNewForm';
+import LoadingProgress from 'src/pages/LoadingProgress';
 
 // ----------------------------------------------------------------------
 
@@ -174,7 +175,7 @@ export default function TournamentList() {
 
   const filteredTournaments = applySortFilter(tournamentList, getComparator(order, orderBy), filterName, start, end);
 
-  const isTournamentNotFound = filteredTournaments.length === 0 && tournamentList.length > 0;
+  const isTournamentNotFound = filteredTournaments.length === 0;
 
   return (
     <Page title="Tournament: List | V League">
@@ -216,9 +217,7 @@ export default function TournamentList() {
                 />
                 <TableBody>
                   {tournamentList.length <= 0 &&
-                    (<TableRow sx={{ width: '100%' }}>
-                      <TableCell colSpan={5}> <LinearProgress /></TableCell>
-                    </TableRow>)}
+                    <LoadingProgress />}
                   {filteredTournaments.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
                     const { id, name, from, to, isVerified } = row;
                     const isItemSelected = selected.indexOf(name) !== -1;

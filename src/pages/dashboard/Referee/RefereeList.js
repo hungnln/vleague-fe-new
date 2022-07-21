@@ -37,6 +37,7 @@ import SearchNotFound from '../../../components/SearchNotFound';
 import HeaderBreadcrumbs from '../../../components/HeaderBreadcrumbs';
 // import { UserListHead, UserListToolbar, UserMoreMenu } from '../../components/_dashboard/user/list';
 import { RefereeMoreMenu, RefereeListHead, RefereeListToolbar } from 'src/components/_dashboard/referee/list';
+import LoadingProgress from 'src/pages/LoadingProgress';
 
 
 // ----------------------------------------------------------------------
@@ -150,7 +151,7 @@ export default function RefereeList() {
 
   const filteredReferees = applySortFilter(refereeList, getComparator(order, orderBy), filterName);
 
-  const isRefereeNotFound = filteredReferees.length === 0 && refereeList.length > 0;
+  const isRefereeNotFound = filteredReferees.length === 0;
 
   return (
     <Page title="Referee: List | V League">
@@ -191,9 +192,7 @@ export default function RefereeList() {
                 />
                 <TableBody>
                   {refereeList.length <= 0 &&
-                    (<TableRow sx={{ width: '100%' }}>
-                      <TableCell colSpan={4}> <LinearProgress /></TableCell>
-                    </TableRow>)}
+                       <LoadingProgress />}
                   {filteredReferees.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
                     const { id, name, dateOfBirth, imageURL, isVerified } = row;
                     const isItemSelected = selected.indexOf(name) !== -1;

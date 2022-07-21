@@ -42,7 +42,7 @@ export default function Lineup() {
     const handleAddHomeLineup = () => {
         setComponent(
             <>
-                <DialogTitle>Add {homeClub.name}  matchParticipation</DialogTitle>
+                <DialogTitle>Add {homeClub.name}  lineup</DialogTitle>
                 <MatchLineUpForm currentLineUp={matchParticipation?.HomeLineUp} isHome addMember={addHomeLineup} onCancel={handleCloseModal} clubId={currentMatch.homeClubID} />
             </>)
         dispatch(openModal());
@@ -50,7 +50,7 @@ export default function Lineup() {
     const handleAddAwayLineup = () => {
         setComponent(
             <>
-                <DialogTitle>Add {awayClub.name}  matchParticipation</DialogTitle>
+                <DialogTitle>Add {awayClub.name}  lineup</DialogTitle>
                 <MatchLineUpForm currentLineUp={matchParticipation?.AwayLineUp} addMember={addAwayLineup} onCancel={handleCloseModal} clubId={currentMatch.awayClubID} />
             </>)
         dispatch(openModal());

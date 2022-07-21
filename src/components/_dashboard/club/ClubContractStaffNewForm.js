@@ -194,7 +194,6 @@ export default function ClubContractStaffNewForm({ isEdit, currentContract, curr
                     <DatePicker
                       shouldDisableDate={(date) => disableEndDate(date)}
                       inputFormat='dd/MM/yyyy'
-                      disablePast
                       label="End"
                       openTo="year"
                       views={['year', 'month', 'day']}

@@ -43,6 +43,7 @@ import { getTournamentStanding } from 'src/redux/slices/tournament';
 import CheckCircleOutlinedIcon from '@mui/icons-material/CheckCircleOutlined';
 import RemoveCircleOutlineOutlinedIcon from '@mui/icons-material/RemoveCircleOutlineOutlined';
 import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined';
+import LoadingProgress from 'src/pages/LoadingProgress';
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
@@ -210,10 +211,7 @@ export default function Standing({ tournamentID }) {
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {/* {refereeList.length <= 0 &&
-                                (<TableRow sx={{ width: '100%' }}>
-                                    <TableCell colSpan={4}> <LinearProgress /></TableCell>
-                                </TableRow>)} */}
+                            {standings.length <= 0 && <LoadingProgress />}
                             {filteredStandings.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => {
                                 const { club, mp, w, d, l, gf, ga, gd, pts, last5 } = row;
                                 // const isItemSelected = selected.indexOf(name) !== -1;

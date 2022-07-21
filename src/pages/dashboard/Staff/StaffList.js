@@ -40,6 +40,7 @@ import { StaffMoreMenu, StaffListHead, StaffListToolbar } from 'src/components/_
 import { ModeComment } from '@mui/icons-material';
 import moment from 'moment';
 import AssignmentIndOutlinedIcon from '@mui/icons-material/AssignmentIndOutlined';
+import LoadingProgress from 'src/pages/LoadingProgress';
 
 // ----------------------------------------------------------------------
 
@@ -151,7 +152,7 @@ export default function StaffList() {
 
   const filteredStaffs = applySortFilter(staffList, getComparator(order, orderBy), filterName);
 
-  const isStaffNotFound = filteredStaffs.length === 0 && staffList.length > 0;
+  const isStaffNotFound = filteredStaffs.length === 0;
 
   return (
     <Page title="Staff: List | V League">
@@ -203,9 +204,7 @@ export default function StaffList() {
                 />
                 <TableBody>
                   {staffList.length <= 0 &&
-                    (<TableRow sx={{ width: '100%' }}>
-                      <TableCell colSpan={4}> <LinearProgress /></TableCell>
-                    </TableRow>)}
+                    <LoadingProgress />}
                   {filteredStaffs.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
                     const { id, name, dateOfBirth, imageURL, isVerified } = row;
                     const isItemSelected = selected.indexOf(name) !== -1;
