@@ -193,7 +193,7 @@ export default function ClubContractPlayerNewForm({ isEdit, currentContract, cur
                       shouldDisableDate={(date) => disableStartDate(date)}
                       inputFormat='dd/MM/yyyy'
                       disabled={isEdit}
-                      disablePast
+
                       label="Start"
                       openTo="year"
                       views={['year', 'month', 'day']}
