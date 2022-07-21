@@ -59,28 +59,41 @@ export default function MatchDetail() {
     const { playerList } = useSelector(state => state.player)
     const { staffList } = useSelector(state => state.staff)
     const { refereeList } = useSelector(state => state.referee)
-
+    const [loading, setLoading] = useState(true);
+    const [newMatch, setNewMatch] = useState(true)
     const { matchId } = useParams();
     const [currentTab, setCurrentTab] = useState('happening');
     const [findFriends, setFindFriends] = useState('');
     const { homeClub, awayClub, homeGoals, awayGoals, startDate, endDate, activities, round, homeClubID, awayClubID } = currentMatch
     useEffect(() => {
-        console.log(1);
         dispatch(getMatchDetail(matchId))
         dispatch(getMatchStatistic(matchId))
         setTimeout(() => {
-            console.log(2);
             dispatch(getMatchParticipation(matchId))
         }, 2000);
 
+        setNewMatch(true)
 
     }, [dispatch]);
     useEffect(() => {
         const getDetail = setInterval(() => {
             dispatch(getMatchDetail(matchId))
+            setNewMatch(false)
         }, 10000);
         return () => clearTimeout(getDetail);
     }, [])
+    useEffect(() => {
+        const delay = setTimeout(() => {
+            if (!_.isEmpty(currentMatch) && newMatch) {
+                console.log('check if', newMatch);
+                setLoading(false);
+            }
+
+        }, 2000)
+        return () => {
+            clearTimeout(delay)
+        }
+    }, [currentMatch])
     const handleChangeTab = (event, newValue) => {
         setCurrentTab(newValue);
     };
@@ -118,7 +131,7 @@ export default function MatchDetail() {
     return (
         <Page title={`Match: ${homeClub?.name} vs ${awayClub?.name} | V League`}>
             <Container maxWidth={themeStretch ? false : 'lg'}>
-                {_.isEmpty(currentMatch) ? (<Box >
+                {_.isEmpty(currentMatch) || loading ? (<Box >
                     <CircularProgress sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }} />
                 </Box>) : (<> <HeaderBreadcrumbs
                     heading="Match"

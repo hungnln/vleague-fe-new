@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { sentenceCase } from 'change-case';
 import { useParams } from 'react-router-dom';
 // material
-import { Box, Card, Divider, Skeleton, Container, Typography, Pagination } from '@mui/material';
+import { Box, Card, Divider, Skeleton, Container, Typography, Pagination, Fade } from '@mui/material';
 // redux
 import { useDispatch, useSelector } from '../../redux/store';
 import { getPost } from '../../redux/slices/blog';
@@ -21,6 +21,7 @@ import {
   BlogPostCommentList,
   BlogPostCommentForm
 } from '../../components/_dashboard/blog';
+import _ from 'lodash';
 
 // ----------------------------------------------------------------------
 
@@ -43,10 +44,26 @@ export default function BlogPost() {
   const dispatch = useDispatch();
   const { id } = useParams();
   const { post, error, recentPosts } = useSelector((state) => state.blog);
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
     dispatch(getPost(id));
   }, [dispatch]);
+  useEffect(() => {
+    console.log('check', post);
 
+    const delay = setTimeout(() => {
+      console.log('check', post);
+      if (!_.isEmpty(post)) {
+        // console.log('check', post);
+        setLoading((prevLoading) => !prevLoading);
+      }
+
+    }, 1000)
+    return () => {
+      clearTimeout(delay)
+    }
+  }, [post])
   return (
     <Page title="News: Post Details | V League">
       <Container maxWidth={themeStretch ? false : 'lg'}>
@@ -59,7 +76,7 @@ export default function BlogPost() {
           ]}
         />
 
-        {post && (
+        {post && !loading && (
           <Card>
             <BlogPostHero post={post} />
 
@@ -96,7 +113,7 @@ export default function BlogPost() {
           </Card>
         )}
 
-        {!post && SkeletonLoad}
+        {!post || loading && SkeletonLoad}
 
         {error && <Typography variant="h6">404 Post not found</Typography>}
 
