@@ -44,6 +44,7 @@ import { fCurrency } from 'src/utils/formatNumber';
 import ClubContractMoreMenu from 'src/components/_dashboard/club/contract/ClubContractMoreMenu';
 import { removeContract as removePlayerContract } from 'src/redux/slices/player';
 import { removeContract as removeStaffContract } from 'src/redux/slices/staff';
+import LoadingProgress from 'src/pages/LoadingProgress';
 // ----------------------------------------------------------------------
 
 export default function ClubConTract() {
@@ -151,8 +152,8 @@ export default function ClubConTract() {
   const filteredPlayerContract = applySortFilterPlayer(playerContractList, getComparator(orderPlayer, orderByPlayer), filterNamePlayer);
   const filteredStaffContract = applySortFilterStaff(staffContractList, getComparator(orderStaff, orderByStaff), filterNameStaff);
 
-  const isPlayerContractNotFound = filteredPlayerContract.length === 0 && playerContractList.length > 0;
-  const isStaffContractNotFound = filteredStaffContract.length === 0 && staffContractList.length > 0;
+  const isPlayerContractNotFound = filteredPlayerContract.length === 0;
+  const isStaffContractNotFound = filteredStaffContract.length === 0;
 
   const handleChangePagePlayer = (event, newPage) => {
     setPagePlayer(newPage);
@@ -190,9 +191,9 @@ export default function ClubConTract() {
   return (
     <Page title="Club: View contract | V League">
       <Container maxWidth={themeStretch ? false : 'lg'}>
-        {_.isEmpty(clubDetail)?(<Box >
+        {_.isEmpty(clubDetail) ? (<Box >
           <CircularProgress sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }} />
-        </Box>):(<> <HeaderBreadcrumbs
+        </Box>) : (<> <HeaderBreadcrumbs
           heading={`View ${clubDetail?.name} contract`}
           links={[
             { name: 'Dashboard', href: PATH_DASHBOARD.root },
@@ -222,47 +223,45 @@ export default function ClubConTract() {
             </>
           }
         />
-        <Card>
-          <Typography
-            sx={{ flex: '1 1 100%', px: 3, pt: 3 }}
-            variant="h6"
-            id="tableTitle"
-            component="div"
-          >
-            All of player contracts in {clubDetail.name}
-          </Typography>
-          <ClubListToolbar numSelected={selected.length} filterName={filterNamePlayer} onFilterName={handleFilterByNamePlayer} />
-          <Scrollbar>
-            <TableContainer sx={{ minWidth: 800 }}>
-              <Table>
-                <ClubListHead
-                  order={orderPlayer}
-                  orderBy={orderByPlayer}
-                  headLabel={TABLE_HEAD_PLAYER_CONTRACT}
-                  rowCount={playerContractList.length}
-                  numSelected={selected.length}
-                  onRequestSort={handleRequestSortPlayer}
-                // onSelectAllClick={handleSelectAllClick}
-                />
-                <TableBody>
-                  {playerContractList.length <= 0 &&
-                    (<TableRow sx={{ width: '100%' }}>
-                      <TableCell colSpan={5}> <LinearProgress /></TableCell>
-                    </TableRow>)}
-                  {filteredPlayerContract.slice(pagePlayer * rowsPerPagePlayer, pagePlayer * rowsPerPagePlayer + rowsPerPagePlayer).map((row) => {
-                    const { id, player, salary, start, end, number } = row;
-                    const isItemSelected = selected.indexOf(id) !== -1;
+          <Card>
+            <Typography
+              sx={{ flex: '1 1 100%', px: 3, pt: 3 }}
+              variant="h6"
+              id="tableTitle"
+              component="div"
+            >
+              All of player contracts in {clubDetail.name}
+            </Typography>
+            <ClubListToolbar numSelected={selected.length} filterName={filterNamePlayer} onFilterName={handleFilterByNamePlayer} />
+            <Scrollbar>
+              <TableContainer sx={{ minWidth: 800 }}>
+                <Table>
+                  <ClubListHead
+                    order={orderPlayer}
+                    orderBy={orderByPlayer}
+                    headLabel={TABLE_HEAD_PLAYER_CONTRACT}
+                    rowCount={playerContractList.length}
+                    numSelected={selected.length}
+                    onRequestSort={handleRequestSortPlayer}
+                  // onSelectAllClick={handleSelectAllClick}
+                  />
+                  <TableBody>
+                    {playerContractList.length <= 0 &&
+                      <LoadingProgress />}
+                    {filteredPlayerContract.slice(pagePlayer * rowsPerPagePlayer, pagePlayer * rowsPerPagePlayer + rowsPerPagePlayer).map((row) => {
+                      const { id, player, salary, start, end, number } = row;
+                      const isItemSelected = selected.indexOf(id) !== -1;
 
-                    return (
-                      <TableRow
-                        hover
-                        key={id}
-                        tabIndex={-1}
-                        role="checkbox"
-                        selected={isItemSelected}
-                        aria-checked={isItemSelected}
-                      >
-                        {/* {isEdit ? '' : <TableCell component="th" scope="row" padding="none">
+                      return (
+                        <TableRow
+                          hover
+                          key={id}
+                          tabIndex={-1}
+                          role="checkbox"
+                          selected={isItemSelected}
+                          aria-checked={isItemSelected}
+                        >
+                          {/* {isEdit ? '' : <TableCell component="th" scope="row" padding="none">
                           <Stack direction="row" alignItems="center" spacing={2}>
                             <Avatar alt={club.name} src={club?.imageURL} />
                             <Typography variant="subtitle2" noWrap>
@@ -270,23 +269,23 @@ export default function ClubConTract() {
                             </Typography>
                           </Stack>
                         </TableCell>} */}
-                        {/* <TableCell padding="checkbox">
+                          {/* <TableCell padding="checkbox">
                           <Checkbox checked={isItemSelected} onChange={(event) => handleClick(event, name)} />
                         </TableCell> */}
-                        <TableCell component="th" scope="row" padding="none">
-                          <Stack direction="row" alignItems="center" spacing={2}>
-                            <Avatar alt={player} src={player?.imageURL} />
-                            <Typography variant="subtitle2">
-                              {player?.name}
-                            </Typography>
-                          </Stack>
-                        </TableCell>
-                        <TableCell align="left">{fCurrency(salary)}</TableCell>
-                        <TableCell align="left">{moment(start).format('DD-MM-YYYY')}</TableCell>
-                        <TableCell align="left">{moment(end).format('DD-MM-YYYY')}</TableCell>
+                          <TableCell component="th" scope="row" padding="none">
+                            <Stack direction="row" alignItems="center" spacing={2}>
+                              <Avatar alt={player} src={player?.imageURL} />
+                              <Typography variant="subtitle2">
+                                {player?.name}
+                              </Typography>
+                            </Stack>
+                          </TableCell>
+                          <TableCell align="left">{fCurrency(salary)}</TableCell>
+                          <TableCell align="left">{moment(start).format('DD-MM-YYYY')}</TableCell>
+                          <TableCell align="left">{moment(end).format('DD-MM-YYYY')}</TableCell>
 
-                        {/* <TableCell align="left">{isVerified ? 'Yes' : 'No'}</TableCell> */}
-                        {/* <TableCell align="left">
+                          {/* <TableCell align="left">{isVerified ? 'Yes' : 'No'}</TableCell> */}
+                          {/* <TableCell align="left">
                           <Label
                             variant={theme.palette.mode === 'light' ? 'ghost' : 'filled'}
                             color={(status === 'banned' && 'error') || 'success'}
@@ -295,98 +294,96 @@ export default function ClubConTract() {
                           </Label>
                         </TableCell> */}
 
-                        <TableCell align="right">
-                          <ClubContractMoreMenu onDelete={() => handleDeletePlayerContract(id)} contractId={id} clubId={clubDetail.id} type="player" />
+                          <TableCell align="right">
+                            <ClubContractMoreMenu onDelete={() => handleDeletePlayerContract(id)} contractId={id} clubId={clubDetail.id} type="player" />
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                    {emptyRows > 0 && (
+                      <TableRow style={{ height: 53 * emptyRows }}>
+                        <TableCell colSpan={6} />
+                      </TableRow>
+                    )}
+                  </TableBody>
+                  {isPlayerContractNotFound && (
+                    <TableBody>
+                      <TableRow>
+                        <TableCell align="center" colSpan={6} sx={{ py: 3 }}>
+                          <SearchNotFound searchQuery={filterNamePlayer} />
                         </TableCell>
                       </TableRow>
-                    );
-                  })}
-                  {emptyRows > 0 && (
-                    <TableRow style={{ height: 53 * emptyRows }}>
-                      <TableCell colSpan={6} />
-                    </TableRow>
+                    </TableBody>
                   )}
-                </TableBody>
-                {isPlayerContractNotFound && (
+                </Table>
+              </TableContainer>
+            </Scrollbar>
+
+            <TablePagination
+              rowsPerPageOptions={[5, 10, 25]}
+              component="div"
+              count={playerContractList.length}
+              rowsPerPage={rowsPerPagePlayer}
+              page={pagePlayer}
+              onPageChange={handleChangePagePlayer}
+              onRowsPerPageChange={handleChangeRowsPerPagePlayer}
+            />
+          </Card>
+          {/* <ClubContractNewForm isEdit={isEdit} currentContract={currentContract} /> */}
+          {/* <ClubNewForm isEdit={isEdit} clubDetail={clubDetail} /> */}
+
+          <Card sx={{ mt: 4 }}>
+            <Typography
+              sx={{ flex: '1 1 100%', px: 3, pt: 3 }}
+              variant="h6"
+              id="tableTitle"
+              component="div"
+            >
+              All of staff contracts in {clubDetail.name}
+            </Typography>
+            <ClubListToolbar numSelected={selected.length} filterName={filterNameStaff} onFilterName={handleFilterByNameStaff} />
+            <Scrollbar>
+              <TableContainer sx={{ minWidth: 800 }}>
+                <Table>
+                  <ClubListHead
+                    order={orderStaff}
+                    orderBy={orderByStaff}
+                    headLabel={TABLE_HEAD_STAFF_CONTRACT}
+                    rowCount={staffContractList.length}
+                    numSelected={selected.length}
+                    onRequestSort={handleRequestSortStaff}
+                  // onSelectAllClick={handleSelectAllClick}
+                  />
                   <TableBody>
-                    <TableRow>
-                      <TableCell align="center" colSpan={6} sx={{ py: 3 }}>
-                        <SearchNotFound searchQuery={filterNamePlayer} />
-                      </TableCell>
-                    </TableRow>
-                  </TableBody>
-                )}
-              </Table>
-            </TableContainer>
-          </Scrollbar>
+                    {staffContractList.length <= 0 &&
+                      <LoadingProgress />}
+                    {filteredStaffContract.slice(pageStaff * rowsPerPageStaff, pageStaff * rowsPerPageStaff + rowsPerPageStaff).map((row) => {
+                      const { id, staff, salary, start, end } = row;
+                      const isItemSelected = selected.indexOf(id) !== -1;
 
-          <TablePagination
-            rowsPerPageOptions={[5, 10, 25]}
-            component="div"
-            count={playerContractList.length}
-            rowsPerPage={rowsPerPagePlayer}
-            page={pagePlayer}
-            onPageChange={handleChangePagePlayer}
-            onRowsPerPageChange={handleChangeRowsPerPagePlayer}
-          />
-        </Card>
-        {/* <ClubContractNewForm isEdit={isEdit} currentContract={currentContract} /> */}
-        {/* <ClubNewForm isEdit={isEdit} clubDetail={clubDetail} /> */}
+                      return (
+                        <TableRow
+                          hover
+                          key={id}
+                          tabIndex={-1}
+                          role="checkbox"
+                          selected={isItemSelected}
+                          aria-checked={isItemSelected}
+                        >
+                          <TableCell component="th" scope="row" padding="none">
+                            <Stack direction="row" alignItems="center" spacing={2}>
+                              <Avatar alt={staff} src={staff?.imageURL} />
+                              <Typography variant="subtitle2" noWrap>
+                                {staff?.name}
+                              </Typography>
+                            </Stack>
+                          </TableCell>
+                          <TableCell align="left">{fCurrency(salary)}</TableCell>
+                          <TableCell align="left">{moment(start).format('DD-MM-YYYY')}</TableCell>
+                          <TableCell align="left">{moment(end).format('DD-MM-YYYY')}</TableCell>
 
-        <Card sx={{ mt: 4 }}>
-          <Typography
-            sx={{ flex: '1 1 100%', px: 3, pt: 3 }}
-            variant="h6"
-            id="tableTitle"
-            component="div"
-          >
-            All of staff contracts in {clubDetail.name}
-          </Typography>
-          <ClubListToolbar numSelected={selected.length} filterName={filterNameStaff} onFilterName={handleFilterByNameStaff} />
-          <Scrollbar>
-            <TableContainer sx={{ minWidth: 800 }}>
-              <Table>
-                <ClubListHead
-                  order={orderStaff}
-                  orderBy={orderByStaff}
-                  headLabel={TABLE_HEAD_STAFF_CONTRACT}
-                  rowCount={staffContractList.length}
-                  numSelected={selected.length}
-                  onRequestSort={handleRequestSortStaff}
-                // onSelectAllClick={handleSelectAllClick}
-                />
-                <TableBody>
-                {staffContractList.length <= 0 &&
-                    (<TableRow sx={{ width: '100%' }}>
-                      <TableCell colSpan={5}> <LinearProgress /></TableCell>
-                    </TableRow>)}
-                  {filteredStaffContract.slice(pageStaff * rowsPerPageStaff, pageStaff * rowsPerPageStaff + rowsPerPageStaff).map((row) => {
-                    const { id, staff, salary, start, end } = row;
-                    const isItemSelected = selected.indexOf(id) !== -1;
-
-                    return (
-                      <TableRow
-                        hover
-                        key={id}
-                        tabIndex={-1}
-                        role="checkbox"
-                        selected={isItemSelected}
-                        aria-checked={isItemSelected}
-                      >
-                        <TableCell component="th" scope="row" padding="none">
-                          <Stack direction="row" alignItems="center" spacing={2}>
-                            <Avatar alt={staff} src={staff?.imageURL} />
-                            <Typography variant="subtitle2" noWrap>
-                              {staff?.name}
-                            </Typography>
-                          </Stack>
-                        </TableCell>
-                        <TableCell align="left">{fCurrency(salary)}</TableCell>
-                        <TableCell align="left">{moment(start).format('DD-MM-YYYY')}</TableCell>
-                        <TableCell align="left">{moment(end).format('DD-MM-YYYY')}</TableCell>
-
-                        {/* <TableCell align="left">{isVerified ? 'Yes' : 'No'}</TableCell> */}
-                        {/* <TableCell align="left">
+                          {/* <TableCell align="left">{isVerified ? 'Yes' : 'No'}</TableCell> */}
+                          {/* <TableCell align="left">
                           <Label
                             variant={theme.palette.mode === 'light' ? 'ghost' : 'filled'}
                             color={(status === 'banned' && 'error') || 'success'}
@@ -395,42 +392,42 @@ export default function ClubConTract() {
                           </Label>
                         </TableCell> */}
 
-                        <TableCell align="right">
-                          <ClubContractMoreMenu onDelete={() => handleDeleteStaffContract(id)} contractId={id} type="staff" clubId={clubDetail.id} />
+                          <TableCell align="right">
+                            <ClubContractMoreMenu onDelete={() => handleDeleteStaffContract(id)} contractId={id} type="staff" clubId={clubDetail.id} />
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                    {emptyRows > 0 && (
+                      <TableRow style={{ height: 53 * emptyRows }}>
+                        <TableCell colSpan={6} />
+                      </TableRow>
+                    )}
+                  </TableBody>
+                  {isStaffContractNotFound && (
+                    <TableBody>
+                      <TableRow>
+                        <TableCell align="center" colSpan={6} sx={{ py: 3 }}>
+                          <SearchNotFound searchQuery={filterNameStaff} />
                         </TableCell>
                       </TableRow>
-                    );
-                  })}
-                  {emptyRows > 0 && (
-                    <TableRow style={{ height: 53 * emptyRows }}>
-                      <TableCell colSpan={6} />
-                    </TableRow>
+                    </TableBody>
                   )}
-                </TableBody>
-                {isStaffContractNotFound && (
-                  <TableBody>
-                    <TableRow>
-                      <TableCell align="center" colSpan={6} sx={{ py: 3 }}>
-                        <SearchNotFound searchQuery={filterNameStaff} />
-                      </TableCell>
-                    </TableRow>
-                  </TableBody>
-                )}
-              </Table>
-            </TableContainer>
-          </Scrollbar>
+                </Table>
+              </TableContainer>
+            </Scrollbar>
 
-          <TablePagination
-            rowsPerPageOptions={[5, 10, 25]}
-            component="div"
-            count={staffContractList.length}
-            rowsPerPage={rowsPerPageStaff}
-            page={pageStaff}
-            onPageChange={handleChangePageStaff}
-            onRowsPerPageChange={handleChangeRowsPerPageStaff}
-          />
-        </Card></>)}
-       
+            <TablePagination
+              rowsPerPageOptions={[5, 10, 25]}
+              component="div"
+              count={staffContractList.length}
+              rowsPerPage={rowsPerPageStaff}
+              page={pageStaff}
+              onPageChange={handleChangePageStaff}
+              onRowsPerPageChange={handleChangeRowsPerPageStaff}
+            />
+          </Card></>)}
+
       </Container>
     </Page>
   );

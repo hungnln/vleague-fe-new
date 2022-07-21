@@ -206,7 +206,6 @@ export default function ClubContractPlayerNewForm({ isEdit, currentContract, cur
                     <DatePicker
                       shouldDisableDate={(date) => disableEndDate(date)}
                       inputFormat='dd/MM/yyyy'
-                      disablePast
                       label="End"
                       openTo="year"
                       views={['year', 'month', 'day']}

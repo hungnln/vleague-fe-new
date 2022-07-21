@@ -94,6 +94,7 @@ export default function TournamentNewForm({ onCancel, currentTournament }) {
                 helperText={touched.Name && errors.Name}
               />
               <DatePicker
+                disablePast
                 inputFormat='dd/MM/yyyy'
                 shouldDisableDate={(date) => disableFromDate(date)}
                 disabled={isEdit}

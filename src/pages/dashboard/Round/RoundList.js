@@ -48,6 +48,7 @@ import { getTournamentDetail, getTournamentList } from 'src/redux/slices/tournam
 import MatchList from '../Match/MatchList';
 import Standing from '../Standing/Standing';
 import Ranking from '../Ranking/Ranking';
+import LoadingProgress from 'src/pages/LoadingProgress';
 
 // ----------------------------------------------------------------------
 
@@ -172,7 +173,7 @@ export default function RoundList() {
 
   const filteredRounds = applySortFilter(roundList, getComparator(order, orderBy), filterName);
 
-  const isRoundNotFound = filteredRounds.length === 0 && roundList.length > 0;
+  const isRoundNotFound = filteredRounds.length === 0 ;
 
   return (
     <Page title="Round: List | V League">
@@ -216,9 +217,7 @@ export default function RoundList() {
                       />
                       <TableBody>
                         {roundList.length <= 0 &&
-                          (<TableRow sx={{ width: '100%' }}>
-                            <TableCell colSpan={4}> <LinearProgress /></TableCell>
-                          </TableRow>)}
+                             <LoadingProgress />}
                         {filteredRounds.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
                           const { id, name, tournamentID } = row;
                           const isItemSelected = selected.indexOf(name) !== -1;

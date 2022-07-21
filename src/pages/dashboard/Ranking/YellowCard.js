@@ -41,6 +41,7 @@ import { RefereeMoreMenu, RefereeListHead, RefereeListToolbar } from 'src/compon
 import { getTournamentStanding } from 'src/redux/slices/tournament';
 import CheckCircleOutlinedIcon from '@mui/icons-material/CheckCircleOutlined';
 import RemoveCircleOutlineOutlinedIcon from '@mui/icons-material/RemoveCircleOutlineOutlined';
+import LoadingProgress from 'src/pages/LoadingProgress';
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
@@ -183,10 +184,8 @@ export default function YellowCard({ list }) {
                             onSelectAllClick={handleSelectAllClick}
                         /> */}
                         <TableBody>
-                            {/* {refereeList.length <= 0 &&
-                                (<TableRow sx={{ width: '100%' }}>
-                                    <TableCell colSpan={4}> <LinearProgress /></TableCell>
-                                </TableRow>)} */}
+                            {list.length <= 0 &&
+                                <LoadingProgress />}
                             {filteredStandings.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
                                 const { player, count } = row;
                                 // const isItemSelected = selected.indexOf(name) !== -1;

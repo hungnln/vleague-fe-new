@@ -44,6 +44,7 @@ import { fCurrency } from 'src/utils/formatNumber';
 import StaffContractMoreMenu from 'src/components/_dashboard/staff/contract/StaffContractMoreMenu';
 import StaffContractNewForm from 'src/components/_dashboard/staff/StaffContractNewForm';
 import GroupOutlinedIcon from '@mui/icons-material/GroupOutlined';
+import LoadingProgress from 'src/pages/LoadingProgress';
 
 // ----------------------------------------------------------------------
 
@@ -134,7 +135,7 @@ export default function StaffConTract() {
 
   const filteredStaffs = applySortFilter(contractList, getComparator(order, orderBy), filterName);
 
-  const isStaffNotFound = filteredStaffs.length === 0 && contractList.length > 0;
+  const isStaffNotFound = filteredStaffs.length === 0 ;
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
@@ -208,9 +209,7 @@ export default function StaffConTract() {
                   />
                   <TableBody>
                     {contractList.length <= 0 &&
-                      (<TableRow sx={{ width: '100%' }}>
-                        <TableCell colSpan={10}> <LinearProgress /></TableCell>
-                      </TableRow>)}
+                         <LoadingProgress />}
                     {filteredStaffs.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
                       const { id, staff, club, salary, start, end } = row;
                       const isItemSelected = selected.indexOf(id) !== -1;

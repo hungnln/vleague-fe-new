@@ -119,16 +119,16 @@ export default function MatchLineUpForm({ onCancel, clubId, addMember, changeSel
             addMember(values)
             changeSelected(selectedPlayer)
           } else {
-            setErrorState({ isError: true, Message: "Lineup must have 11 player" })
+            setErrorState({ isError: true, Message: "Lineup must have 11 players" })
           }
         } else {
-          if (selectedPlayer.length <= 9) {
+          if (selectedPlayer.length >= 9 && selectedPlayer.length <= 19) {
             onCancel()
             addMember(values)
             changeSelected(selectedPlayer)
           }
           else {
-            setErrorState({ isError: true, Message: "Reverse must have at least 9 player" })
+            setErrorState({ isError: true, Message: "Reverse must have 9-19 players" })
           }
         }
 
@@ -157,7 +157,7 @@ export default function MatchLineUpForm({ onCancel, clubId, addMember, changeSel
 
   }, [errorState])
   const disableOption = (option, field) => {
-    return (!!selectedPlayer?.find(element => element?.id === option?.id) || (!isReverse ? selectedPlayer.length >= 11 : selectedPlayer.length >= 9) || !!selected?.find(element => element?.id === option?.id)) && (Array.isArray(field) ? !field.find(element => element?.id === option?.id) : field?.id !== option?.id)
+    return (!!selectedPlayer?.find(element => element?.id === option?.id) || (!isReverse ? selectedPlayer.length >= 11 : selectedPlayer.length >= 19) || !!selected?.find(element => element?.id === option?.id)) && (Array.isArray(field) ? !field.find(element => element?.id === option?.id) : field?.id !== option?.id)
   }
   const { errors, values, touched, handleSubmit, isSubmitting, setFieldValue, getFieldProps } = formik;
   useEffect(() => {

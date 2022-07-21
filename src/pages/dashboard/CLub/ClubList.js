@@ -42,6 +42,7 @@ import HeaderBreadcrumbs from '../../../components/HeaderBreadcrumbs';
 import { ClubMoreMenu, ClubListHead, ClubListToolbar } from 'src/components/_dashboard/club/list';
 import { ModeComment } from '@mui/icons-material';
 import moment from 'moment';
+import LoadingProgress from 'src/pages/LoadingProgress';
 
 // ----------------------------------------------------------------------
 
@@ -155,7 +156,7 @@ export default function ClubList() {
 
   const filteredClubs = applySortFilter(clubList, getComparator(order, orderBy), filterName);
 
-  const isClubNotFound = filteredClubs.length === 0 && clubList.length > 0;
+  const isClubNotFound = filteredClubs.length === 0;
   const handleLoading = () => {
     setTimeout(() => {
       <TableRow sx={{ width: '100%' }}>
@@ -203,9 +204,7 @@ export default function ClubList() {
 
                 <TableBody>
                   {clubList.length <= 0 &&
-                    (<TableRow sx={{ width: '100%' }}>
-                      <TableCell colSpan={5}> <LinearProgress /></TableCell>
-                    </TableRow>)
+                    <LoadingProgress />
                   }
                   {filteredClubs.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
                     const { id, name, headQuarter, imageURL, stadium } = row;

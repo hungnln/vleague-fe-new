@@ -40,6 +40,7 @@ import { PlayerMoreMenu, PlayerListHead, PlayerListToolbar } from 'src/component
 import { ModeComment } from '@mui/icons-material';
 import moment from 'moment';
 import AssignmentIndOutlinedIcon from '@mui/icons-material/AssignmentIndOutlined';
+import LoadingProgress from 'src/pages/LoadingProgress';
 
 // ----------------------------------------------------------------------
 
@@ -150,7 +151,7 @@ export default function PlayerList() {
 
   const filteredPlayers = applySortFilter(playerList, getComparator(order, orderBy), filterName);
 
-  const isPlayerNotFound = filteredPlayers.length === 0 && playerList.length > 0;
+  const isPlayerNotFound = filteredPlayers.length === 0;
 
   return (
     <Page title="Player: List | V League">
@@ -202,9 +203,7 @@ export default function PlayerList() {
                 />
                 <TableBody>
                   {playerList.length <= 0 &&
-                    (<TableRow sx={{ width: '100%' }}>
-                      <TableCell colSpan={4}> <LinearProgress /></TableCell>
-                    </TableRow>)}
+                      <LoadingProgress />}
                   {filteredPlayers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
                     const { id, name, dateOfBirth, imageURL, isVerified } = row;
                     const isItemSelected = selected.indexOf(name) !== -1;
