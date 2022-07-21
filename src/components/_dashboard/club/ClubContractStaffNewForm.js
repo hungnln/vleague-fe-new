@@ -38,7 +38,7 @@ export default function ClubContractStaffNewForm({ isEdit, currentContract, curr
     End: Yup.mixed().required('End is required'),
     Staff: Yup.mixed().required('Staff is required'),
     // Description: Yup.string().required('Description is required'),
-    Salary: Yup.number().required('Salary is required').min(4000000, 'Salary have more than 4,000,000 vnd'),,
+    Salary: Yup.number().required('Salary is required').min(4000000, 'Salary have more than 4,000,000 vnd'),
   });
 
   const formik = useFormik({
