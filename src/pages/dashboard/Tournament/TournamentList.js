@@ -43,6 +43,7 @@ import moment from 'moment';
 import { DialogAnimate } from 'src/components/animate';
 import TournamentNewForm from 'src/components/_dashboard/tournament/TournamentNewForm';
 import LoadingProgress from 'src/pages/LoadingProgress';
+import useAuth from 'src/hooks/useAuth';
 
 // ----------------------------------------------------------------------
 
@@ -91,6 +92,7 @@ function applySortFilter(array, comparator, query, start, end) {
 export default function TournamentList() {
   const { themeStretch } = useSettings();
   const theme = useTheme();
+  const { user } = useAuth();
   const dispatch = useDispatch();
   const { tournamentList, isOpenModal } = useSelector((state) => state.tournament);
   const [page, setPage] = useState(0);
@@ -188,15 +190,13 @@ export default function TournamentList() {
             { name: 'List' }
           ]}
           action={
-            <>
-              <Button
-                variant="contained"
-                onClick={handleAddTournament}
-                startIcon={<Icon icon={plusFill} />}
-              >
-                New Tournament
-              </Button>
-            </>
+            user?.role === 'Admin' && (<Button
+              variant="contained"
+              onClick={handleAddTournament}
+              startIcon={<Icon icon={plusFill} />}
+            >
+              New Tournament
+            </Button>)
           }
         />
 

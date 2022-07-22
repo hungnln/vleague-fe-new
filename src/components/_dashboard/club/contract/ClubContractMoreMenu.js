@@ -11,6 +11,7 @@ import BusinessCenterIcon from '@mui/icons-material/BusinessCenter';
 import { Menu, MenuItem, IconButton, ListItemIcon, ListItemText } from '@mui/material';
 // routes
 import { PATH_DASHBOARD } from '../../../../routes/paths';
+import useAuth from 'src/hooks/useAuth';
 
 // ----------------------------------------------------------------------
 
@@ -21,7 +22,8 @@ ClubContractPlayerMoreMenu.propTypes = {
 export default function ClubContractPlayerMoreMenu({ onDelete, clubId, contractId, type }) {
   const ref = useRef(null);
   const [isOpen, setIsOpen] = useState(false);
-
+  const { user } = useAuth()
+  const isAdmin = user?.role === 'Admin'
   return (
     <>
       <IconButton ref={ref} onClick={() => setIsOpen(true)}>
@@ -38,12 +40,12 @@ export default function ClubContractPlayerMoreMenu({ onDelete, clubId, contractI
         anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
         transformOrigin={{ vertical: 'top', horizontal: 'right' }}
       >
-        <MenuItem onClick={onDelete} sx={{ color: 'error.main' }}>
+        {isAdmin && (<MenuItem onClick={onDelete} sx={{ color: 'error.main' }}>
           <ListItemIcon>
             <Icon icon={trash2Outline} width={24} height={24} />
           </ListItemIcon>
           <ListItemText primary="Delete" primaryTypographyProps={{ variant: 'body2' }} />
-        </MenuItem>
+        </MenuItem>)}
 
         <MenuItem
           component={RouterLink}
@@ -55,16 +57,7 @@ export default function ClubContractPlayerMoreMenu({ onDelete, clubId, contractI
           </ListItemIcon>
           <ListItemText primary="Edit" primaryTypographyProps={{ variant: 'body2' }} />
         </MenuItem>
-        {/* <MenuItem
-          component={RouterLink}
-          to={`${PATH_DASHBOARD.club.contract}/contract/${contractId}`}
-          sx={{ color: 'text.secondary' }}
-        >
-          <ListItemIcon>
-            <BusinessCenterIcon icon={editFill} width={24} height={24} />
-          </ListItemIcon>
-          <ListItemText primary="View contract" primaryTypographyProps={{ variant: 'body2' }} />
-        </MenuItem> */}
+
       </Menu>
     </>
   );

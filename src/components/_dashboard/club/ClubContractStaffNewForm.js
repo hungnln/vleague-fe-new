@@ -17,6 +17,7 @@ import _ from 'lodash';
 import Badge from '@mui/material/Badge';
 import { styled } from '@mui/material/styles';
 import { useSelector } from 'react-redux';
+import useAuth from 'src/hooks/useAuth';
 
 
 // ----------------------------------------------------------------------
@@ -28,6 +29,8 @@ ClubContractStaffNewForm.propTypes = {
 };
 
 export default function ClubContractStaffNewForm({ isEdit, currentContract, currentClub }) {
+  const { user } = useAuth()
+  const isAdmin = user?.role === 'Admin'
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [errorState, setErrorState] = useState();
@@ -150,7 +153,7 @@ export default function ClubContractStaffNewForm({ isEdit, currentContract, curr
                     options={staffList}
                     autoHighlight
                     value={values.Staff}
-                    disabled={isEdit}
+                    disabled={isEdit || !isAdmin}
                     getOptionLabel={(option) => option.name}
                     onChange={(event, newValue) => {
                       setFieldValue('Staff', newValue);
@@ -181,7 +184,7 @@ export default function ClubContractStaffNewForm({ isEdit, currentContract, curr
 
                       shouldDisableDate={(date) => disableStartDate(date)}
                       inputFormat='dd/MM/yyyy'
-                      disabled={isEdit}
+                      disabled={isEdit || !isAdmin}
                       label="Start"
                       openTo="year"
                       views={['year', 'month', 'day']}
@@ -193,6 +196,8 @@ export default function ClubContractStaffNewForm({ isEdit, currentContract, curr
                         helperText={touched.Start && errors.Start} />}
                     />
                     <DatePicker
+                      disabled={!isAdmin}
+
                       shouldDisableDate={(date) => disableEndDate(date)}
                       inputFormat='dd/MM/yyyy'
                       label="End"
@@ -210,6 +215,9 @@ export default function ClubContractStaffNewForm({ isEdit, currentContract, curr
 
                   <Stack direction={{ xs: 'row' }} spacing={3}>
                     <TextField
+                      InputProps={{
+                        readOnly: !isAdmin,
+                      }}
                       label="Salary"
                       {...getFieldProps('Salary')}
                       error={Boolean(touched.Salary && errors.Salary)}
@@ -220,6 +228,9 @@ export default function ClubContractStaffNewForm({ isEdit, currentContract, curr
                 </Stack>
                 <Stack direction={{ xs: 'column', md: 'row' }} spacing={3}>
                   <TextField
+                    InputProps={{
+                      readOnly: !isAdmin,
+                    }}
                     fullWidth
                     multiline
                     minRows={3}
@@ -231,11 +242,11 @@ export default function ClubContractStaffNewForm({ isEdit, currentContract, curr
                   />
                 </Stack>
                 {errorState?.IsError ? <Alert severity="warning">{errorState.Message}</Alert> : ''}
-                <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
+                {isAdmin && (<Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
                   <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
                     {!isEdit ? 'Create Contract' : 'Save Changes'}
                   </LoadingButton>
-                </Box>
+                </Box>)}
               </Stack>
             </Card>
           </Grid>

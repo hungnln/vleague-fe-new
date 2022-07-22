@@ -38,6 +38,7 @@ import HeaderBreadcrumbs from '../../../components/HeaderBreadcrumbs';
 // import { UserListHead, UserListToolbar, UserMoreMenu } from '../../components/_dashboard/user/list';
 import { RefereeMoreMenu, RefereeListHead, RefereeListToolbar } from 'src/components/_dashboard/referee/list';
 import LoadingProgress from 'src/pages/LoadingProgress';
+import useAuth from 'src/hooks/useAuth';
 
 
 // ----------------------------------------------------------------------
@@ -93,7 +94,8 @@ export default function RefereeList() {
   const [orderBy, setOrderBy] = useState('name');
   const [filterName, setFilterName] = useState('');
   const [rowsPerPage, setRowsPerPage] = useState(5);
-
+  const { user } = useAuth()
+  const isAdmin = user?.role === 'Admin'
   useEffect(() => {
     dispatch(getRefereeList());
   }, [dispatch]);
@@ -164,14 +166,14 @@ export default function RefereeList() {
             { name: 'List' }
           ]}
           action={
-            <Button
+            isAdmin && (<Button
               variant="contained"
               component={RouterLink}
               to={PATH_DASHBOARD.referee.newReferee}
               startIcon={<Icon icon={plusFill} />}
             >
               New Referee
-            </Button>
+            </Button>)
           }
         />
 
@@ -192,7 +194,7 @@ export default function RefereeList() {
                 />
                 <TableBody>
                   {refereeList.length <= 0 &&
-                       <LoadingProgress />}
+                    <LoadingProgress />}
                   {filteredReferees.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
                     const { id, name, dateOfBirth, imageURL, isVerified } = row;
                     const isItemSelected = selected.indexOf(name) !== -1;

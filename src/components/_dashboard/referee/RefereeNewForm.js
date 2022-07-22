@@ -18,6 +18,7 @@ import { UploadAvatar } from '../../upload';
 import { createReferee, editReferee } from 'src/redux/slices/referee';
 import { useDispatch } from 'src/redux/store';
 import _ from 'lodash';
+import useAuth from 'src/hooks/useAuth';
 
 // ----------------------------------------------------------------------
 
@@ -35,6 +36,8 @@ export default function RefereeNewForm({ isEdit, currentReferee }) {
     Name: Yup.string().required('Name is required'),
     ImageURL: Yup.mixed().required('Avatar is required')
   });
+  const { user } = useAuth()
+  const isAdmin = user?.role === 'Admin'
   useEffect(() => {
     if (!_.isEmpty(errorState)) {
       if (!errorState.IsError) {
@@ -142,6 +145,9 @@ export default function RefereeNewForm({ isEdit, currentReferee }) {
               <Stack spacing={3}>
                 <Stack direction={{ xs: 'column', }} spacing={3}>
                   <TextField
+                    InputProps={{
+                      readOnly: !isAdmin,
+                    }}
                     fullWidth
                     label="Full name"
                     {...getFieldProps('Name')}
@@ -151,11 +157,11 @@ export default function RefereeNewForm({ isEdit, currentReferee }) {
                 </Stack>
                 {errorState?.IsError ? <Alert severity="warning">{errorState.Message}</Alert> : ''}
 
-                <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
+                {isAdmin && (<Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
                   <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
                     {!isEdit ? 'Create Referee' : 'Save Changes'}
                   </LoadingButton>
-                </Box>
+                </Box>)}
               </Stack>
             </Card>
           </Grid>

@@ -18,6 +18,7 @@ import { UploadAvatar } from '../../upload';
 import { createStaff, editStaff } from 'src/redux/slices/staff';
 import { useDispatch } from 'src/redux/store';
 import _ from 'lodash';
+import useAuth from 'src/hooks/useAuth';
 
 // ----------------------------------------------------------------------
 
@@ -31,6 +32,8 @@ export default function StaffNewForm({ isEdit, currentStaff }) {
   const navigate = useNavigate();
   const [errorState, setErrorState] = useState()
   const { enqueueSnackbar } = useSnackbar();
+  const { user } = useAuth()
+  const isAdmin = user?.role === 'Admin'
   const NewStaffSchema = Yup.object().shape({
     Name: Yup.string().required('Name is required'),
     ImageURL: Yup.mixed().required('Avatar is required')
@@ -145,6 +148,9 @@ export default function StaffNewForm({ isEdit, currentStaff }) {
               <Stack spacing={3}>
                 <Stack direction={{ xs: 'column', }} spacing={3}>
                   <TextField
+                    InputProps={{
+                      readOnly: !isAdmin,
+                    }}
                     fullWidth
                     label="Full name"
                     {...getFieldProps('Name')}
@@ -154,11 +160,11 @@ export default function StaffNewForm({ isEdit, currentStaff }) {
                 </Stack>
                 {errorState?.IsError ? <Alert severity="warning">{errorState?.Message}</Alert> : ''}
 
-                <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
+                {isAdmin && (<Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
                   <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
                     {!isEdit ? 'Create Staff' : 'Save Changes'}
                   </LoadingButton>
-                </Box>
+                </Box>)}
               </Stack>
             </Card>
           </Grid>

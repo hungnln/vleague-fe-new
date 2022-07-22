@@ -90,13 +90,14 @@ export default function BlogPostsSearch({ sx }) {
           '& .MuiAutocomplete-noOptions': {
             display: 'none',
 
-          },
-          '.MuiAutocomplete-inputRoot': {
-            flexWrap: 'nowrap !important'
-          },
-          ' .Mui-focused': {
-            flexWrap: ' wrap !important'
           }
+          // ,
+          // '.MuiAutocomplete-inputRoot': {
+          //   flexWrap: 'nowrap !important'
+          // },
+          // ' .Mui-focused': {
+          //   flexWrap: ' wrap !important'
+          // }
         }),
         ...sx
       }}

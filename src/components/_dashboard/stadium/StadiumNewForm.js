@@ -18,6 +18,7 @@ import { UploadAvatar } from '../../upload';
 import { createStadium, editStadium } from 'src/redux/slices/stadium';
 import { useDispatch } from 'src/redux/store';
 import _ from 'lodash';
+import useAuth from 'src/hooks/useAuth';
 
 // ----------------------------------------------------------------------
 
@@ -31,6 +32,8 @@ export default function StadiumNewForm({ isEdit, currentStadium }) {
   const navigate = useNavigate();
   const [errorState, setErrorState] = useState()
   const { enqueueSnackbar } = useSnackbar();
+  const { user } = useAuth()
+  const isAdmin = user?.role === 'Admin'
   const NewStadiumSchema = Yup.object().shape({
     Name: Yup.string().required('Name is required'),
     Address: Yup.string().required('Address is required'),
@@ -144,6 +147,9 @@ export default function StadiumNewForm({ isEdit, currentStadium }) {
               <Stack spacing={3}>
                 <Stack direction={{ xs: 'column', }} spacing={3}>
                   <TextField
+                    InputProps={{
+                      readOnly: !isAdmin,
+                    }}
                     fullWidth
                     label="Full name"
                     {...getFieldProps('Name')}
@@ -151,6 +157,9 @@ export default function StadiumNewForm({ isEdit, currentStadium }) {
                     helperText={touched.Name && errors.Name}
                   />
                   <TextField
+                    InputProps={{
+                      readOnly: !isAdmin,
+                    }}
                     fullWidth
                     label="Address"
                     {...getFieldProps('Address')}
@@ -159,11 +168,11 @@ export default function StadiumNewForm({ isEdit, currentStadium }) {
                   />
                 </Stack>
                 {errorState?.IsError ? <Alert severity="warning">{errorState?.Message}</Alert> : ''}
-                <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
+                {isAdmin && (<Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
                   <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
                     {!isEdit ? 'Create Stadium' : 'Save Changes'}
                   </LoadingButton>
-                </Box>
+                </Box>)}
               </Stack>
             </Card>
           </Grid>

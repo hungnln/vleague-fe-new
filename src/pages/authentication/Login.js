@@ -95,7 +95,7 @@ export default function Login() {
               <Box component="img" src={`/static/auth/ic_${method}.png`} sx={{ width: 32, height: 32 }} />
             </Tooltip>
           </Stack>
-          {/* <AuthFirebaseSocials /> */}
+          <AuthFirebaseSocials />
           {/* <Alert severity="info" sx={{ mb: 3 }}>
             Use email : <strong>demo@minimals.cc</strong> / password :<strong>&nbsp;demo1234</strong>
           </Alert> */}

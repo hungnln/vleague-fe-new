@@ -45,6 +45,7 @@ import StaffContractMoreMenu from 'src/components/_dashboard/staff/contract/Staf
 import StaffContractNewForm from 'src/components/_dashboard/staff/StaffContractNewForm';
 import GroupOutlinedIcon from '@mui/icons-material/GroupOutlined';
 import LoadingProgress from 'src/pages/LoadingProgress';
+import useAuth from 'src/hooks/useAuth';
 
 // ----------------------------------------------------------------------
 
@@ -62,6 +63,8 @@ export default function StaffConTract() {
   const [orderBy, setOrderBy] = useState('name');
   const [filterName, setFilterName] = useState('');
   const [rowsPerPage, setRowsPerPage] = useState(5);
+  const { user } = useAuth()
+  const isAdmin = user?.role === 'Admin'
   useEffect(() => {
     if (isEdit) {
       dispatch(getStaffDetail(id))
@@ -135,7 +138,7 @@ export default function StaffConTract() {
 
   const filteredStaffs = applySortFilter(contractList, getComparator(order, orderBy), filterName);
 
-  const isStaffNotFound = filteredStaffs.length === 0 ;
+  const isStaffNotFound = filteredStaffs.length === 0;
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
@@ -180,7 +183,7 @@ export default function StaffConTract() {
               >
                 View staffs
               </Button>
-              <Button
+              {isAdmin && (<Button
                 variant="contained"
                 component={RouterLink}
                 to={`${PATH_DASHBOARD.staff.contract}/new`}
@@ -188,7 +191,7 @@ export default function StaffConTract() {
                 sx={{ ml: 2 }}
               >
                 New contract
-              </Button>
+              </Button>)}
             </>
           }
         />
@@ -209,7 +212,7 @@ export default function StaffConTract() {
                   />
                   <TableBody>
                     {contractList.length <= 0 &&
-                         <LoadingProgress />}
+                      <LoadingProgress />}
                     {filteredStaffs.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
                       const { id, staff, club, salary, start, end } = row;
                       const isItemSelected = selected.indexOf(id) !== -1;

@@ -17,6 +17,7 @@ import { useNavigate } from 'react-router';
 import editFill from '@iconify/icons-eva/edit-fill';
 import trash2Outline from '@iconify/icons-eva/trash-2-outline';
 import moreVerticalFill from '@iconify/icons-eva/more-vertical-fill';
+import useAuth from 'src/hooks/useAuth';
 
 
 
@@ -98,6 +99,8 @@ export default function BlogPostHero({ post, ...other }) {
   const theme = useTheme();
   const navigate = useNavigate()
   const dispatch = useDispatch();
+  const { user } = useAuth()
+
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const handleDeletePost = () => {
     dispatch(deletePost(post.id))
@@ -143,7 +146,7 @@ export default function BlogPostHero({ post, ...other }) {
           </Box>
         </Box>
 
-        <SpeedDial
+        {user.Role === 'Admin' && (<SpeedDial
           direction={isMobile ? 'up' : 'left'}
           ariaLabel="Share post"
           icon={<Icon icon={moreVerticalFill} />}
@@ -159,7 +162,7 @@ export default function BlogPostHero({ post, ...other }) {
               onClick={() => action.link ? navigate(action.link) : handleDeletePost()}
             />
           ))}
-        </SpeedDial>
+        </SpeedDial>)}
       </FooterStyle>
     </RootStyle>
   );

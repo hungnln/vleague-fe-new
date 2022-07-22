@@ -41,6 +41,7 @@ import { ModeComment } from '@mui/icons-material';
 import moment from 'moment';
 import AssignmentIndOutlinedIcon from '@mui/icons-material/AssignmentIndOutlined';
 import LoadingProgress from 'src/pages/LoadingProgress';
+import useAuth from 'src/hooks/useAuth';
 
 // ----------------------------------------------------------------------
 
@@ -95,6 +96,8 @@ export default function StaffList() {
   const [orderBy, setOrderBy] = useState('name');
   const [filterName, setFilterName] = useState('');
   const [rowsPerPage, setRowsPerPage] = useState(5);
+  const { user } = useAuth()
+  const isAdmin = user?.role === 'Admin'
 
   useEffect(() => {
     dispatch(getStaffList());
@@ -174,8 +177,7 @@ export default function StaffList() {
               >
                 View Contracts
               </Button>
-
-              <Button
+              {isAdmin && (<Button
                 variant="contained"
                 component={RouterLink}
                 to={PATH_DASHBOARD.staff.newStaff}
@@ -183,7 +185,8 @@ export default function StaffList() {
                 sx={{ ml: 2 }}
               >
                 New Staff
-              </Button></>
+              </Button>)}
+            </>
           }
         />
 
