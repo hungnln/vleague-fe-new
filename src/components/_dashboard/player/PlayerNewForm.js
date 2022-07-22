@@ -20,6 +20,7 @@ import countries from './countries';
 import { createPlayer, editPlayer } from 'src/redux/slices/player';
 import { useDispatch } from 'src/redux/store';
 import _ from 'lodash';
+import useAuth from 'src/hooks/useAuth';
 
 // ----------------------------------------------------------------------
 
@@ -33,6 +34,8 @@ export default function PlayerNewForm({ isEdit, currentPlayer }) {
   const navigate = useNavigate();
   const [errorState, setErrorState] = useState()
   const { enqueueSnackbar } = useSnackbar();
+  const { user } = useAuth()
+  const isAdmin = user?.role === 'Admin'
   const NewPlayerSchema = Yup.object().shape({
     Name: Yup.string().required('Name is required'),
     DateOfBirth: Yup.string().required('Birthday is required'),
@@ -151,6 +154,9 @@ export default function PlayerNewForm({ isEdit, currentPlayer }) {
               <Stack spacing={3}>
                 <Stack direction={{ xs: 'column', }} spacing={3}>
                   <TextField
+                    InputProps={{
+                      readOnly: !isAdmin,
+                    }}
                     fullWidth
                     label="Full name"
                     {...getFieldProps('Name')}
@@ -159,6 +165,7 @@ export default function PlayerNewForm({ isEdit, currentPlayer }) {
                   />
                   <Stack direction={{ xs: 'column', md: 'row' }} spacing={3}>
                     <DatePicker
+                      disabled={!isAdmin}
                       disableFuture
                       inputFormat='dd/MM/yyyy'
                       label="Birthday"
@@ -173,6 +180,9 @@ export default function PlayerNewForm({ isEdit, currentPlayer }) {
                     />
                     <Stack direction="row" spacing={3}>
                       <TextField
+                      InputProps={{
+                        readOnly: !isAdmin,
+                      }}
                         type='number'
                         label="Heigh"
                         {...getFieldProps('HeightCm')}
@@ -180,6 +190,9 @@ export default function PlayerNewForm({ isEdit, currentPlayer }) {
                         helperText={touched.HeightCm && errors.HeightCm}
                       />
                       <TextField
+                      InputProps={{
+                        readOnly: !isAdmin,
+                      }}
                         type='number'
                         label="Weight"
                         {...getFieldProps('WeightKg')}
@@ -190,11 +203,11 @@ export default function PlayerNewForm({ isEdit, currentPlayer }) {
                   </Stack>
                 </Stack>
                 {errorState?.IsError ? <Alert severity="warning">{errorState?.Message}</Alert> : ''}
-                <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
+                {isAdmin && (<Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
                   <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
                     {!isEdit ? 'Create Player' : 'Save Changes'}
                   </LoadingButton>
-                </Box>
+                </Box>)}
               </Stack>
             </Card>
           </Grid>

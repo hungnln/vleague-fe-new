@@ -53,6 +53,8 @@ import { getClubList } from 'src/redux/slices/club';
 import { format } from 'date-fns';
 import { getStadiumList } from 'src/redux/slices/stadium';
 import match from 'autosuggest-highlight/match';
+import LoadingProgress from 'src/pages/LoadingProgress';
+import useAuth from 'src/hooks/useAuth';
 
 // ----------------------------------------------------------------------
 
@@ -115,6 +117,8 @@ export default function MatchList({ roundSelected }) {
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [currentMatch, setCurrentMatch] = useState({})
   const { id } = useParams()
+  const { user } = useAuth()
+  const isAdmin = user?.role === 'Admin'
   useEffect(() => {
     // dispatch(getTournamentDetail(id))
     dispatch(getMatchList(tournamentDetail.id));
@@ -197,7 +201,7 @@ export default function MatchList({ roundSelected }) {
 
   const filteredMatchs = applySortFilter(matchList, getComparator(order, orderBy), filterName);
 
-  const isMatchNotFound = filteredMatchs.length === 0 && matchList.length > 0;
+  const isMatchNotFound = filteredMatchs.length === 0;
 
   return (
     <>
@@ -211,7 +215,7 @@ export default function MatchList({ roundSelected }) {
           >
             All matches {roundSelected ? `of ${roundSelected.name}` : ''}
           </Typography>
-          <Box sx={{ flexShrink: 0, mr: 3 }}>
+          {isAdmin && (<Box sx={{ flexShrink: 0, mr: 3 }}>
             <Button
               variant="contained"
               startIcon={<Icon icon={plusFill} />}
@@ -219,7 +223,7 @@ export default function MatchList({ roundSelected }) {
             >
               New Match
             </Button>
-          </Box>
+          </Box>)}
         </Stack>
         <Stack direction='row' alignItems='center' justifyContent='flex-start' sx={{ px: 3, mb: 3 }} spacing={2}>
           <FormControl sx={{ minWidth: 120 }}>
@@ -275,9 +279,7 @@ export default function MatchList({ roundSelected }) {
               />
               <TableBody>
                 {matchList.length <= 0 &&
-                  (<TableRow sx={{ width: '100%' }}>
-                    <TableCell colSpan={5}> <LinearProgress /></TableCell>
-                  </TableRow>)}
+                  (<LoadingProgress />)}
                 {filteredMatchs.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
                   const { id, homeClubID, awayClubID, startDate, roundID, stadiumID, homeGoals, awayGoals } = row;
                   const homeClub = clubList.find(club => club.id === homeClubID)

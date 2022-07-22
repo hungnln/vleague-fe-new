@@ -27,6 +27,7 @@ import ReportProblemIcon from '@mui/icons-material/ReportProblem';
 import LocationSearchingIcon from '@mui/icons-material/LocationSearching';
 import SportsScoreIcon from '@mui/icons-material/SportsScore';
 import ChangeCircleOutlinedIcon from '@mui/icons-material/ChangeCircleOutlined';
+import useAuth from 'src/hooks/useAuth';
 
 
 // ----------------------------------------------------------------------
@@ -52,6 +53,8 @@ export default function Event() {
         "Substitution": <ChangeCircleOutlinedIcon />
 
     }
+    const { user } = useAuth()
+    const isAdmin = user?.role === 'Admin'
     const { currentMatch, isOpenModal } = useSelector(state => state.match);
     const { activities, homeClub, awayClub, homeClubID } = currentMatch;
     const [errorState, setErrorState] = useState();
@@ -187,6 +190,7 @@ export default function Event() {
             </Grid>
 
             <SpeedDial
+                hidden={!isAdmin}
                 onClose={handleClose}
                 onOpen={handleOpen}
                 open={open}

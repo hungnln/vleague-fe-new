@@ -41,6 +41,7 @@ import { ModeComment } from '@mui/icons-material';
 import moment from 'moment';
 import AssignmentIndOutlinedIcon from '@mui/icons-material/AssignmentIndOutlined';
 import LoadingProgress from 'src/pages/LoadingProgress';
+import useAuth from 'src/hooks/useAuth';
 
 // ----------------------------------------------------------------------
 
@@ -93,7 +94,8 @@ export default function PlayerList() {
   const [orderBy, setOrderBy] = useState('name');
   const [filterName, setFilterName] = useState('');
   const [rowsPerPage, setRowsPerPage] = useState(5);
-
+  const { user } = useAuth()
+  const isAdmin = user?.role === 'Admin'
   useEffect(() => {
     dispatch(getPlayerList());
   }, [dispatch]);
@@ -173,7 +175,7 @@ export default function PlayerList() {
               >
                 View Contracts
               </Button>
-              <Button
+              {isAdmin && (<Button
                 variant="contained"
                 component={RouterLink}
                 to={PATH_DASHBOARD.player.newPlayer}
@@ -181,7 +183,7 @@ export default function PlayerList() {
                 sx={{ ml: 2 }}
               >
                 New Player
-              </Button>
+              </Button>)}
             </>
           }
         />
@@ -203,7 +205,7 @@ export default function PlayerList() {
                 />
                 <TableBody>
                   {playerList.length <= 0 &&
-                      <LoadingProgress />}
+                    <LoadingProgress />}
                   {filteredPlayers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
                     const { id, name, dateOfBirth, imageURL, isVerified } = row;
                     const isItemSelected = selected.indexOf(name) !== -1;

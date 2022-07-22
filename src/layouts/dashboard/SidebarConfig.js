@@ -8,12 +8,12 @@ import EmojiEventsOutlinedIcon from '@mui/icons-material/EmojiEventsOutlined';
 import GroupsOutlinedIcon from '@mui/icons-material/GroupsOutlined';
 import EmojiTransportationIcon from '@mui/icons-material/EmojiTransportation';
 import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
+import useAuth from 'src/hooks/useAuth';
 // ----------------------------------------------------------------------
 
 const getIcon = (name) => (
   <SvgIconStyle src={`/static/icons/navbar/${name}.svg`} sx={{ width: '100%', height: '100%' }} />
 );
-
 const ICONS = {
   stadium: <EmojiTransportationIcon />,
   referee: <SportsOutlinedIcon />,

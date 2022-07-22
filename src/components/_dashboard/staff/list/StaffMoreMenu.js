@@ -12,6 +12,7 @@ import { Menu, MenuItem, IconButton, ListItemIcon, ListItemText } from '@mui/mat
 // routes
 import { PATH_DASHBOARD } from '../../../../routes/paths';
 import eyeFill from '@iconify/icons-eva/eye-fill';
+import useAuth from 'src/hooks/useAuth';
 
 // ----------------------------------------------------------------------
 
@@ -23,6 +24,8 @@ StaffMoreMenu.propTypes = {
 export default function StaffMoreMenu({ onDelete, staffName, staffId }) {
   const ref = useRef(null);
   const [isOpen, setIsOpen] = useState(false);
+  const { user } = useAuth()
+  const isAdmin = user?.role === 'Admin'
 
   return (
     <>
@@ -40,12 +43,12 @@ export default function StaffMoreMenu({ onDelete, staffName, staffId }) {
         anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
         transformOrigin={{ vertical: 'top', horizontal: 'right' }}
       >
-        <MenuItem onClick={onDelete} sx={{ color: 'error.main' }}>
+        {isAdmin && (<MenuItem onClick={onDelete} sx={{ color: 'error.main' }}>
           <ListItemIcon>
             <Icon icon={trash2Outline} width={24} height={24} />
           </ListItemIcon>
           <ListItemText primary="Delete" primaryTypographyProps={{ variant: 'body2' }} />
-        </MenuItem>
+        </MenuItem>)}
 
         <MenuItem
           component={RouterLink}

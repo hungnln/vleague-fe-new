@@ -40,6 +40,7 @@ import { StadiumMoreMenu, StadiumListHead, StadiumListToolbar } from 'src/compon
 import { ModeComment } from '@mui/icons-material';
 import moment from 'moment';
 import LoadingProgress from 'src/pages/LoadingProgress';
+import useAuth from 'src/hooks/useAuth';
 
 // ----------------------------------------------------------------------
 
@@ -94,7 +95,8 @@ export default function StadiumList() {
   const [orderBy, setOrderBy] = useState('name');
   const [filterName, setFilterName] = useState('');
   const [rowsPerPage, setRowsPerPage] = useState(5);
-
+  const { user } = useAuth()
+  const isAdmin = user?.role === 'Admin'
   useEffect(() => {
     dispatch(getStadiumList());
   }, [dispatch]);
@@ -165,14 +167,14 @@ export default function StadiumList() {
             { name: 'List' }
           ]}
           action={
-            <Button
+            isAdmin && (<Button
               variant="contained"
               component={RouterLink}
               to={PATH_DASHBOARD.stadium.newStadium}
               startIcon={<Icon icon={plusFill} />}
             >
               New Stadium
-            </Button>
+            </Button>)
           }
         />
 

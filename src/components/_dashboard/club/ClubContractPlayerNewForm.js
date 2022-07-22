@@ -17,6 +17,7 @@ import _ from 'lodash';
 import Badge from '@mui/material/Badge';
 import { styled } from '@mui/material/styles';
 import { useSelector } from 'react-redux';
+import useAuth from 'src/hooks/useAuth';
 
 
 // ----------------------------------------------------------------------
@@ -33,6 +34,8 @@ export default function ClubContractPlayerNewForm({ isEdit, currentContract, cur
   const [errorState, setErrorState] = useState();
   const { enqueueSnackbar } = useSnackbar();
   const { playerList } = useSelector(state => state.player)
+  const { user } = useAuth()
+  const isAdmin = user?.role === 'Admin'
   const NewClubSchema = Yup.object().shape({
     Number: Yup.mixed().required('Number is required'),
     Start: Yup.mixed().required('Start is required'),
@@ -148,12 +151,13 @@ export default function ClubContractPlayerNewForm({ isEdit, currentContract, cur
                 <Stack direction={{ xs: 'column', md: 'row' }} spacing={3}>
 
                   <Autocomplete
+
                     isOptionEqualToValue={(option, value) => option.id === value.id}
                     fullWidth
                     options={playerList}
                     autoHighlight
                     value={values.Player}
-                    disabled={isEdit}
+                    disabled={isEdit || !isAdmin}
                     getOptionLabel={(option) => option.name}
                     onChange={(event, newValue) => {
                       setFieldValue('Player', newValue);
@@ -178,6 +182,9 @@ export default function ClubContractPlayerNewForm({ isEdit, currentContract, cur
                     )}
                   />
                   <TextField
+                    InputProps={{
+                      readOnly: !isAdmin,
+                    }}
                     type="number"
                     sx={{ width: 120 }}
                     label="Number"
@@ -192,7 +199,7 @@ export default function ClubContractPlayerNewForm({ isEdit, currentContract, cur
                     <DatePicker
                       shouldDisableDate={(date) => disableStartDate(date)}
                       inputFormat='dd/MM/yyyy'
-                      disabled={isEdit}
+                      disabled={isEdit || !isAdmin}
 
                       label="Start"
                       openTo="year"
@@ -205,6 +212,9 @@ export default function ClubContractPlayerNewForm({ isEdit, currentContract, cur
                         helperText={touched.Start && errors.Start} />}
                     />
                     <DatePicker
+
+                      disabled={!isAdmin}
+
                       shouldDisableDate={(date) => disableEndDate(date)}
                       inputFormat='dd/MM/yyyy'
                       label="End"
@@ -215,6 +225,7 @@ export default function ClubContractPlayerNewForm({ isEdit, currentContract, cur
                         setFieldValue('End', newValue);
                       }}
                       renderInput={(params) => <TextField {...params} error={Boolean(touched.End && errors.End)}
+
                         helperText={touched.End && errors.End} />}
                     />
                   </Stack>
@@ -222,6 +233,9 @@ export default function ClubContractPlayerNewForm({ isEdit, currentContract, cur
 
                   <Stack direction={{ xs: 'row' }} spacing={3}>
                     <TextField
+                      InputProps={{
+                        readOnly: !isAdmin,
+                      }}
                       width={80}
                       label="Salary"
                       {...getFieldProps('Salary')}
@@ -233,6 +247,9 @@ export default function ClubContractPlayerNewForm({ isEdit, currentContract, cur
                 </Stack>
                 <Stack direction={{ xs: 'column', md: 'row' }} spacing={3}>
                   <TextField
+                    InputProps={{
+                      readOnly: !isAdmin,
+                    }}
                     fullWidth
                     multiline
                     minRows={3}
@@ -244,11 +261,11 @@ export default function ClubContractPlayerNewForm({ isEdit, currentContract, cur
                   />
                 </Stack>
                 {errorState?.IsError ? <Alert severity="warning">{errorState.Message}</Alert> : ''}
-                <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
+                {isAdmin && (<Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
                   <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
                     {!isEdit ? 'Create Contract' : 'Save Changes'}
                   </LoadingButton>
-                </Box>
+                </Box>)}
               </Stack>
             </Card>
           </Grid>

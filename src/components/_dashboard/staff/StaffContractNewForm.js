@@ -18,6 +18,7 @@ import _ from 'lodash';
 import Badge from '@mui/material/Badge';
 import { styled } from '@mui/material/styles';
 import { getClubList } from 'src/redux/slices/club';
+import useAuth from 'src/hooks/useAuth';
 
 // ----------------------------------------------------------------------
 
@@ -34,6 +35,8 @@ export default function StaffContractNewForm({ isEdit, currentContract }) {
   const [staff] = useState(currentContract.staff)
   const { staffList, error } = useSelector((state) => state.staff);
   const [errorState, setErrorState] = useState()
+  const { user } = useAuth()
+  const isAdmin = user?.role === 'Admin'
   const NewStaffSchema = Yup.object().shape({
     Club: Yup.mixed().required('Club is required'),
     Staff: Yup.mixed().required('Staff is required'),
@@ -149,7 +152,7 @@ export default function StaffContractNewForm({ isEdit, currentContract }) {
                     fullWidth
                     options={staffList}
                     value={values.Staff}
-                    disabled={isEdit}
+                    disabled={isEdit || !isAdmin}
                     autoHighlight
                     getOptionLabel={(option) => option.name}
                     onChange={(event, newValue) => {
@@ -180,7 +183,7 @@ export default function StaffContractNewForm({ isEdit, currentContract }) {
                     options={clubList}
                     autoHighlight
                     value={values.Club}
-                    disabled={isEdit}
+                    disabled={isEdit || !isAdmin}
                     getOptionLabel={(option) => option.name}
                     onChange={(event, newValue) => {
                       setFieldValue('Club', newValue);
@@ -212,7 +215,8 @@ export default function StaffContractNewForm({ isEdit, currentContract }) {
 
                       shouldDisableDate={(date) => disableStartDate(date)}
                       inputFormat='dd/MM/yyyy'
-                      disabled={isEdit}
+                      disabled={isEdit || !isAdmin}
+
                       label="Start"
                       openTo="year"
                       views={['year', 'month', 'day']}
@@ -224,6 +228,8 @@ export default function StaffContractNewForm({ isEdit, currentContract }) {
                         helperText={touched.Start && errors.Start} />}
                     />
                     <DatePicker
+                      disabled={!isAdmin}
+
                       inputFormat='dd/MM/yyyy'
                       shouldDisableDate={(date) => disableEndDate(date)}
                       label="End"
@@ -240,6 +246,9 @@ export default function StaffContractNewForm({ isEdit, currentContract }) {
 
 
                   <TextField
+                    InputProps={{
+                      readOnly: !isAdmin,
+                    }}
                     width={50}
                     label="Salary"
                     {...getFieldProps('Salary')}
@@ -249,6 +258,9 @@ export default function StaffContractNewForm({ isEdit, currentContract }) {
                 </Stack>
                 <Stack direction={{ xs: 'column', md: 'row' }} spacing={3}>
                   <TextField
+                    InputProps={{
+                      readOnly: !isAdmin,
+                    }}
                     fullWidth
                     multiline
                     minRows={3}
@@ -260,11 +272,11 @@ export default function StaffContractNewForm({ isEdit, currentContract }) {
                   />
                 </Stack>
                 {errorState?.IsError ? <Alert severity="warning">{errorState.Message}</Alert> : ''}
-                <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
+                {isAdmin && (<Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
                   <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
                     {!isEdit ? 'Create Contract' : 'Save Changes'}
                   </LoadingButton>
-                </Box>
+                </Box>)}
               </Stack>
             </Card>
           </Grid>

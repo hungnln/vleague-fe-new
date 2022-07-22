@@ -22,6 +22,7 @@ import {
   BlogPostCommentForm
 } from '../../components/_dashboard/blog';
 import _ from 'lodash';
+import useAuth from 'src/hooks/useAuth';
 
 // ----------------------------------------------------------------------
 
@@ -45,6 +46,7 @@ export default function BlogPost() {
   const { id } = useParams();
   const { post, error, recentPosts } = useSelector((state) => state.blog);
   const [loading, setLoading] = useState(true);
+  const { user } = useAuth()
 
   useEffect(() => {
     dispatch(getPost(id));

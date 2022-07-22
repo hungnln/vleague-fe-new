@@ -15,7 +15,7 @@ const isValidToken = (accessToken) => {
   return decoded.exp > currentTime;
 };
 
- const handleTokenExpired = (exp) => {
+const handleTokenExpired = (exp) => {
   let expiredTimer;
 
   window.clearTimeout(expiredTimer);
@@ -37,6 +37,7 @@ const setSession = (accessToken) => {
     // handleTokenExpired(exp);
   } else {
     localStorage.removeItem('accessToken');
+    localStorage.removeItem('firebaseToken')
     delete axios.defaults.headers.common.Authorization;
   }
 };

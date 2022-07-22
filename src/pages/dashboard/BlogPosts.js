@@ -20,6 +20,7 @@ import { BlogPostCard, BlogPostsSort, BlogPostsSearch } from '../../components/_
 import { Form, FormikProvider, useFormik } from 'formik';
 import { getPlayerList } from 'src/redux/slices/player';
 import { getClubList } from 'src/redux/slices/club';
+import useAuth from 'src/hooks/useAuth';
 
 // ----------------------------------------------------------------------
 
@@ -61,6 +62,7 @@ const SkeletonLoad = (
 export default function BlogPosts() {
   const { themeStretch } = useSettings();
   const dispatch = useDispatch();
+  const { user } = useAuth()
   const [filters, setFilters] = useState('latest');
   const { posts, hasMore, index, step } = useSelector((state) => state.blog);
   const sortedPosts = applySort(posts, filters);
@@ -98,14 +100,16 @@ export default function BlogPosts() {
             { name: 'Posts' }
           ]}
           action={
-            <Button
-              variant="contained"
-              component={RouterLink}
-              to={PATH_DASHBOARD.blog.newPost}
-              startIcon={<Icon icon={plusFill} />}
-            >
-              New Post
-            </Button>
+            user?.role === 'Admin' && (
+              <Button
+                variant="contained"
+                component={RouterLink}
+                to={PATH_DASHBOARD.blog.newPost}
+                startIcon={<Icon icon={plusFill} />}
+              >
+                New Post
+              </Button>
+            )
           }
         />
 

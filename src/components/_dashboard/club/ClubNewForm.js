@@ -20,6 +20,7 @@ import { useDispatch } from 'src/redux/store';
 import { useSelector } from 'react-redux';
 import { getStadiumList } from 'src/redux/slices/stadium';
 import _ from 'lodash';
+import useAuth from 'src/hooks/useAuth';
 
 // ----------------------------------------------------------------------
 
@@ -40,6 +41,8 @@ export default function ClubNewForm({ isEdit, currentClub }) {
     ImageURL: Yup.mixed().required('Avatar is required'),
     HeadQuarter: Yup.mixed().required('HeadQuarter is required')
   });
+  const { user } = useAuth()
+  const isAdmin = user?.role === 'Admin'
   const [open, setOpen] = useState(true);
   useEffect(() => {
     dispatch(getStadiumList())
@@ -154,8 +157,14 @@ export default function ClubNewForm({ isEdit, currentClub }) {
                     {...getFieldProps('Name')}
                     error={Boolean(touched.Name && errors.Name)}
                     helperText={touched.Name && errors.Name}
+                    InputProps={{
+                      readOnly: !isAdmin,
+                    }}
                   />
                   <TextField
+                    InputProps={{
+                      readOnly: !isAdmin,
+                    }}
                     fullWidth
                     label="HeadQuarter"
                     {...getFieldProps('HeadQuarter')}
@@ -163,6 +172,7 @@ export default function ClubNewForm({ isEdit, currentClub }) {
                     helperText={touched.HeadQuarter && errors.HeadQuarter}
                   />
                   <Autocomplete
+                    disabled={!isAdmin}
                     isOptionEqualToValue={(option, value) => option.id === value.id}
                     fullWidth
                     options={stadiumList}
@@ -193,11 +203,12 @@ export default function ClubNewForm({ isEdit, currentClub }) {
                   />
                 </Stack>
                 {errorState?.isError ? <Alert severity="warning">{errorState.Message}</Alert> : ''}
-                <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
+                {isAdmin && (<Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
                   <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
                     {!isEdit ? 'Create Club' : 'Save Changes'}
                   </LoadingButton>
-                </Box>
+                </Box>)}
+
               </Stack>
             </Card>
           </Grid>

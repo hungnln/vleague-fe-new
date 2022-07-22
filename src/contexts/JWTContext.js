@@ -90,6 +90,7 @@ function AuthProvider({ children }) {
       try {
         const accessToken = window.localStorage.getItem('accessToken');
         console.log("check admin token", accessToken);
+        const firebaseToken = localStorage.getItem('firebaseToken')
 
         if (accessToken && isValidToken(accessToken)) {
           setSession(accessToken);
@@ -106,7 +107,6 @@ function AuthProvider({ children }) {
           }
           else {
             console.log('check  firebase');
-            const firebaseToken = localStorage.getItem('firebaseToken')
             const respone = await axios.post(`/api/login/firebase`, { headers: { Authorization: `Baerer ${firebaseToken}` } })
             const { account } = respone.data.result
             if (respone.data.statusCode === 200) {
@@ -115,6 +115,7 @@ function AuthProvider({ children }) {
                 payload: { isAuthenticated: true, user: { id: account.id, displayName: account.name, email: account.email, role: 'User', photoURL: account.imageURL }, isInitialized: true }
               })
             } else {
+              localStorage.removeItem('firebaseToken')
               dispatch({
                 type: 'INITIALIZE',
                 payload: {
@@ -188,12 +189,21 @@ function AuthProvider({ children }) {
     firebase.auth().signInWithPopup(provider)
     firebase.auth().onAuthStateChanged((user) => {
       if (user) {
-        user.getIdToken().then((token) => { setSession(token); localStorage.setItem('firebaseToken', token) })
-        // dispatchUser(loginToServer())
-        dispatch({
-          type: 'LOGINGOOGLE',
-          payload: { user }
-        });
+        user.getIdToken().then(async (token) => {
+          localStorage.setItem('firebaseToken', token)
+          setSession(token)
+          const respone = await axios.post(`/api/login/firebase`)
+          if (respone.data.statusCode === 200) {
+            const { account } = respone.data.result
+            dispatch({
+              type: 'LOGINGOOGLE',
+              payload: { user: { id: account.id, displayName: account.name, email: account.email, role: 'User', photoURL: account.imageURL } }
+            });
+          }
+
+        })
+
+
       } else {
         dispatch({
           type: 'INITIALIZE',
@@ -208,7 +218,6 @@ function AuthProvider({ children }) {
       Password
     });
     const { token, account } = response.data.result;
-
     setSession(token);
     dispatch({
       type: 'LOGIN',
@@ -216,6 +225,7 @@ function AuthProvider({ children }) {
         user: { role: 'Admin', displayName: 'Admin' }
       }
     });
+
   };
 
   const register = async (email, password, firstName, lastName) => {

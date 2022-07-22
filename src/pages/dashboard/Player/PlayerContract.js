@@ -45,6 +45,7 @@ import PlayerContractMoreMenu from 'src/components/_dashboard/player/contract/Pl
 import PlayerContractNewForm from 'src/components/_dashboard/player/PlayerContractNewForm';
 import AssignmentIndOutlinedIcon from '@mui/icons-material/AssignmentIndOutlined';
 import LoadingProgress from 'src/pages/LoadingProgress';
+import useAuth from 'src/hooks/useAuth';
 
 // ----------------------------------------------------------------------
 
@@ -55,7 +56,8 @@ export default function PlayerConTract() {
   const { id } = useParams();
   // const { playerContracts } = useSelector((state) => state.player);
   const { contractList } = useSelector((state) => state.player);
-
+  const { user } = useAuth()
+  const isAdmin = user?.role === 'Admin'
   const isEdit = _.isNil(id) ? 0 : 1;
   const { playerDetail } = useSelector((state) => state.player)
   const [page, setPage] = useState(0);
@@ -185,7 +187,7 @@ export default function PlayerConTract() {
                 >
                   View players
                 </Button>
-                <Button
+                {isAdmin && (<Button
                   variant="contained"
                   component={RouterLink}
                   to={`${PATH_DASHBOARD.player.contract}/new`}
@@ -193,7 +195,7 @@ export default function PlayerConTract() {
                   sx={{ ml: 2 }}
                 >
                   New contract
-                </Button>
+                </Button>)}
               </>
             }
           />

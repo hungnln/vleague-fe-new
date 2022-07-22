@@ -33,7 +33,7 @@ export default function RefereeCreate() {
   return (
     <Page title="Referee: Create a new referee | V League">
       <Container maxWidth={themeStretch ? false : 'lg'}>
-        {isEdit && currentReferee ? (<Box >
+        {isEdit && !currentReferee ? (<Box >
           <CircularProgress sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }} />
         </Box>) : (
           <>

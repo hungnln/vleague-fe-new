@@ -45,6 +45,7 @@ import ClubContractMoreMenu from 'src/components/_dashboard/club/contract/ClubCo
 import { removeContract as removePlayerContract } from 'src/redux/slices/player';
 import { removeContract as removeStaffContract } from 'src/redux/slices/staff';
 import LoadingProgress from 'src/pages/LoadingProgress';
+import useAuth from 'src/hooks/useAuth';
 // ----------------------------------------------------------------------
 
 export default function ClubConTract() {
@@ -68,7 +69,8 @@ export default function ClubConTract() {
   const [pageStaff, setPageStaff] = useState(0);
   const [orderStaff, setOrderStaff] = useState('asc');
   const [orderByStaff, setOrderByStaff] = useState('name');
-
+  const { user } = useAuth()
+  const isAdmin = user?.role === 'Admin'
   useEffect(() => {
     dispatch(getClubDetail(id))
     dispatch(getStaffContractList(id, 'staff'));
@@ -202,7 +204,7 @@ export default function ClubConTract() {
             { name: clubDetail?.name, href: `${PATH_DASHBOARD.club.root}/edit/${clubDetail?.id}` }
           ]}
           action={
-            <>
+            isAdmin && (<>
               <Button
                 variant="contained"
                 component={RouterLink}
@@ -220,7 +222,7 @@ export default function ClubConTract() {
               >
                 New staff contract
               </Button>
-            </>
+            </>)
           }
         />
           <Card>

@@ -49,7 +49,8 @@ import MatchList from '../Match/MatchList';
 import Standing from '../Standing/Standing';
 import Ranking from '../Ranking/Ranking';
 import LoadingProgress from 'src/pages/LoadingProgress';
-
+import useAuth from 'src/hooks/useAuth';
+import PinOutlinedIcon from '@mui/icons-material/PinOutlined';
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
@@ -103,6 +104,7 @@ export default function RoundList() {
   const [currentRound, setCurrentRound] = useState({})
   const [roundSelected, setRoundSelected] = useState(null)
   const [rankModal, setRankModal] = useState(false)
+  const { user } = useAuth()
   const { id } = useParams()
   useEffect(() => {
     dispatch(getTournamentDetail(id))
@@ -199,25 +201,25 @@ export default function RoundList() {
             <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
               <Button
                 variant="contained"
-                startIcon={<Icon icon={plusFill} />}
+                startIcon={<PinOutlinedIcon />}
                 onClick={handleOpenRankModal}
                 sx={{ whiteSpace: 'nowrap', minWidth: 'auto' }}
               >
                 View Ranking
               </Button>
-              <Button
+              {user?.role === 'Admin' && (<Button
                 variant="contained"
                 startIcon={<Icon icon={plusFill} />}
                 onClick={handleAddRound}
                 sx={{ whiteSpace: 'nowrap', minWidth: 'auto' }}
               >
                 New Round
-              </Button>
+              </Button>)}
             </Stack>
           }
         />
           <Grid container spacing={3}>
-            <Grid item xs={12} md={4}>
+            {user?.role === 'Admin' && (<Grid item xs={12} md={4}>
               <Card>
                 <RoundListToolbar numSelected={selected.length} filterName={filterName} onFilterName={handleFilterByName} />
 
@@ -307,8 +309,8 @@ export default function RoundList() {
                   onRowsPerPageChange={handleChangeRowsPerPage}
                 />
               </Card>
-            </Grid>
-            <Grid item xs={12} md={8}><MatchList roundSelected={roundSelected} /></Grid>
+            </Grid>)}
+            <Grid item xs={12} {...user?.role === 'Admin' ? 'md = {8}' : 'md = { 12}'}><MatchList roundSelected={roundSelected} /></Grid>
             {/* <Grid item xs={12} md={12}><Standing tournamentID={tournamentDetail.id} /></Grid>
             <Grid item xs={12} md={12}><Ranking tournamentID={tournamentDetail.id} /></Grid> */}
 

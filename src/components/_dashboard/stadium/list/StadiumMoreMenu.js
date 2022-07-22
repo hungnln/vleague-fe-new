@@ -10,6 +10,7 @@ import moreVerticalFill from '@iconify/icons-eva/more-vertical-fill';
 import { Menu, MenuItem, IconButton, ListItemIcon, ListItemText } from '@mui/material';
 // routes
 import { PATH_DASHBOARD } from '../../../../routes/paths';
+import useAuth from 'src/hooks/useAuth';
 
 // ----------------------------------------------------------------------
 
@@ -21,7 +22,8 @@ StadiumMoreMenu.propTypes = {
 export default function StadiumMoreMenu({ onDelete, stadiumName, stadiumId }) {
   const ref = useRef(null);
   const [isOpen, setIsOpen] = useState(false);
-
+  const { user } = useAuth()
+  const isAdmin = user?.role === 'Admin'
   return (
     <>
       <IconButton ref={ref} onClick={() => setIsOpen(true)}>
@@ -38,12 +40,12 @@ export default function StadiumMoreMenu({ onDelete, stadiumName, stadiumId }) {
         anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
         transformOrigin={{ vertical: 'top', horizontal: 'right' }}
       >
-        <MenuItem onClick={onDelete} sx={{ color: 'error.main' }}>
+        {isAdmin && (<MenuItem onClick={onDelete} sx={{ color: 'error.main' }}>
           <ListItemIcon>
             <Icon icon={trash2Outline} width={24} height={24} />
           </ListItemIcon>
           <ListItemText primary="Delete" primaryTypographyProps={{ variant: 'body2' }} />
-        </MenuItem>
+        </MenuItem>)}
 
         <MenuItem
           component={RouterLink}

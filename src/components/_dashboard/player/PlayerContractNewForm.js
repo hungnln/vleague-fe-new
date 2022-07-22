@@ -23,6 +23,7 @@ import _ from 'lodash';
 import Badge from '@mui/material/Badge';
 import { styled } from '@mui/material/styles';
 import { getClubList } from 'src/redux/slices/club';
+import useAuth from 'src/hooks/useAuth';
 
 // ----------------------------------------------------------------------
 
@@ -47,6 +48,8 @@ export default function PlayerContractNewForm({ isEdit, currentContract }) {
     End: Yup.mixed().required('End date is required'),
     Number: Yup.number().required('Number is required').min(Number(1))
   });
+  const { user } = useAuth()
+  const isAdmin = user?.role === 'Admin'
   useEffect(() => {
     dispatch(getClubList())
     dispatch(getPlayerList())
@@ -157,7 +160,7 @@ export default function PlayerContractNewForm({ isEdit, currentContract }) {
                     fullWidth
                     options={playerList}
                     autoHighlight
-                    disabled={isEdit}
+                    disabled={isEdit || !isAdmin}
                     value={values.Player}
                     getOptionLabel={(option) => option.name}
                     onChange={(event, newValue) => {
@@ -187,7 +190,7 @@ export default function PlayerContractNewForm({ isEdit, currentContract }) {
                     fullWidth
                     options={clubList}
                     autoHighlight
-                    disabled={isEdit}
+                    disabled={isEdit || !isAdmin}
                     value={values.Club}
                     getOptionLabel={(option) => option.name}
                     onChange={(event, newValue) => {
@@ -220,7 +223,7 @@ export default function PlayerContractNewForm({ isEdit, currentContract }) {
 
                       shouldDisableDate={(date) => disableStartDate(date)}
                       inputFormat='dd/MM/yyyy'
-                      disabled={isEdit}
+                      disabled={isEdit || !isAdmin}
                       label="Start"
                       openTo="year"
                       views={['year', 'month', 'day']}
@@ -232,6 +235,8 @@ export default function PlayerContractNewForm({ isEdit, currentContract }) {
                         helperText={touched.Start && errors.Start} />}
                     />
                     <DatePicker
+                      disabled={!isAdmin}
+
                       shouldDisableDate={(date) => disableEndDate(date)}
                       inputFormat='dd/MM/yyyy'
                       label="End"
@@ -249,12 +254,18 @@ export default function PlayerContractNewForm({ isEdit, currentContract }) {
 
                   <Stack direction={{ xs: 'row' }} spacing={3}>
                     <TextField
+                      InputProps={{
+                        readOnly: !isAdmin,
+                      }}
                       label="Salary"
                       {...getFieldProps('Salary')}
                       error={Boolean(touched.Salary && errors.Salary)}
                       helperText={touched.Salary && errors.Salary}
                     />
                     <TextField
+                      InputProps={{
+                        readOnly: !isAdmin,
+                      }}
                       type="number"
                       sx={{ width: 110 }}
                       label="Number"
@@ -267,6 +278,9 @@ export default function PlayerContractNewForm({ isEdit, currentContract }) {
                 </Stack>
                 <Stack direction={{ xs: 'column', md: 'row' }} spacing={3}>
                   <TextField
+                    InputProps={{
+                      readOnly: !isAdmin,
+                    }}
                     fullWidth
                     multiline
                     minRows={3}
@@ -278,11 +292,11 @@ export default function PlayerContractNewForm({ isEdit, currentContract }) {
                   />
                 </Stack>
                 {errorState?.IsError ? <Alert severity="warning">{errorState.Message}</Alert> : ''}
-                <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
+                {isAdmin && (<Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
                   <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
                     {!isEdit ? 'Create Contract' : 'Save Changes'}
                   </LoadingButton>
-                </Box>
+                </Box>)}
               </Stack>
             </Card>
           </Grid>

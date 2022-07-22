@@ -20,6 +20,7 @@ import { Form, FormikProvider, useFormik } from 'formik';
 import { useSnackbar } from 'notistack';
 import { LoadingButton } from '@mui/lab';
 import { current } from '@reduxjs/toolkit';
+import useAuth from 'src/hooks/useAuth';
 //
 
 // ----------------------------------------------------------------------
@@ -32,6 +33,8 @@ export default function Lineup() {
     const { currentMatch, isOpenModal, matchParticipation } = useSelector((state) => state.match);
     const [component, setComponent] = useState()
     const dispatch = useDispatch();
+    const { user } = useAuth()
+    const isAdmin = user?.role === 'Admin'
     const { enqueueSnackbar } = useSnackbar();
     const { HomeLineUp, HomeReverse, HomeStaff, AwayLineUp, AwayReverse, AwayStaff, Referee } = matchParticipation
     const [homeSelected, setHomeSelected] = useState()
@@ -336,11 +339,11 @@ export default function Lineup() {
     return (
         <FormikProvider value={formik}>
             <Form noValidate autoComplete="off" onSubmit={handleSubmit}>
-                <Box sx={{ mb: 3, display: 'flex', justifyContent: 'flex-end' }}>
+                {isAdmin && (<Box sx={{ mb: 3, display: 'flex', justifyContent: 'flex-end' }}>
                     <LoadingButton startIcon={<Icon icon={checkmarkFill} />} type="submit" variant="contained" loading={isSubmitting} loadingIndicator="Loading..." disabled={checkDisable()}>
                         Save changes
                     </LoadingButton>
-                </Box>
+                </Box>)}
                 <Grid container spacing={3}>
                     <Grid item xs={12} md={6}>
                         <Card sx={{ p: 2 }}>
@@ -348,7 +351,10 @@ export default function Lineup() {
                                 <TableHead>
                                     <TableRow>
                                         <TableCell colSpan={2}>{homeClub?.name}</TableCell>
-                                        <TableCell align='right' ><MatchLineUpMoreMenu onLineup={handleAddHomeLineup} onReverse={handleAddHomeReverse} onStaff={handleAddHomeStaff} /></TableCell>
+                                        {isAdmin ? (
+                                            <TableCell align='right' ><MatchLineUpMoreMenu onLineup={handleAddHomeLineup} onReverse={handleAddHomeReverse} onStaff={handleAddHomeStaff} /></TableCell>
+
+                                        ) : <TableCell />}
                                     </TableRow>
                                 </TableHead>
                             </Table>
@@ -408,7 +414,13 @@ export default function Lineup() {
                             <Table size="small" aria-label="a dense table">
                                 <TableHead>
                                     <TableRow>
-                                        <TableCell align='left' ><MatchLineUpMoreMenu onLineup={handleAddAwayLineup} onReverse={handleAddAwayReverse} onStaff={handleAddAwayStaff} /></TableCell>
+                                        {isAdmin ? (
+                                            <TableCell align='left' ><MatchLineUpMoreMenu onLineup={handleAddAwayLineup} onReverse={handleAddAwayReverse} onStaff={handleAddAwayStaff} /></TableCell>
+
+                                        ) :
+                                            <TableCell />
+
+                                        }
                                         <TableCell colSpan={2} align="right">{awayClub?.name}</TableCell>
                                     </TableRow>
                                 </TableHead>
@@ -471,7 +483,10 @@ export default function Lineup() {
                                 <TableHead>
                                     <TableRow>
                                         <TableCell colSpan={1}>Referee</TableCell>
-                                        <TableCell align='right' ><MatchLineUpMoreMenu onReferee={handleAddReferee} /></TableCell>
+                                        {isAdmin ? (
+                                            <TableCell align='right' ><MatchLineUpMoreMenu onReferee={handleAddReferee} /></TableCell>
+
+                                        ) : <TableCell />}
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>

@@ -13,6 +13,7 @@ import { PATH_DASHBOARD } from '../../../../routes/paths';
 import { useDispatch, useSelector } from 'react-redux';
 import { getMatchDetail } from 'src/redux/slices/match';
 import eyeFill from '@iconify/icons-eva/eye-fill';
+import useAuth from 'src/hooks/useAuth';
 
 // ----------------------------------------------------------------------
 
@@ -26,6 +27,8 @@ export default function MatchMoreMenu({ onDelete, onEdit, matchName, matchId }) 
   const [isOpen, setIsOpen] = useState(false);
   const dispatch = useDispatch();
   const { tournamentDetail } = useSelector(state => state.tournament)
+  const { user } = useAuth()
+  const isAdmin = user?.role === 'Admin'
   // const handleEditMatch = () => {
   //   dispatch(getMatchDetail(matchId))
   // }
@@ -45,12 +48,12 @@ export default function MatchMoreMenu({ onDelete, onEdit, matchName, matchId }) 
         anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
         transformOrigin={{ vertical: 'top', horizontal: 'right' }}
       >
-        <MenuItem onClick={onDelete} sx={{ color: 'error.main' }}>
+        {isAdmin && (<MenuItem onClick={onDelete} sx={{ color: 'error.main' }}>
           <ListItemIcon>
             <Icon icon={trash2Outline} width={24} height={24} />
           </ListItemIcon>
           <ListItemText primary="Delete" primaryTypographyProps={{ variant: 'body2' }} />
-        </MenuItem>
+        </MenuItem>)}
         <MenuItem
           component={RouterLink}
           to={`${PATH_DASHBOARD.tournament.root}/${tournamentDetail.id}/match/${matchId}`}
