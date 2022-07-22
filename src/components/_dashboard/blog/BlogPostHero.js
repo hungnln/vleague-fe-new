@@ -146,7 +146,7 @@ export default function BlogPostHero({ post, ...other }) {
           </Box>
         </Box>
 
-        {user.Role === 'Admin' && (<SpeedDial
+        {user?.role === 'Admin' && (<SpeedDial
           direction={isMobile ? 'up' : 'left'}
           ariaLabel="Share post"
           icon={<Icon icon={moreVerticalFill} />}
