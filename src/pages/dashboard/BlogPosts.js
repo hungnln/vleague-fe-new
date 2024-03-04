@@ -86,7 +86,7 @@ export default function BlogPosts() {
   };
   useEffect(() => {
     dispatch(getPlayerList())
-    dispatch(getClubList())
+    dispatch(getClubList(0,100))
   }, [])
 
   return (

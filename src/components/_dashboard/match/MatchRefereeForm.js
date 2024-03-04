@@ -24,6 +24,7 @@ import { getClubList } from 'src/redux/slices/club';
 import { getStadiumList } from 'src/redux/slices/stadium';
 import { useSelector } from 'react-redux';
 import { getClubMatchContract, getMatchRefereeContract, getRefereeList } from 'src/redux/slices/referee';
+import { FAILURE, SUCCESS } from 'src/config';
 
 // ----------------------------------------------------------------------
 
@@ -35,7 +36,7 @@ MatchRefereeForm.propTypes = {
 
 export default function MatchRefereeForm({ onCancel, addMember, currentRefereeList }) {
   const { lineup } = useSelector((state) => state.match);
-  const { Referee } = lineup
+  const { referee } = lineup
   const dispatch = useDispatch();
   const [errorState, setErrorState] = useState();
   const { enqueueSnackbar } = useSnackbar();
@@ -43,9 +44,9 @@ export default function MatchRefereeForm({ onCancel, addMember, currentRefereeLi
   const [selectedReferee, setSelectedReferee] = useState([])
   const [selected, setSelected] = useState([])
   const NewMatchRefereeSchema = Yup.object().shape({
-    HeadReferee: Yup.mixed().required('Head Referee is required'),
-    AssistantReferee: Yup.array().required('AssistantReferee is required').min(2, "AssistantReferee must have at least 2 referee"),
-    MonitoringReferee: Yup.array().required('MonitoringReferee is required').min(1, "AssistantReferee is required"),
+    headReferee: Yup.mixed().required('Head Referee is required'),
+    assistantReferee: Yup.array().required('Assistant Referee is required').min(2, "Assistant Referee must have at least 2 referee"),
+    monitoringReferee: Yup.array().required('Monitoring Referee is required').min(1, "Monitoring Referee is required"),
 
   });
   const [open, setOpen] = useState(false);
@@ -57,8 +58,8 @@ export default function MatchRefereeForm({ onCancel, addMember, currentRefereeLi
       return undefined;
     }
     (async () => {
-      if (active && refereeList.length !== 0) {
-        setOptions([...refereeList]);
+      if (active && refereeList.data.length !== 0) {
+        setOptions([...refereeList.data]);
       }
     })();
   }, [loading]);
@@ -70,15 +71,15 @@ export default function MatchRefereeForm({ onCancel, addMember, currentRefereeLi
   }, [open]);
   const isEdit = !_.isEmpty(currentRefereeList)
   useEffect(() => {
-    dispatch(getRefereeList())
+    dispatch(getRefereeList(0, 1000))
   }, [dispatch])
   console.log('selected', selectedReferee);
   const formik = useFormik({
     enableReinitialize: true,
     initialValues: {
-      HeadReferee: currentRefereeList?.HeadReferee || null,
-      AssistantReferee: currentRefereeList?.AssistantReferee || [],
-      MonitoringReferee: currentRefereeList?.MonitoringReferee || [],
+      headReferee: currentRefereeList?.headReferee || null,
+      assistantReferee: currentRefereeList?.assistantReferee || [],
+      monitoringReferee: currentRefereeList?.monitoringReferee || [],
     },
     validationSchema: NewMatchRefereeSchema,
     onSubmit: async (values, { setSubmitting, resetForm, setErrors }) => {
@@ -93,31 +94,32 @@ export default function MatchRefereeForm({ onCancel, addMember, currentRefereeLi
       }
     }
   });
+
   useEffect(() => {
     if (!_.isEmpty(errorState)) {
-      console.log('check state', errorState);
-      if (!errorState.isError) {
-        console.log('ko error');
+      if (errorState.status === SUCCESS) {
         formik.resetForm();
         onCancel();
-        enqueueSnackbar(currentRefereeList ? 'Create success' : 'Update success', { variant: 'success' });
-        // navigate(PATH_DASHBOARD.match.list);
-      } else {
-        console.log('bị error');
+        enqueueSnackbar(errorState.message, { variant: 'success' });
+      }
+      else {
+        enqueueSnackbar(errorState.message, { variant: 'error' });
       }
     }
 
   }, [errorState])
+
+
   useEffect(() => {
-    const RefereeSelected = !_.isEmpty(Referee) ? [Referee.HeadReferee, ...Referee.AssistantReferee, ...Referee.MonitoringReferee] : []
-    setSelected([...RefereeSelected])
+    const refereeSelected = !_.isEmpty(referee) ? [referee.headReferee, ...referee.assistantReferee, ...referee.monitoringReferee] : []
+    setSelected([...refereeSelected])
   }, [lineup])
   const disableOption = (option, field) => {
     return (!!selectedReferee?.find(element => element?.id === option?.id) || selectedReferee.length >= 11 || !!selected?.find(element => element?.id === option?.id)) && (Array.isArray(field) ? !field.find(element => element?.id === option?.id) : field?.id !== option?.id)
   }
   const { errors, values, touched, handleSubmit, isSubmitting, setFieldValue, getFieldProps } = formik;
   useEffect(() => {
-    setSelectedReferee([{ ...values.HeadReferee }, ...values.AssistantReferee, ...values.MonitoringReferee])
+    setSelectedReferee([{ ...values.headReferee }, ...values.assistantReferee, ...values.monitoringReferee])
   }, [values])
   return (
     <FormikProvider value={formik}>
@@ -127,7 +129,7 @@ export default function MatchRefereeForm({ onCancel, addMember, currentRefereeLi
             <Stack direction='column' spacing={{ xs: 3, sm: 2 }}>
               <Autocomplete
                 isOptionEqualToValue={(option, value) => option.id === value.id}
-                value={values.HeadReferee}
+                value={values.headReferee}
                 // open={open}
                 loading={loading}
                 onOpen={() => {
@@ -140,9 +142,9 @@ export default function MatchRefereeForm({ onCancel, addMember, currentRefereeLi
 
                 autoHighlight
                 options={options}
-                getOptionDisabled={option => disableOption(option, values.HeadReferee)}
+                getOptionDisabled={option => disableOption(option, values.headReferee)}
                 getOptionLabel={(option) => option?.name}
-                onChange={(event, value) => setFieldValue('HeadReferee', value)}
+                onChange={(event, value) => setFieldValue('headReferee', value)}
                 renderOption={(props, option) => (
                   <Box component="li" sx={{ '& > img': { mr: 2, flexShrink: 0 } }} {...props}>
                     <Avatar alt={option?.name} src={option?.imageURL} sx={{ width: 20, height: 20, marginRight: '5px' }} />
@@ -151,8 +153,8 @@ export default function MatchRefereeForm({ onCancel, addMember, currentRefereeLi
                 )}
                 renderInput={(params) => (
                   <TextField
-                    helperText={touched.HeadReferee && errors.HeadReferee}
-                    error={Boolean(touched.HeadReferee && errors.HeadReferee)}
+                    helperText={touched.headReferee && errors.headReferee}
+                    error={Boolean(touched.headReferee && errors.headReferee)}
                     {...params}
                     label="Head Referee"
                     InputProps={{
@@ -169,7 +171,7 @@ export default function MatchRefereeForm({ onCancel, addMember, currentRefereeLi
               />
               <Autocomplete
                 isOptionEqualToValue={(option, value) => option.id === value.id}
-                value={values.AssistantReferee}
+                value={values.assistantReferee}
                 // open={open}
                 onOpen={() => {
                   setOpen(true);
@@ -183,8 +185,8 @@ export default function MatchRefereeForm({ onCancel, addMember, currentRefereeLi
                 autoHighlight
                 options={options}
                 getOptionLabel={(option) => option.name}
-                getOptionDisabled={option => disableOption(option, values.AssistantReferee)}
-                onChange={(event, value) => setFieldValue('AssistantReferee', value)}
+                getOptionDisabled={option => disableOption(option, values.assistantReferee)}
+                onChange={(event, value) => setFieldValue('assistantReferee', value)}
                 renderOption={(props, option) => (
                   <Box component="li" sx={{ '& > img': { mr: 2, flexShrink: 0 } }} {...props}>
                     <Avatar alt={option?.name} src={option?.imageURL} sx={{ width: 20, height: 20, marginRight: '5px' }} />
@@ -193,8 +195,8 @@ export default function MatchRefereeForm({ onCancel, addMember, currentRefereeLi
                 )}
                 renderInput={(params) => (
                   <TextField
-                    helperText={touched.AssistantReferee && errors.AssistantReferee}
-                    error={Boolean(touched.AssistantReferee && errors.AssistantReferee)}
+                    helperText={touched.assistantReferee && errors.assistantReferee}
+                    error={Boolean(touched.assistantReferee && errors.assistantReferee)}
                     {...params}
                     label="Assistant Referee"
                     InputProps={{
@@ -211,7 +213,7 @@ export default function MatchRefereeForm({ onCancel, addMember, currentRefereeLi
               />
               <Autocomplete
                 isOptionEqualToValue={(option, value) => option.id === value.id}
-                value={values.MonitoringReferee}
+                value={values.monitoringReferee}
                 get
                 onOpen={() => {
                   setOpen(true);
@@ -223,11 +225,11 @@ export default function MatchRefereeForm({ onCancel, addMember, currentRefereeLi
                 multiple
                 limitTags={2}
                 autoHighlight
-                options={refereeList}
-                getOptionDisabled={option => disableOption(option, values.MonitoringReferee)}
+                options={options}
+                getOptionDisabled={option => disableOption(option, values.monitoringReferee)}
 
                 getOptionLabel={(option) => option.name}
-                onChange={(event, value) => { setFieldValue('MonitoringReferee', value) }}
+                onChange={(event, value) => { setFieldValue('monitoringReferee', value) }}
                 renderOption={(props, option) => (
                   <Box component="li" sx={{ '& > img': { mr: 2, flexShrink: 0 } }} {...props}>
                     <Avatar alt={option?.name} src={option?.imageURL} sx={{ width: 20, height: 20, marginRight: '5px' }} />
@@ -236,8 +238,8 @@ export default function MatchRefereeForm({ onCancel, addMember, currentRefereeLi
                 )}
                 renderInput={(params) => (
                   <TextField
-                    helperText={touched.MonitoringReferee && errors.MonitoringReferee}
-                    error={Boolean(touched.MonitoringReferee && errors.MonitoringReferee)}
+                    helperText={touched.monitoringReferee && errors.monitoringReferee}
+                    error={Boolean(touched.monitoringReferee && errors.monitoringReferee)}
                     {...params}
                     label="Monitoring Referee"
                     InputProps={{
@@ -256,7 +258,7 @@ export default function MatchRefereeForm({ onCancel, addMember, currentRefereeLi
           </Grid>
 
         </Grid>
-        {errorState?.isError ? <Alert sx={{ mx: 3 }} severity="warning">{errorState.Message}</Alert> : ''}
+        {errorState?.status === FAILURE ? <Alert severity="warning" sx={{ mx: 3 }}>{errorState?.message}</Alert> : ''}
 
         <DialogActions>
           <Box sx={{ flexGrow: 1 }} />

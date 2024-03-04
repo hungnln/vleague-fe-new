@@ -66,17 +66,18 @@ export default function PlayerConTract() {
   const [orderBy, setOrderBy] = useState('name');
   const [filterName, setFilterName] = useState('');
   const [rowsPerPage, setRowsPerPage] = useState(5);
+  const { data, pagination } = contractList;
   // const contractList = !_.isNil(playerContracts) ? [playerContracts] : [contractList]
   useEffect(() => {
     if (isEdit) {
       dispatch(getPlayerDetail(id))
-      dispatch(getContractList(id, 'player, club'));
+      dispatch(getContractList(id, page, rowsPerPage));
     }
     else {
-      dispatch(getContractList('', 'player, club'))
+      dispatch(getContractList('', page, rowsPerPage))
     }
 
-  }, [dispatch]);
+  }, [dispatch, id, page, rowsPerPage]);
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
     setOrder(isAsc ? 'desc' : 'asc');
@@ -85,7 +86,7 @@ export default function PlayerConTract() {
 
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelecteds = contractList.map((n) => n.name);
+      const newSelecteds = data.map((n) => n.name);
       setSelected(newSelecteds);
       return;
     }
@@ -136,9 +137,9 @@ export default function PlayerConTract() {
     return stabilizedThis.map((el) => el[0]);
   }
 
-  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - contractList.length) : 0;
+  const emptyRows = page > 0 ? Math.max(0, rowsPerPage - data.length) : 0;
 
-  const filteredPlayers = applySortFilter(contractList, getComparator(order, orderBy), filterName);
+  const filteredPlayers = applySortFilter(data, getComparator(order, orderBy), filterName);
 
   const isPlayerNotFound = filteredPlayers.length === 0;
   const handleChangePage = (event, newPage) => {
@@ -209,7 +210,7 @@ export default function PlayerConTract() {
                     order={order}
                     orderBy={orderBy}
                     headLabel={isEdit ? TABLE_HEAD_EDIT : TABLE_HEAD}
-                    rowCount={contractList.length}
+                    rowCount={pagination.totalCount}
                     numSelected={selected.length}
                     onRequestSort={handleRequestSort}
                     onSelectAllClick={handleSelectAllClick}
@@ -218,7 +219,7 @@ export default function PlayerConTract() {
                     {contractList.length <= 0 &&
                       <LoadingProgress />
                     }
-                    {filteredPlayers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
+                    {filteredPlayers.map((row) => {
                       const { id, player, club, salary, start, end } = row;
                       const isItemSelected = selected.indexOf(id) !== -1;
 
@@ -292,7 +293,7 @@ export default function PlayerConTract() {
             <TablePagination
               rowsPerPageOptions={[5, 10, 25]}
               component="div"
-              count={contractList.length}
+              count={pagination.totalCount}
               rowsPerPage={rowsPerPage}
               page={page}
               onPageChange={handleChangePage}

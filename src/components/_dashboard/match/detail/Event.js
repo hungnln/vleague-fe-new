@@ -28,6 +28,7 @@ import LocationSearchingIcon from '@mui/icons-material/LocationSearching';
 import SportsScoreIcon from '@mui/icons-material/SportsScore';
 import ChangeCircleOutlinedIcon from '@mui/icons-material/ChangeCircleOutlined';
 import useAuth from 'src/hooks/useAuth';
+import { FAILURE, SUCCESS } from 'src/config';
 
 
 // ----------------------------------------------------------------------
@@ -38,7 +39,7 @@ Event.propTypes = {
 
 export default function Event() {
     const listIcon = {
-        // "StartFirstHalf": <>PlayCircleFilledWhiteIcon</>,
+        "StartFirstHalf": <PlayCircleFilledWhiteIcon />,
         "Goal": <SportsSoccerIcon />,
         "OwnGoal": <SportsSoccerIcon />,
         "RedCard": <ViewCarouselIcon sx={{ color: 'red' }} />,
@@ -56,7 +57,7 @@ export default function Event() {
     const { user } = useAuth()
     const isAdmin = user?.role === 'Admin'
     const { currentMatch, isOpenModal } = useSelector(state => state.match);
-    const { activities, homeClub, awayClub, homeClubID } = currentMatch;
+    const { activities, homeClub, awayClub, homeClubId, awayClubId } = currentMatch;
     const [errorState, setErrorState] = useState();
     const [component, setComponent] = useState()
     const { enqueueSnackbar } = useSnackbar();
@@ -82,14 +83,14 @@ export default function Event() {
                 <TimelineContent>{activity?.type}</TimelineContent>
             </TimelineItem>
         }
-        return activity.playersInvolved[0].playerContract?.clubID === homeClubID ?
+        return activity.playerMatchParticipations[0].playerContract?.club.id === homeClubId ?
 
             (<TimelineItem TimelineItem key={activity?.id} >
                 <TimelineOppositeContent>
                     <Typography variant="h6" component="span">
                         {activity.type}
                     </Typography>
-                    <Typography>{activity.playersInvolved.map((contract, index) => { return ` ${contract?.playerContract?.number}-${contract?.playerContract?.player?.name}` })}</Typography>
+                    <Typography>{activity.playerMatchParticipations.map((contract, index) => { return ` ${contract?.playerContract?.number}-${contract?.playerContract?.player?.name}` })}</Typography>
                 </TimelineOppositeContent>
                 <TimelineSeparator>
                     <TimelineDot color="secondary" >
@@ -114,7 +115,7 @@ export default function Event() {
                     <Typography variant="h6" component="span">
                         {activity.type}
                     </Typography>
-                    <Typography>{activity.playersInvolved.map((contract, index) => { return ` ${contract?.playerContract?.number}-${contract?.playerContract?.player?.name}` })}</Typography>
+                    <Typography>{activity.playerMatchParticipations.map((contract, index) => { return ` ${contract?.playerContract?.number}-${contract?.playerContract?.player?.name}` })}</Typography>
                 </TimelineContent>
             </TimelineItem>)
 
@@ -129,8 +130,8 @@ export default function Event() {
     };
 
     const actions = [
-        { icon: <LooksOneOutlinedIcon />, name: 'Set 1st half', values: [{ ID: currentMatch.id, Type: 0, MinuteInMatch: 0 }, { ID: currentMatch.id, Type: 13, MinuteInMatch: 45 }] },
-        { icon: <LooksTwoOutlinedIcon />, name: 'Set 2nd half', values: [{ ID: currentMatch.id, Type: 14, MinuteInMatch: 46 }, { ID: currentMatch.id, Type: 16, MinuteInMatch: 90 }] },
+        { icon: <LooksOneOutlinedIcon />, name: 'Set 1st half', values: [{ matchId: currentMatch.id, type: 0, minuteInMatch: 0 }, { matchId: currentMatch.id, type: 13, minuteInMatch: 45 }] },
+        { icon: <LooksTwoOutlinedIcon />, name: 'Set 2nd half', values: [{ matchId: currentMatch.id, type: 14, minuteInMatch: 46 }, { matchId: currentMatch.id, type: 16, minuteInMatch: 90 }] },
         { icon: <MoreTimeOutlinedIcon />, name: 'Extra time', component: <><DialogTitle>Add new activity</DialogTitle><EventNewForm onCancel={handleCloseModal} isExtra isSecondHalf={(arrExtraTime.length === 1)} /></> },
         { icon: <EventAvailableOutlinedIcon />, name: 'Add activity', component: <><DialogTitle>Add new activity</DialogTitle><EventNewForm onCancel={handleCloseModal} /></> },
     ];
@@ -138,16 +139,27 @@ export default function Event() {
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
     const addNewActivity = (values) => {
-        dispatch(addActivity({ ...values[0], PlayerContractIDs: [], StaffContractIDs: [], RefereeIDs: [] }, (value) => { if (!value.IsError) { dispatch(addActivity({ ...values[1], PlayerContractIDs: [], StaffContractIDs: [], RefereeIDs: [] }, (value) => setErrorState(value))) } }))
+        dispatch(addActivity({ ...values[0] }, (value) => {
+            if (value.status !== SUCCESS) {
+                dispatch(addActivity({ ...values[1], playerContractIds: [], staffContractIds: [], refereeIds: [] },
+                    (value) => setErrorState(value)))
+
+                if (values[1].type === 16) {
+                    dispatch(addActivity({ ...{ matchId: currentMatch.id, type: 17, minuteInMatch: 90 }, playerContractIds: [], staffContractIds: [], refereeIds: [] },
+                        (value) => setErrorState(value)))
+                }
+            }
+        }))
     }
 
     useEffect(() => {
+        console.log(errorState);
         if (!_.isEmpty(errorState)) {
-            if (!errorState.IsError) {
-                enqueueSnackbar("Add activity success", { variant: 'success' });
-            } else {
-                enqueueSnackbar(errorState.Message, { variant: 'error' });
-
+            if (errorState.status === SUCCESS) {
+                enqueueSnackbar(errorState.message, { variant: 'success' });
+            }
+            else {
+                enqueueSnackbar(errorState.message, { variant: 'error' });
             }
         }
 

@@ -7,13 +7,12 @@ export const firebaseConfig = {
   // messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
   // appId: process.env.REACT_APP_FIREBASE_APPID,
   // measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID
-  apiKey: "AIzaSyAJ6Jg9HhW6lN4hEv6OUZ_0x0eyL2LHgRQ",
-  authDomain: "v-leagues.firebaseapp.com",
-  projectId: "v-leagues",
-  storageBucket: "v-leagues.appspot.com",
-  messagingSenderId: "883654767893",
-  appId: "1:883654767893:web:a3f78c749302005ce2251c",
-  measurementId: "G-4KBGV5R57T"
+  apiKey: "AIzaSyDXRcMJonT6TijUdzllICcb9gc5LLmcuaw",
+  authDomain: "new-vleague.firebaseapp.com",
+  projectId: "new-vleague",
+  storageBucket: "new-vleague.appspot.com",
+  messagingSenderId: "12458565133",
+  appId: "1:12458565133:web:bf2002e243a4dd1dcc7f44"
 };
 
 export const cognitoConfig = {
@@ -29,3 +28,7 @@ export const auth0Config = {
 export const mapConfig = process.env.REACT_APP_MAP_MAPBOX;
 
 export const googleAnalyticsConfig = process.env.REACT_APP_GA_MEASUREMENT_ID;
+
+export const SUCCESS = "SUCCESS"
+
+export const FAILURE = "FAILURE"

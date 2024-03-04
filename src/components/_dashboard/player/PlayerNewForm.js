@@ -21,6 +21,8 @@ import { createPlayer, editPlayer } from 'src/redux/slices/player';
 import { useDispatch } from 'src/redux/store';
 import _ from 'lodash';
 import useAuth from 'src/hooks/useAuth';
+import handleUploadImage from 'src/utils/uploadImage';
+import { FAILURE, SUCCESS } from 'src/config';
 
 // ----------------------------------------------------------------------
 
@@ -37,48 +39,39 @@ export default function PlayerNewForm({ isEdit, currentPlayer }) {
   const { user } = useAuth()
   const isAdmin = user?.role === 'Admin'
   const NewPlayerSchema = Yup.object().shape({
-    Name: Yup.string().required('Name is required'),
-    DateOfBirth: Yup.string().required('Birthday is required'),
-    ImageURL: Yup.mixed().required('Avatar is required'),
-    HeightCm: Yup.number().min(100).max(500),
-    WeightKg: Yup.number().min(50).max(500),
+    name: Yup.string().required('Name is required'),
+    dateOfBirth: Yup.string().required('Birthday is required'),
+    imageURL: Yup.mixed().required('Avatar is required'),
+    heightCm: Yup.number().min(100).max(500),
+    weightKg: Yup.number().min(50).max(500),
 
   });
-  useEffect(() => {
-    if (!_.isEmpty(errorState)) {
-      if (!errorState.isError) {
-        formik.resetForm();
-        enqueueSnackbar(!isEdit ? 'Create success' : 'Update success', { variant: 'success' });
-        navigate(PATH_DASHBOARD.player.list);
-      }
-    }
-
-  }, [errorState])
-
   const formik = useFormik({
     enableReinitialize: true,
     initialValues: {
       id: currentPlayer?.id || '',
-      Name: currentPlayer?.name || '',
-      DateOfBirth: currentPlayer?.dateOfBirth || '',
-      HeightCm: currentPlayer?.heightCm || '',
-      WeightKg: currentPlayer?.weightKg || '',
-      ImageURL: currentPlayer?.imageURL || null,
+      name: currentPlayer?.name || '',
+      dateOfBirth: currentPlayer?.dateOfBirth || '',
+      heightCm: currentPlayer?.heightCm || '',
+      weightKg: currentPlayer?.weightKg || '',
+      imageURL: currentPlayer?.imageURL || null,
     },
     validationSchema: NewPlayerSchema,
-    onSubmit: (values, { setSubmitting, resetForm, setErrors }) => {
+    onSubmit: async (values, { setSubmitting, resetForm, setErrors }) => {
       try {
-        let data = ''
+        const url = values.imageURL?.preview !== undefined ? await handleUploadImage(values.imageURL) : values.imageURL
+        const data = {
+          id: values.id,
+          name: values.name,
+          dateOfBirth: values.dateOfBirth,
+          heightCm:values.heightCm,
+          weightKg:values.weightKg,
+          imageURL: url
+        }
         if (isEdit) {
-          if (values.ImageURL?.base64 == null) {
-            data = { ...values }
-          } else {
-            data = { ...values, ImageURL: values.ImageURL.base64 }
-          }
-          dispatch(editPlayer(data, value => setErrorState(value)))
+          dispatch(editPlayer(data, error => setErrorState(error)))
         } else {
-          data = { ...values, ImageURL: values.ImageURL.base64 }
-          dispatch(createPlayer(data, value => setErrorState(value)))
+          dispatch(createPlayer(data, error => setErrorState(error)))
         }
       } catch (error) {
         console.error(error);
@@ -89,16 +82,28 @@ export default function PlayerNewForm({ isEdit, currentPlayer }) {
   });
 
   const { errors, values, touched, handleSubmit, isSubmitting, setFieldValue, getFieldProps } = formik;
+  
+  useEffect(() => {
+    if (!_.isEmpty(errorState)) {
+      if (errorState.status === SUCCESS) {
+        formik.resetForm();
+        enqueueSnackbar(errorState.message, { variant: 'success' });
+        navigate(PATH_DASHBOARD.player.list);
+      }
+      else {
+        enqueueSnackbar(errorState.message, { variant: 'error' });
+      }
+    }
+  }, [errorState])
+
   const handleDrop = useCallback(
-    (acceptedFiles) => {
+    async (acceptedFiles) => {
       const file = acceptedFiles[0];
       if (file) {
-        toBase64(file).then(value => {
-          setFieldValue('ImageURL', {
-            ...file,
-            preview: URL.createObjectURL(file), base64: value
-          });
-        })
+        setFieldValue('imageURL',
+          Object.assign(file, {
+            preview: URL.createObjectURL(file)
+          }));
       }
     },
     [setFieldValue]
@@ -122,10 +127,10 @@ export default function PlayerNewForm({ isEdit, currentPlayer }) {
               <Box sx={{ mb: 5 }}>
                 <UploadAvatar
                   accept="image/*"
-                  file={values.ImageURL}
+                  file={values.imageURL}
                   maxSize={3145728}
                   onDrop={handleDrop}
-                  error={Boolean(touched.ImageURL && errors.ImageURL)}
+                  error={Boolean(touched.imageURL && errors.imageURL)}
                   caption={
                     <Typography
                       variant="caption"
@@ -143,7 +148,7 @@ export default function PlayerNewForm({ isEdit, currentPlayer }) {
                   }
                 />
                 <FormHelperText error sx={{ px: 2, textAlign: 'center' }}>
-                  {touched.ImageURL && errors.ImageURL}
+                  {touched.imageURL && errors.imageURL}
                 </FormHelperText>
               </Box>
             </Card>
@@ -159,9 +164,9 @@ export default function PlayerNewForm({ isEdit, currentPlayer }) {
                     }}
                     fullWidth
                     label="Full name"
-                    {...getFieldProps('Name')}
-                    error={Boolean(touched.Name && errors.Name)}
-                    helperText={touched.Name && errors.Name}
+                    {...getFieldProps('name')}
+                    error={Boolean(touched.name && errors.name)}
+                    helperText={touched.name && errors.name}
                   />
                   <Stack direction={{ xs: 'column', md: 'row' }} spacing={3}>
                     <DatePicker
@@ -171,12 +176,12 @@ export default function PlayerNewForm({ isEdit, currentPlayer }) {
                       label="Birthday"
                       openTo="year"
                       views={['year', 'month', 'day']}
-                      value={values.DateOfBirth}
+                      value={values.dateOfBirth}
                       onChange={(newValue) => {
-                        setFieldValue('DateOfBirth', newValue);
+                        setFieldValue('dateOfBirth', newValue);
                       }}
-                      renderInput={(params) => <TextField {...params} error={Boolean(touched.DateOfBirth && errors.DateOfBirth)}
-                        helperText={touched.DateOfBirth && errors.DateOfBirth} />}
+                      renderInput={(params) => <TextField {...params} error={Boolean(touched.dateOfBirth && errors.dateOfBirth)}
+                        helperText={touched.dateOfBirth && errors.dateOfBirth} />}
                     />
                     <Stack direction="row" spacing={3}>
                       <TextField
@@ -185,9 +190,9 @@ export default function PlayerNewForm({ isEdit, currentPlayer }) {
                       }}
                         type='number'
                         label="Heigh"
-                        {...getFieldProps('HeightCm')}
-                        error={Boolean(touched.HeightCm && errors.HeightCm)}
-                        helperText={touched.HeightCm && errors.HeightCm}
+                        {...getFieldProps('heightCm')}
+                        error={Boolean(touched.heightCm && errors.heightCm)}
+                        helperText={touched.heightCm && errors.heightCm}
                       />
                       <TextField
                       InputProps={{
@@ -195,14 +200,14 @@ export default function PlayerNewForm({ isEdit, currentPlayer }) {
                       }}
                         type='number'
                         label="Weight"
-                        {...getFieldProps('WeightKg')}
-                        error={Boolean(touched.WeightKg && errors.WeightKg)}
-                        helperText={touched.WeightKg && errors.WeightKg}
+                        {...getFieldProps('weightKg')}
+                        error={Boolean(touched.weightKg && errors.weightKg)|| Boolean(errorState?.data?.weightKg)}
+                        helperText={touched.weightKg && errors.weightKg || errorState?.data?.weightKg}
                       />
                     </Stack>
                   </Stack>
                 </Stack>
-                {errorState?.IsError ? <Alert severity="warning">{errorState?.Message}</Alert> : ''}
+                {errorState?.status === FAILURE ? <Alert severity="warning">{errorState?.message}</Alert> : ''}
                 {isAdmin && (<Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
                   <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
                     {!isEdit ? 'Create Player' : 'Save Changes'}

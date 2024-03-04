@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // ----------------------------------------------------------------------
-export const DOMAIN = 'https://vlg-api-reserve.azurewebsites.net'
+export const DOMAIN = 'http://localhost:8080/api/v1'
 export const USER_LOGIN = 'userLogin'
 export const ACCESSTOKEN = 'accessToken'
 const axiosInstance = axios.create({

@@ -114,12 +114,12 @@ export function getAllPosts(PageNumber, players, clubs) {
   return async (dispatch) => {
     dispatch(slice.actions.startLoading());
     try {
-      const playersQuery = players.map((player, index) => { return `&PlayerIDs=${player.id}` })
-      const clubsQuery = clubs.map((club, index) => { return `&ClubIDs=${club.id}` })
+      const playersQuery = players.map((player, index) => { return `&playerIds=${player.id}` })
+      const clubsQuery = clubs.map((club, index) => { return `&clubIds=${club.id}` })
 
-      const response = await axios.get(`/api/news?Include=clubs,players&PageNumber=${PageNumber || 1}${playersQuery}${clubsQuery}`);
-      const results = response.data.result.length;
-      const { totalCount } = response.data.pagination;
+      const response = await axios.get(`/news?Include=clubs,players&pageNumber=${PageNumber || 1}${playersQuery}${clubsQuery}`);
+      const results = response.data.data.data.length;
+      const { totalCount } = response.data.data.pagination;
 
       // dispatch(slice.actions.getPostsInitial(response.data.result));
 
@@ -127,9 +127,9 @@ export function getAllPosts(PageNumber, players, clubs) {
         dispatch(slice.actions.noHasMore());
       }
       if (PageNumber !== 1) {
-        dispatch(slice.actions.getPostsSuccess(response.data.result));
+        dispatch(slice.actions.getPostsSuccess(response.data.data.data));
       } else {
-        dispatch(slice.actions.getPostSuccessNewTag(response.data.result))
+        dispatch(slice.actions.getPostSuccessNewTag(response.data.data.data))
       }
     } catch (error) {
       dispatch(slice.actions.hasError(error));
@@ -162,11 +162,11 @@ export function createPost(values, callback) {
   return async (dispatch) => {
     dispatch(slice.actions.startLoading());
     try {
-      const response = await axios.post('/api/news', values);
+      const response = await axios.post('/news', values);
       if (response.data.statusCode === 200) {
-        const { id } = response.data.result
-        const responsePost = await axios.get(`/api/news/${id}?Include=players,clubs`);
-        dispatch(slice.actions.addPost(responsePost.data.result));
+        const { id } = response.data.data
+        const responsePost = await axios.get(`/news/${id}?Include=players,clubs`);
+        dispatch(slice.actions.addPost(responsePost.data.data));
         callback({ IsError: response.data.IsError })
       }
 
@@ -185,7 +185,7 @@ export function editPost(values, callback) {
       const response = await axios.put(`/api/news/${values.id}`, values);
       if (response.data.statusCode === 200) {
         const responsePost = await axios.get(`/api/news/${values.id}?Include=players,clubs`);
-        dispatch(slice.actions.editPost(responsePost.data.result))
+        dispatch(slice.actions.editPost(responsePost.data.data))
         callback({ IsError: response.data.IsError })
       }
     } catch (error) {
@@ -213,11 +213,11 @@ export function getPostsInitial(step) {
   return async (dispatch) => {
     dispatch(slice.actions.startLoading());
     try {
-      const response = await axios.get(`/api/news?Include=clubs,players&PageNumber=${step || 1}`);
-      const results = response.data.result.length;
-      const { totalCount } = response.data.pagination;
+      const response = await axios.get(`/news?Include=clubs,players&pageNumber=${step || 1}`);
+      const results = response.data.data.data.length;
+      const { totalCount } = response.data.data.pagination;
 
-      dispatch(slice.actions.getPostsInitial(response.data.result));
+      dispatch(slice.actions.getPostsInitial(response.data.data.data));
 
       if (results >= totalCount) {
         dispatch(slice.actions.noHasMore());
@@ -234,8 +234,8 @@ export function getPost(id) {
   return async (dispatch) => {
     dispatch(slice.actions.startLoading());
     try {
-      const response = await axios.get(`/api/news/${id}?Include=players,clubs`);
-      dispatch(slice.actions.getPostSuccess(response.data.result));
+      const response = await axios.get(`/news/${id}?Include=players,clubs`);
+      dispatch(slice.actions.getPostSuccess(response.data.data));
     } catch (error) {
       console.error(error);
       dispatch(slice.actions.hasError(error));

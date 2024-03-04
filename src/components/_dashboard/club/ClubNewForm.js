@@ -21,6 +21,8 @@ import { useSelector } from 'react-redux';
 import { getStadiumList } from 'src/redux/slices/stadium';
 import _ from 'lodash';
 import useAuth from 'src/hooks/useAuth';
+import handleUploadImage from 'src/utils/uploadImage';
+import { FAILURE, SUCCESS } from 'src/config';
 
 // ----------------------------------------------------------------------
 
@@ -36,39 +38,38 @@ export default function ClubNewForm({ isEdit, currentClub }) {
   const [errorState, setErrorState] = useState();
   const { stadiumList } = useSelector(state => state.stadium)
   const NewClubSchema = Yup.object().shape({
-    Name: Yup.string().required('Name is required'),
-    Stadium: Yup.mixed().required('Stadium is required'),
-    ImageURL: Yup.mixed().required('Avatar is required'),
-    HeadQuarter: Yup.mixed().required('HeadQuarter is required')
+    name: Yup.string().required('Name is required'),
+    stadium: Yup.mixed().required('Stadium is required'),
+    imageURL: Yup.mixed().required('Avatar is required'),
+    headQuarter: Yup.mixed().required('HeadQuarter is required')
   });
   const { user } = useAuth()
   const isAdmin = user?.role === 'Admin'
   const [open, setOpen] = useState(true);
-  useEffect(() => {
-    dispatch(getStadiumList())
-  }, [dispatch])
   const formik = useFormik({
     enableReinitialize: true,
     initialValues: {
       id: currentClub?.id || '',
-      Name: currentClub?.name || '',
-      Stadium: currentClub?.stadium || null,
-      ImageURL: currentClub?.imageURL || '',
-      HeadQuarter: currentClub?.headQuarter || ''
+      name: currentClub?.name || '',
+      stadium: currentClub?.stadium || null,
+      imageURL: currentClub?.imageURL || '',
+      headQuarter: currentClub?.headQuarter || ''
     },
     validationSchema: NewClubSchema,
-    onSubmit: (values, { setSubmitting, resetForm, setErrors }) => {
+    onSubmit: async (values, { setSubmitting, resetForm, setErrors }) => {
       try {
-        let data = ''
+        console.log(values.imageURL?.preview);
+        const url = values.imageURL?.preview !== undefined ? await handleUploadImage(values.imageURL) : values.imageURL
+        const data = {
+          id: values.id,
+          name: values.name,
+          stadiumId: values.stadium.id,
+          headQuarter: values.headQuarter,
+          imageURL: url
+        }
         if (isEdit) {
-          if (values.ImageURL?.base64 == null) {
-            data = { ...values, StadiumId: values.Stadium.id }
-          } else {
-            data = { ...values, ImageURL: values.ImageURL.base64, StadiumId: values.Stadium.id }
-          }
           dispatch(editClub(data, error => setErrorState(error)))
         } else {
-          data = { ...values, StadiumId: values.Stadium.id, ImageURL: values.ImageURL.base64 }
           dispatch(createClub(data, error => setErrorState(error)))
         }
       } catch (error) {
@@ -78,26 +79,51 @@ export default function ClubNewForm({ isEdit, currentClub }) {
     }
   });
   useEffect(() => {
+    console.log(errorState, "log error");
     if (!_.isEmpty(errorState)) {
-      if (!errorState.isError) {
+      if (errorState.status === SUCCESS) {
         formik.resetForm();
-        enqueueSnackbar(!isEdit ? 'Create success' : 'Update success', { variant: 'success' });
+        enqueueSnackbar(errorState.message, { variant: 'success' });
         navigate(PATH_DASHBOARD.club.list);
+      }
+      else {
+        enqueueSnackbar(errorState.message, { variant: 'error' });
       }
     }
   }, [errorState])
 
   const { errors, values, touched, handleSubmit, isSubmitting, setFieldValue, getFieldProps } = formik;
+  // const handleDrop = useCallback(
+  //   (acceptedFiles) => {
+  //     const file = acceptedFiles[0];
+  //     if (file) {
+  //       toBase64(file).then(value => {
+  //         setFieldValue('imageURL', {
+  //           ...file,
+  //           preview: URL.createObjectURL(file), base64: value
+  //         });
+  //       })
+  //     }
+  //   },
+  //   [setFieldValue]
+  // );
+  // const handleDrop = useCallback((acceptedFiles) => {
+  //   const file = acceptedFiles[0];
+  //   if (file) {
+  //     setFieldValue('imageURL',
+  //         Object.assign(file, {
+  //           preview: URL.createObjectURL(file)
+  //         }));
+  //   }
+  // }, [setFieldValue]);
   const handleDrop = useCallback(
-    (acceptedFiles) => {
+    async (acceptedFiles) => {
       const file = acceptedFiles[0];
       if (file) {
-        toBase64(file).then(value => {
-          setFieldValue('ImageURL', {
-            ...file,
-            preview: URL.createObjectURL(file), base64: value
-          });
-        })
+        setFieldValue('imageURL',
+          Object.assign(file, {
+            preview: URL.createObjectURL(file)
+          }));
       }
     },
     [setFieldValue]
@@ -120,10 +146,10 @@ export default function ClubNewForm({ isEdit, currentClub }) {
               <Box sx={{ mb: 5 }}>
                 <UploadAvatar
                   accept="image/*"
-                  file={values.ImageURL}
+                  file={values.imageURL}
                   maxSize={3145728}
                   onDrop={handleDrop}
-                  error={Boolean(touched.ImageURL && errors.ImageURL)}
+                  error={Boolean(touched.imageURL && errors.imageURL)}
                   caption={
                     <Typography
                       variant="caption"
@@ -141,7 +167,7 @@ export default function ClubNewForm({ isEdit, currentClub }) {
                   }
                 />
                 <FormHelperText error sx={{ px: 2, textAlign: 'center' }}>
-                  {touched.ImageURL && errors.ImageURL}
+                  {touched.imageURL && errors.imageURL}
                 </FormHelperText>
               </Box>
             </Card>
@@ -154,9 +180,9 @@ export default function ClubNewForm({ isEdit, currentClub }) {
                   <TextField
                     fullWidth
                     label="Full name"
-                    {...getFieldProps('Name')}
-                    error={Boolean(touched.Name && errors.Name)}
-                    helperText={touched.Name && errors.Name}
+                    {...getFieldProps('name')}
+                    error={Boolean(touched.name && errors.name)}
+                    helperText={touched.name && errors.name}
                     InputProps={{
                       readOnly: !isAdmin,
                     }}
@@ -167,20 +193,20 @@ export default function ClubNewForm({ isEdit, currentClub }) {
                     }}
                     fullWidth
                     label="HeadQuarter"
-                    {...getFieldProps('HeadQuarter')}
-                    error={Boolean(touched.HeadQuarter && errors.HeadQuarter)}
-                    helperText={touched.HeadQuarter && errors.HeadQuarter}
+                    {...getFieldProps('headQuarter')}
+                    error={Boolean(touched.headQuarter && errors.headQuarter)}
+                    helperText={touched.headQuarter && errors.headQuarter}
                   />
                   <Autocomplete
                     disabled={!isAdmin}
                     isOptionEqualToValue={(option, value) => option.id === value.id}
                     fullWidth
-                    options={stadiumList}
+                    options={stadiumList.data}
                     autoHighlight
-                    value={values.Stadium}
+                    value={values.stadium}
                     getOptionLabel={(option) => option.name}
                     onChange={(event, newValue) => {
-                      setFieldValue('Stadium', newValue);
+                      setFieldValue('stadium', newValue);
                     }}
                     renderOption={(props, option) => (
                       <Box component="li" sx={{ '& > img': { mr: 2, flexShrink: 0 } }} {...props}>
@@ -190,8 +216,8 @@ export default function ClubNewForm({ isEdit, currentClub }) {
                     )}
                     renderInput={(params) => (
                       <TextField
-                        helperText={touched.Stadium && errors.Stadium}
-                        error={Boolean(touched.Stadium && errors.Stadium)}
+                        helperText={touched.stadium && errors.stadium}
+                        error={Boolean(touched.stadium && errors.stadium)}
                         {...params}
                         label="Stadium"
                         inputProps={{
@@ -202,7 +228,7 @@ export default function ClubNewForm({ isEdit, currentClub }) {
                     )}
                   />
                 </Stack>
-                {errorState?.isError ? <Alert severity="warning">{errorState.Message}</Alert> : ''}
+                {errorState?.status === FAILURE ? <Alert severity="warning">{errorState?.message}</Alert> : ''}
                 {isAdmin && (<Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
                   <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
                     {!isEdit ? 'Create Club' : 'Save Changes'}

@@ -24,6 +24,7 @@ import { getClubList } from 'src/redux/slices/club';
 import { getStadiumList } from 'src/redux/slices/stadium';
 import { useSelector } from 'react-redux';
 import { getClubMatchContract, getMatchPlayerContract } from 'src/redux/slices/player';
+import { FAILURE, SUCCESS } from 'src/config';
 
 // ----------------------------------------------------------------------
 
@@ -33,20 +34,20 @@ MatchLineUpForm.propTypes = {
   onCancel: PropTypes.func
 };
 
-export default function MatchLineUpForm({ onCancel, clubId, addMember, changeSelected, currentLineUp, isReverse, isHome }) {
+export default function MatchLineUpForm({ onCancel, startDate, clubId, addMember, changeSelected, currentLineUp, isReverse, isHome }) {
   const dispatch = useDispatch();
   const { currentMatch, matchParticipation } = useSelector((state) => state.match);
-  const { HomeLineUp, HomeReverse, AwayLineUp, AwayReverse } = matchParticipation
+  const { homeLineUp, homeReverse, awayLineUp, awayReverse } = matchParticipation
   const [errorState, setErrorState] = useState();
   const { enqueueSnackbar } = useSnackbar();
   const { clubContractList } = useSelector(state => state.player)
   const [selectedPlayer, setSelectedPlayer] = useState([])
   const [selected, setSelected] = useState([])
   const lineupSchema = Yup.object().shape({
-    GoalKeeper: Yup.mixed().required('Goal Keeper is required'),
+    goalKeeper: Yup.mixed().required('Goal Keeper is required'),
   });
   const reverseChema = Yup.object().shape({
-    // GoalKeeper: Yup.mixed().required('Goal Keeper is required'),
+    // goalKeeper: Yup.mixed().required('Goal Keeper is required'),
   });
   const [open, setOpen] = useState(false);
   const [options, setOptions] = useState([]);
@@ -63,13 +64,13 @@ export default function MatchLineUpForm({ onCancel, clubId, addMember, changeSel
       return undefined;
     }
     (async () => {
-      if (clubContractList.length <= 0) {
+      if (clubContractList.data.length <= 0) {
         await sleep(1e3);
       }
       // For demo purposes.
 
-      if (active && clubContractList.length > 0) {
-        setOptions([...clubContractList]);
+      if (active && clubContractList.data.length > 0) {
+        setOptions([...clubContractList.data]);
       }
     })();
     // if (active && clubContractList.length !== 0) {
@@ -85,28 +86,29 @@ export default function MatchLineUpForm({ onCancel, clubId, addMember, changeSel
   const isEdit = !_.isEmpty(currentMatch)
   useEffect(() => {
     if (isEdit) {
-      dispatch(getClubMatchContract(clubId))
+      dispatch(getClubMatchContract(clubId, startDate, 0, 1000))
     }
 
   }, [dispatch])
+  console.log(startDate, 'check');
   useEffect(() => {
     if (isHome) {
-      const HomeReverseSelected = !_.isEmpty(HomeReverse) ? [HomeReverse.GoalKeeper, ...HomeReverse.Defender, ...HomeReverse.Midfielder, ...HomeReverse.Forward] : []
-      const HomeLineUpSelected = !_.isEmpty(HomeLineUp) ? [HomeLineUp.GoalKeeper, ...HomeLineUp.Defender, ...HomeLineUp.Midfielder, ...HomeLineUp.Forward] : []
-      setSelected([...HomeReverseSelected, ...HomeLineUpSelected])
+      const homeReverseSelected = !_.isEmpty(homeReverse) ? [homeReverse.goalKeeper, ...homeReverse.defender, ...homeReverse.midfielder, ...homeReverse.forward] : []
+      const homeLineUpSelected = !_.isEmpty(homeLineUp) ? [homeLineUp.goalKeeper, ...homeLineUp.defender, ...homeLineUp.midfielder, ...homeLineUp.forward] : []
+      setSelected([...homeReverseSelected, ...homeLineUpSelected])
     } else {
-      const AwayReverseSelected = !_.isEmpty(AwayReverse) ? [AwayReverse.GoalKeeper, ...AwayReverse.Defender, ...AwayReverse.Midfielder, ...AwayReverse.Forward] : []
-      const AwayLineUpSelected = !_.isEmpty(AwayLineUp) ? [AwayLineUp.GoalKeeper, ...AwayLineUp.Defender, ...AwayLineUp.Midfielder, ...AwayLineUp.Forward] : []
-      setSelected([...AwayReverseSelected, ...AwayLineUpSelected])
+      const awayReverseSelected = !_.isEmpty(awayReverse) ? [awayReverse.goalKeeper, ...awayReverse.defender, ...awayReverse.midfielder, ...awayReverse.forward] : []
+      const awayLineUpSelected = !_.isEmpty(awayLineUp) ? [awayLineUp.goalKeeper, ...awayLineUp.defender, ...awayLineUp.midfielder, ...awayLineUp.forward] : []
+      setSelected([...awayReverseSelected, ...awayLineUpSelected])
     }
   }, [])
   const formik = useFormik({
     enableReinitialize: true,
     initialValues: {
-      GoalKeeper: currentLineUp?.GoalKeeper || null,
-      Defender: currentLineUp?.Defender || [],
-      Midfielder: currentLineUp?.Midfielder || [],
-      Forward: currentLineUp?.Forward || [],
+      goalKeeper: currentLineUp?.goalKeeper || null,
+      defender: currentLineUp?.defender || [],
+      midfielder: currentLineUp?.midfielder || [],
+      forward: currentLineUp?.forward || [],
 
     },
     validationSchema: isReverse ? reverseChema : lineupSchema,
@@ -119,16 +121,16 @@ export default function MatchLineUpForm({ onCancel, clubId, addMember, changeSel
             addMember(values)
             changeSelected(selectedPlayer)
           } else {
-            setErrorState({ isError: true, Message: "Lineup must have 11 players" })
+            setErrorState({ status: FAILURE, message: "Lineup must have 11 players" })
           }
         } else {
-          if (selectedPlayer.length >= 9 && selectedPlayer.length <= 19) {
+          if (selectedPlayer.length >= 4 && selectedPlayer.length <= 19) {
             onCancel()
             addMember(values)
             changeSelected(selectedPlayer)
           }
           else {
-            setErrorState({ isError: true, Message: "Reverse must have 9-19 players" })
+            setErrorState({ isError: FAILURE, message: "Reverse must have 9-19 players" })
           }
         }
 
@@ -143,15 +145,13 @@ export default function MatchLineUpForm({ onCancel, clubId, addMember, changeSel
   useEffect(() => { console.log(selected, 'selected'); }, [selected])
   useEffect(() => {
     if (!_.isEmpty(errorState)) {
-      console.log('check state', errorState);
-
-      if (!errorState.isError) {
+      if (errorState.status === SUCCESS) {
         formik.resetForm();
         onCancel();
-        enqueueSnackbar(currentMatch ? 'Create success' : 'Update success', { variant: 'success' });
-        // navigate(PATH_DASHBOARD.match.list);
-      } else {
-        console.log('bị error');
+        enqueueSnackbar(errorState.message, { variant: 'success' });
+      }
+      else {
+        enqueueSnackbar(errorState.message, { variant: 'error' });
       }
     }
 
@@ -161,10 +161,10 @@ export default function MatchLineUpForm({ onCancel, clubId, addMember, changeSel
   }
   const { errors, values, touched, handleSubmit, isSubmitting, setFieldValue, getFieldProps } = formik;
   useEffect(() => {
-    if (_.isEmpty(values.GoalKeeper)) {
-      setSelectedPlayer([...values.Defender, ...values.Forward, ...values.Midfielder])
+    if (_.isEmpty(values.goalKeeper)) {
+      setSelectedPlayer([...values.defender, ...values.forward, ...values.midfielder])
     } else {
-      setSelectedPlayer([{ ...values.GoalKeeper }, ...values.Defender, ...values.Forward, ...values.Midfielder])
+      setSelectedPlayer([{ ...values.goalKeeper }, ...values.defender, ...values.forward, ...values.midfielder])
     }
   }, [values])
   return (
@@ -175,7 +175,7 @@ export default function MatchLineUpForm({ onCancel, clubId, addMember, changeSel
             <Stack direction='column' spacing={{ xs: 3, sm: 2 }}>
               <Autocomplete
                 isOptionEqualToValue={(option, value) => option.id === value.id}
-                value={values.GoalKeeper}
+                value={values.goalKeeper}
                 // open={open}
                 onOpen={() => {
                   setOpen(true);
@@ -186,9 +186,9 @@ export default function MatchLineUpForm({ onCancel, clubId, addMember, changeSel
                 loading={loading}
                 autoHighlight
                 options={options}
-                getOptionDisabled={option => disableOption(option, values.GoalKeeper)}
+                getOptionDisabled={option => disableOption(option, values.goalKeeper)}
                 getOptionLabel={(option) => option?.player?.name}
-                onChange={(event, value) => setFieldValue('GoalKeeper', value)}
+                onChange={(event, value) => setFieldValue('goalKeeper', value)}
                 renderOption={(props, option) => (
                   <Box component="li" sx={{ '& > img': { mr: 2, flexShrink: 0 } }} {...props}>
                     <Avatar alt={option?.player.name} src={option?.player.imageURL} sx={{ width: 20, height: 20, marginRight: '5px' }} />
@@ -197,8 +197,8 @@ export default function MatchLineUpForm({ onCancel, clubId, addMember, changeSel
                 )}
                 renderInput={(params) => (
                   <TextField
-                    helperText={touched.GoalKeeper && errors.GoalKeeper}
-                    error={Boolean(touched.GoalKeeper && errors.GoalKeeper)}
+                    helperText={touched.goalKeeper && errors.goalKeeper}
+                    error={Boolean(touched.goalKeeper && errors.goalKeeper)}
                     {...params}
                     label="Goal Keeper"
                     InputProps={{
@@ -216,7 +216,7 @@ export default function MatchLineUpForm({ onCancel, clubId, addMember, changeSel
               />
               <Autocomplete
                 isOptionEqualToValue={(option, value) => option.id === value.id}
-                value={values.Defender}
+                value={values.defender}
                 // open={open}
                 onOpen={() => {
                   setOpen(true);
@@ -230,8 +230,8 @@ export default function MatchLineUpForm({ onCancel, clubId, addMember, changeSel
                 autoHighlight
                 options={options}
                 getOptionLabel={(option) => option.player.name}
-                getOptionDisabled={option => disableOption(option, values.Defender)}
-                onChange={(event, value) => setFieldValue('Defender', value)}
+                getOptionDisabled={option => disableOption(option, values.defender)}
+                onChange={(event, value) => setFieldValue('defender', value)}
                 renderOption={(props, option) => (
                   <Box component="li" sx={{ '& > img': { mr: 2, flexShrink: 0 } }} {...props}>
                     <Avatar alt={option?.player.name} src={option?.player.imageURL} sx={{ width: 20, height: 20, marginRight: '5px' }} />
@@ -256,7 +256,7 @@ export default function MatchLineUpForm({ onCancel, clubId, addMember, changeSel
               />
               <Autocomplete
                 isOptionEqualToValue={(option, value) => option.id === value.id}
-                value={values.Midfielder}
+                value={values.midfielder}
                 get
                 onOpen={() => {
                   setOpen(true);
@@ -268,11 +268,11 @@ export default function MatchLineUpForm({ onCancel, clubId, addMember, changeSel
                 multiple
                 limitTags={2}
                 autoHighlight
-                options={clubContractList}
-                getOptionDisabled={option => disableOption(option, values.Midfielder)}
+                options={options}
+                getOptionDisabled={option => disableOption(option, values.midfielder)}
 
                 getOptionLabel={(option) => option.player.name}
-                onChange={(event, value) => { setFieldValue('Midfielder', value) }}
+                onChange={(event, value) => { setFieldValue('midfielder', value) }}
                 renderOption={(props, option) => (
                   <Box component="li" sx={{ '& > img': { mr: 2, flexShrink: 0 } }} {...props}>
                     <Avatar alt={option?.player.name} src={option?.player.imageURL} sx={{ width: 20, height: 20, marginRight: '5px' }} />
@@ -297,14 +297,23 @@ export default function MatchLineUpForm({ onCancel, clubId, addMember, changeSel
               />
               <Autocomplete
                 isOptionEqualToValue={(option, value) => option.id === value.id}
-                value={values.Forward}
+                value={values.forward}
+                get
+                onOpen={() => {
+                  setOpen(true);
+                }}
+                onClose={() => {
+                  setOpen(false);
+                }}
+                loading={loading}
                 multiple
                 limitTags={2}
                 autoHighlight
-                options={clubContractList}
-                getOptionLabel={(option) => option?.player.name}
-                getOptionDisabled={option => disableOption(option, values.Forward)}
-                onChange={(event, value) => { setFieldValue('Forward', value) }}
+                options={options}
+                getOptionDisabled={option => disableOption(option, values.forward)}
+
+                getOptionLabel={(option) => option.player.name}
+                onChange={(event, value) => { setFieldValue('forward', value) }}
                 renderOption={(props, option) => (
                   <Box component="li" sx={{ '& > img': { mr: 2, flexShrink: 0 } }} {...props}>
                     <Avatar alt={option?.player.name} src={option?.player.imageURL} sx={{ width: 20, height: 20, marginRight: '5px' }} />
@@ -330,10 +339,11 @@ export default function MatchLineUpForm({ onCancel, clubId, addMember, changeSel
 
 
             </Stack>
+
           </Grid>
 
         </Grid>
-        {errorState?.isError ? <Alert sx={{ mx: 3 }} severity="warning">{errorState.Message}</Alert> : ''}
+        {errorState?.status === FAILURE ? <Alert severity="warning" sx={{ mx: 3 }}>{errorState?.message}</Alert> : ''}
 
         <DialogActions>
           <Box sx={{ flexGrow: 1 }} />

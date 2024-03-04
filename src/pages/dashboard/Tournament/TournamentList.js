@@ -104,9 +104,10 @@ export default function TournamentList() {
   const [start, setStart] = useState('');
   const [end, setEnd] = useState('');
   const [currentTournament, setCurrentTournament] = useState({})
+  const { data, pagination } = tournamentList;
   useEffect(() => {
-    dispatch(getTournamentList());
-  }, [dispatch]);
+    dispatch(getTournamentList(page, rowsPerPage, filterName, start, end));
+  }, [dispatch, page, rowsPerPage, filterName, start, end]);
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -173,9 +174,11 @@ export default function TournamentList() {
     dispatch(openModal());
   }
 
-  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - tournamentList.length) : 0;
+  const emptyRows = page > 0 ? Math.max(0, rowsPerPage - data.length) : 0;
+  const filteredTournaments = data;
 
-  const filteredTournaments = applySortFilter(tournamentList, getComparator(order, orderBy), filterName, start, end);
+
+  // const filteredTournaments = applySortFilter(data, getComparator(order, orderBy), filterName, start, end);
 
   const isTournamentNotFound = filteredTournaments.length === 0;
 
@@ -210,7 +213,7 @@ export default function TournamentList() {
                   order={order}
                   orderBy={orderBy}
                   headLabel={TABLE_HEAD}
-                  rowCount={tournamentList.length}
+                  rowCount={data.length}
                   numSelected={selected.length}
                   onRequestSort={handleRequestSort}
                   onSelectAllClick={handleSelectAllClick}
@@ -218,7 +221,7 @@ export default function TournamentList() {
                 <TableBody>
                   {tournamentList.length <= 0 &&
                     <LoadingProgress />}
-                  {filteredTournaments.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
+                  {filteredTournaments.map((row) => {
                     const { id, name, from, to, isVerified } = row;
                     const isItemSelected = selected.indexOf(name) !== -1;
 
@@ -282,7 +285,7 @@ export default function TournamentList() {
           <TablePagination
             rowsPerPageOptions={[5, 10, 25]}
             component="div"
-            count={tournamentList.length}
+            count={pagination.totalCount}
             rowsPerPage={rowsPerPage}
             page={page}
             onPageChange={handleChangePage}

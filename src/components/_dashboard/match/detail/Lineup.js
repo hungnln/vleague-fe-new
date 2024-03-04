@@ -21,6 +21,7 @@ import { useSnackbar } from 'notistack';
 import { LoadingButton } from '@mui/lab';
 import { current } from '@reduxjs/toolkit';
 import useAuth from 'src/hooks/useAuth';
+import { SUCCESS } from 'src/config';
 //
 
 // ----------------------------------------------------------------------
@@ -36,7 +37,7 @@ export default function Lineup() {
     const { user } = useAuth()
     const isAdmin = user?.role === 'Admin'
     const { enqueueSnackbar } = useSnackbar();
-    const { HomeLineUp, HomeReverse, HomeStaff, AwayLineUp, AwayReverse, AwayStaff, Referee } = matchParticipation
+    const { homeLineUp, homeReverse, homeStaff, awayLineUp, awayReverse, awayStaff, referee } = matchParticipation
     const [homeSelected, setHomeSelected] = useState()
     const { homeClub, awayClub, stadium, round } = currentMatch
     const [errorState, setErrorState] = useState()
@@ -46,7 +47,7 @@ export default function Lineup() {
         setComponent(
             <>
                 <DialogTitle>Add {homeClub.name}  lineup</DialogTitle>
-                <MatchLineUpForm currentLineUp={matchParticipation?.HomeLineUp} isHome addMember={addHomeLineup} onCancel={handleCloseModal} clubId={currentMatch.homeClubID} />
+                <MatchLineUpForm currentLineUp={matchParticipation?.homeLineUp} isHome addMember={addHomeLineup} onCancel={handleCloseModal} clubId={currentMatch.homeClubId} startDate={currentMatch.startDate} />
             </>)
         dispatch(openModal());
     };
@@ -54,7 +55,7 @@ export default function Lineup() {
         setComponent(
             <>
                 <DialogTitle>Add {awayClub.name}  lineup</DialogTitle>
-                <MatchLineUpForm currentLineUp={matchParticipation?.AwayLineUp} addMember={addAwayLineup} onCancel={handleCloseModal} clubId={currentMatch.awayClubID} />
+                <MatchLineUpForm currentLineUp={matchParticipation?.awayLineUp} addMember={addAwayLineup} onCancel={handleCloseModal} clubId={currentMatch.awayClubId} startDate={currentMatch.startDate} />
             </>)
         dispatch(openModal());
     };
@@ -62,7 +63,7 @@ export default function Lineup() {
         setComponent(
             <>
                 <DialogTitle>Add {homeClub.name} reverse</DialogTitle>
-                <MatchLineUpForm currentLineUp={matchParticipation?.HomeReverse} isHome isReverse addMember={addHomeReverse} onCancel={handleCloseModal} clubId={currentMatch.homeClubID} />
+                <MatchLineUpForm currentLineUp={matchParticipation?.homeReverse} isHome isReverse addMember={addHomeReverse} onCancel={handleCloseModal} clubId={currentMatch.homeClubId} startDate={currentMatch.startDate} />
             </>)
         dispatch(openModal());
     };
@@ -70,7 +71,7 @@ export default function Lineup() {
         setComponent(
             <>
                 <DialogTitle>Add {awayClub.name} reverse</DialogTitle>
-                <MatchLineUpForm currentLineUp={matchParticipation?.AwayReverse} isReverse addMember={addAwayReverse} onCancel={handleCloseModal} clubId={currentMatch.awayClubID} />
+                <MatchLineUpForm currentLineUp={matchParticipation?.awayReverse} isReverse addMember={addAwayReverse} onCancel={handleCloseModal} clubId={currentMatch.awayClubId} startDate={currentMatch.startDate} />
             </>)
         dispatch(openModal());
     };
@@ -78,7 +79,7 @@ export default function Lineup() {
         setComponent(
             <>
                 <DialogTitle>Add {homeClub.name} staff</DialogTitle>
-                <MatchStaffForm currentStaffList={matchParticipation?.HomeStaff} isHome addMember={addHomeStaff} onCancel={handleCloseModal} clubId={currentMatch.homeClubID} />
+                <MatchStaffForm currentStaffList={matchParticipation?.homeStaff} isHome addMember={addHomeStaff} onCancel={handleCloseModal} clubId={currentMatch.homeClubId} startDate={currentMatch.startDate} />
             </>)
         dispatch(openModal());
     };
@@ -86,7 +87,7 @@ export default function Lineup() {
         setComponent(
             <>
                 <DialogTitle>Add {homeClub.name} staff</DialogTitle>
-                <MatchStaffForm currentStaffList={matchParticipation?.AwayStaff} isHome addMember={addAwayStaff} onCancel={handleCloseModal} clubId={currentMatch.awayClubID} />
+                <MatchStaffForm currentStaffList={matchParticipation?.awayStaff} isHome addMember={addAwayStaff} onCancel={handleCloseModal} clubId={currentMatch.awayClubId} startDate={currentMatch.startDate}/>
             </>)
         dispatch(openModal());
     };
@@ -94,7 +95,7 @@ export default function Lineup() {
         setComponent(
             <>
                 <DialogTitle>Add Referee</DialogTitle>
-                <MatchRefereeForm currentRefereeList={matchParticipation?.Referee} addMember={addReferee} onCancel={handleCloseModal} />
+                <MatchRefereeForm currentRefereeList={matchParticipation?.referee} addMember={addReferee} onCancel={handleCloseModal} />
             </>)
         dispatch(openModal());
     };
@@ -102,53 +103,53 @@ export default function Lineup() {
         dispatch(closeModal());
     };
     const addHomeLineup = (callback) => {
-        dispatch(addLineUp({ HomeLineUp: callback }))
+        dispatch(addLineUp({ homeLineUp: callback }))
     }
     const addHomeStaff = (callback) => {
-        dispatch(addLineUp({ HomeStaff: callback }))
+        dispatch(addLineUp({ homeStaff: callback }))
     }
     const addAwayStaff = (callback) => {
-        dispatch(addLineUp({ AwayStaff: callback }))
+        dispatch(addLineUp({ awayStaff: callback }))
     }
     const addHomeReverse = (callback) => {
-        dispatch(addLineUp({ HomeReverse: callback }))
+        dispatch(addLineUp({ homeReverse: callback }))
 
     }
     const addAwayLineup = (callback) => {
-        dispatch(addLineUp({ AwayLineUp: callback }))
+        dispatch(addLineUp({ awayLineUp: callback }))
     }
     const addAwayReverse = (callback) => {
-        dispatch(addLineUp({ AwayReverse: callback }))
+        dispatch(addLineUp({ awayReverse: callback }))
     }
     const addReferee = (callback) => {
-        dispatch(addLineUp({ Referee: callback }))
+        dispatch(addLineUp({ referee: callback }))
 
     }
 
     const convertPlayerList = (matchParticipationObj, isReverse) => {
-        const GoalKeeperConvert = { ...matchParticipationObj.GoalKeeper, role: 3 }
-        const DefenderConvert = matchParticipationObj.Defender.reduce((obj, item) => { return [...obj, { ...item, role: 2 }] }, [])
-        const MidfielderConvert = matchParticipationObj.Midfielder.reduce((obj, item) => { return [...obj, { ...item, role: 1 }] }, [])
-        const ForwardConvert = matchParticipationObj.Forward.reduce((obj, item) => { return [...obj, { ...item, role: 0 }] }, [])
-        return [GoalKeeperConvert, ...DefenderConvert, ...MidfielderConvert, ...ForwardConvert].reduce((obj, item) => { return [...obj, { PlayerContractID: item.id, Role: item.role, MatchID: currentMatch.id, InLineups: (!isReverse) }] }, [])
+        const goalKeeperConvert = { ...matchParticipationObj.goalKeeper, role: 3 }
+        const defenderConvert = matchParticipationObj.defender.reduce((obj, item) => { return [...obj, { ...item, role: 2 }] }, [])
+        const midfielderConvert = matchParticipationObj.midfielder.reduce((obj, item) => { return [...obj, { ...item, role: 1 }] }, [])
+        const forwardConvert = matchParticipationObj.forward.reduce((obj, item) => { return [...obj, { ...item, role: 0 }] }, [])
+        return [goalKeeperConvert, ...defenderConvert, ...midfielderConvert, ...forwardConvert].reduce((obj, item) => { return [...obj, { playerContractId: item.id, role: item.role, matchId: currentMatch.id, inLineups: (!isReverse) }] }, [])
     }
     const convertStaffList = (matchParticipationObj) => {
-        const HeadCoachConvert = { ...matchParticipationObj.HeadCoach, role: 0 }
-        const AssistantCoachConvert = matchParticipationObj.AssistantCoach.reduce((obj, item) => { return [...obj, { ...item, role: 1 }] }, [])
-        const MedicalTeamConvert = matchParticipationObj.MedicalTeam.reduce((obj, item) => { return [...obj, { ...item, role: 2 }] }, [])
-        return [HeadCoachConvert, ...AssistantCoachConvert, ...MedicalTeamConvert].reduce((obj, item) => { return [...obj, { StaffContractID: item.id, Role: item.role, MatchID: currentMatch.id }] }, [])
+        const headCoachConvert = { ...matchParticipationObj.headCoach, role: 0 }
+        const assistantCoachConvert = matchParticipationObj.assistantCoach.reduce((obj, item) => { return [...obj, { ...item, role: 1 }] }, [])
+        const medicalTeamConvert = matchParticipationObj.medicalTeam.reduce((obj, item) => { return [...obj, { ...item, role: 2 }] }, [])
+        return [headCoachConvert, ...assistantCoachConvert, ...medicalTeamConvert].reduce((obj, item) => { return [...obj, { staffContractId: item.id, role: item.role, matchId: currentMatch.id }] }, [])
     }
     const convertRefereeList = (matchParticipationObj) => {
-        const HeadRefereeConvert = { ...matchParticipationObj.HeadReferee, role: 0 }
-        const AssistantRefereeConvert = matchParticipationObj.AssistantReferee.reduce((obj, item) => { return [...obj, { ...item, role: 1 }] }, [])
-        const MonitoringRefereeConvert = matchParticipationObj.MonitoringReferee.reduce((obj, item) => { return [...obj, { ...item, role: 2 }] }, [])
-        return [HeadRefereeConvert, ...AssistantRefereeConvert, ...MonitoringRefereeConvert].reduce((obj, item) => { return [...obj, { RefereeID: item.id, Role: item.role, MatchID: currentMatch.id }] }, [])
+        const headRefereeConvert = { ...matchParticipationObj.headReferee, role: 0 }
+        const assistantRefereeConvert = matchParticipationObj.assistantReferee.reduce((obj, item) => { return [...obj, { ...item, role: 1 }] }, [])
+        const monitoringRefereeConvert = matchParticipationObj.monitoringReferee.reduce((obj, item) => { return [...obj, { ...item, role: 2 }] }, [])
+        return [headRefereeConvert, ...assistantRefereeConvert, ...monitoringRefereeConvert].reduce((obj, item) => { return [...obj, { refereeId: item.id, role: item.role, matchId: currentMatch.id }] }, [])
     }
-    // const homeContract = [...convertPlayerLineUp(HomeLineUp, false), ...convertPlayerLineUp(HomeReverse, true)]
+    // const homeContract = [...convertPlayerLineUp(homeLineUp, false), ...convertPlayerLineUp(homeReverse, true)]
     useEffect(() => {
-        const HomeReverseSelected = !_.isEmpty(HomeReverse) ? [HomeReverse.GoalKeeper, ...HomeReverse.Defender, ...HomeReverse.Midfielder, ...HomeReverse.Forward] : []
-        const HomeLineUpSelected = !_.isEmpty(HomeLineUp) ? [HomeLineUp.GoalKeeper, ...HomeLineUp.Defender, ...HomeLineUp.Midfielder, ...HomeLineUp.Forward] : []
-        setHomeSelected([...HomeReverseSelected, ...HomeLineUpSelected])
+        const homeReverseSelected = !_.isEmpty(homeReverse) ? [homeReverse.goalKeeper, ...homeReverse.defender, ...homeReverse.midfielder, ...homeReverse.forward] : []
+        const homeLineUpSelected = !_.isEmpty(homeLineUp) ? [homeLineUp.goalKeeper, ...homeLineUp.defender, ...homeLineUp.midfielder, ...homeLineUp.forward] : []
+        setHomeSelected([...homeReverseSelected, ...homeLineUpSelected])
     }, [matchParticipation])
     const renderPlayer = (object, isHome) => {
         return object ? Object.entries(object).map(([key, e]) => {
@@ -240,20 +241,20 @@ export default function Lineup() {
         }) : <></>
     }
     const checkPlayerList = () => {
-        if (!_.isNil(matchParticipation?.HomeLineUp) && !_.isNil(matchParticipation?.AwayLineUp) && !_.isNil(matchParticipation?.HomeReverse) && !_.isNil(matchParticipation?.AwayReverse)) {
-            return [...convertPlayerList(HomeLineUp, false), ...convertPlayerList(HomeReverse, true), ...convertPlayerList(AwayLineUp, false), ...convertPlayerList(AwayReverse, true)]
+        if (!_.isNil(matchParticipation?.homeLineUp) && !_.isNil(matchParticipation?.awayLineUp) && !_.isNil(matchParticipation?.homeReverse) && !_.isNil(matchParticipation?.awayReverse)) {
+            return [...convertPlayerList(homeLineUp, false), ...convertPlayerList(homeReverse, true), ...convertPlayerList(awayLineUp, false), ...convertPlayerList(awayReverse, true)]
         }
         return []
     }
     const checkStaffList = () => {
-        if (!_.isNil(matchParticipation?.HomeStaff) && !_.isNil(matchParticipation?.AwayStaff)) {
-            return [...convertStaffList(HomeStaff), ...convertStaffList(AwayStaff)]
+        if (!_.isNil(matchParticipation?.homeStaff) && !_.isNil(matchParticipation?.awayStaff)) {
+            return [...convertStaffList(homeStaff), ...convertStaffList(awayStaff)]
         }
         return []
     }
     const checkRefereeList = () => {
-        if (!_.isNil(matchParticipation?.Referee)) {
-            return [...convertRefereeList(Referee)]
+        if (!_.isNil(matchParticipation?.referee)) {
+            return [...convertRefereeList(referee)]
         }
         return []
     }
@@ -298,12 +299,12 @@ export default function Lineup() {
     const formik = useFormik({
         enableReinitialize: true,
         initialValues: {
-            id: currentMatch?.id || "",
-            StartDate: currentMatch?.startDate || null,
-            StadiumID: currentMatch?.stadiumID || null,
-            PlayerParticipation: checkPlayerList(),
-            StaffParticipation: checkStaffList(),
-            RefereeParticipation: checkRefereeList(),
+            matchId: currentMatch?.id || "",
+            startDate: currentMatch?.startDate || null,
+            stadiumId: currentMatch?.stadiumId || null,
+            playerParticipation: checkPlayerList(),
+            staffParticipation: checkStaffList(),
+            refereeParticipation: checkRefereeList(),
 
         },
         validationSchema: NewLineupSchema,
@@ -321,19 +322,18 @@ export default function Lineup() {
     });
     useEffect(() => {
         if (!_.isEmpty(errorState)) {
-            if (!errorState.IsError) {
-                console.log('ko error');
-                formik.resetForm();
-                enqueueSnackbar('Update success', { variant: 'success' });
+            if (errorState.status === SUCCESS) {
+              formik.resetForm();
+              enqueueSnackbar(errorState.message, { variant: 'success' });
             }
             else {
-                enqueueSnackbar(errorState.Message, { variant: 'error' });
+              enqueueSnackbar(errorState.message, { variant: 'error' });
             }
-        }
+          }
 
     }, [errorState])
     const checkDisable = () => {
-        return _.isEmpty(values.PlayerParticipation) || _.isEmpty(values.StaffParticipation) || _.isEmpty(values.RefereeParticipation)
+        return _.isEmpty(values.playerParticipation) || _.isEmpty(values.staffParticipation) || _.isEmpty(values.refereeParticipation)
     }
     const { errors, values, touched, handleSubmit, isSubmitting, setFieldValue, getFieldProps } = formik;
     return (
@@ -359,7 +359,7 @@ export default function Lineup() {
                                 </TableHead>
                             </Table>
                         </Card>
-                        {matchParticipation?.HomeLineUp && (
+                        {matchParticipation?.homeLineUp && (
                             <Card sx={{ p: 2, mt: 3 }}>
                                 <Table size="small">
                                     <TableHead>
@@ -369,12 +369,12 @@ export default function Lineup() {
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>
-                                        {renderPlayer(matchParticipation?.HomeLineUp, true)}
+                                        {renderPlayer(matchParticipation?.homeLineUp, true)}
                                     </TableBody>
                                 </Table>
                             </Card>
                         )}
-                        {matchParticipation?.HomeReverse && (
+                        {matchParticipation?.homeReverse && (
                             <Card sx={{ p: 2, mt: 3 }}>
                                 <Table size="small">
                                     <TableHead>
@@ -384,14 +384,14 @@ export default function Lineup() {
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>
-                                        {renderPlayer(matchParticipation?.HomeReverse, true)}
+                                        {renderPlayer(matchParticipation?.homeReverse, true)}
                                     </TableBody>
                                 </Table>
                             </Card>
                         )}
 
 
-                        {matchParticipation?.HomeStaff && (
+                        {matchParticipation?.homeStaff && (
                             <Card sx={{ p: 2, mt: 3 }}>
                                 <Table size="small">
                                     <TableHead>
@@ -401,7 +401,7 @@ export default function Lineup() {
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>
-                                        {renderStaff(matchParticipation?.HomeStaff, true)}
+                                        {renderStaff(matchParticipation?.homeStaff, true)}
                                     </TableBody>
                                 </Table>
                             </Card>
@@ -428,7 +428,7 @@ export default function Lineup() {
 
 
                         </Card>
-                        {matchParticipation?.AwayLineUp && (
+                        {matchParticipation?.awayLineUp && (
                             <Card sx={{ p: 2, mt: 3 }}>
                                 <Table size='small'>
                                     <TableHead>
@@ -438,12 +438,12 @@ export default function Lineup() {
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>
-                                        {renderPlayer(matchParticipation?.AwayLineUp)}
+                                        {renderPlayer(matchParticipation?.awayLineUp)}
                                     </TableBody>
                                 </Table>
                             </Card>
                         )}
-                        {matchParticipation?.AwayReverse && (
+                        {matchParticipation?.awayReverse && (
                             <Card sx={{ p: 2, mt: 3 }}>
                                 <Table size='small'>
                                     <TableHead>
@@ -453,14 +453,14 @@ export default function Lineup() {
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>
-                                        {renderPlayer(matchParticipation?.AwayReverse)}
+                                        {renderPlayer(matchParticipation?.awayReverse)}
                                     </TableBody>
                                 </Table>
                             </Card>
                         )}
 
 
-                        {matchParticipation?.AwayStaff && (
+                        {matchParticipation?.awayStaff && (
                             <Card sx={{ p: 2, mt: 3 }}>
                                 <Table size='small'>
                                     <TableHead>
@@ -470,7 +470,7 @@ export default function Lineup() {
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>
-                                        {renderStaff(matchParticipation?.AwayStaff)}
+                                        {renderStaff(matchParticipation?.awayStaff)}
                                     </TableBody>
                                 </Table>
                             </Card>
@@ -490,7 +490,7 @@ export default function Lineup() {
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
-                                    {renderReferee(matchParticipation?.Referee)}
+                                    {renderReferee(matchParticipation?.referee)}
                                 </TableBody>
                             </Table>
                         </Card>

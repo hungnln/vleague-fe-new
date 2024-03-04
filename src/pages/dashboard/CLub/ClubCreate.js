@@ -12,8 +12,9 @@ import useSettings from '../../../hooks/useSettings';
 // components
 import Page from '../../../components/Page';
 import HeaderBreadcrumbs from '../../../components/HeaderBreadcrumbs';
-import { getClubList } from 'src/redux/slices/club';
+import { getClubDetail, getClubList } from 'src/redux/slices/club';
 import ClubNewForm from 'src/components/_dashboard/club/ClubNewForm';
+import { getStadiumList } from 'src/redux/slices/stadium';
 
 // ----------------------------------------------------------------------
 
@@ -22,18 +23,21 @@ export default function ClubCreate() {
   const dispatch = useDispatch();
   const { pathname } = useLocation();
   const { id } = useParams();
-  const { clubList } = useSelector((state) => state.club);
+  const { clubList, clubDetail } = useSelector((state) => state.club);
   const isEdit = pathname.includes('edit');
-  const currentClub = clubList.find((club) => club.id === Number(id));
+  // const currentClub = clubList.find((club) => club.id === Number(id));
 
   useEffect(() => {
-    dispatch(getClubList());
+    if (id) {
+      dispatch(getClubDetail(id));
+    }
+    dispatch(getStadiumList(0, 1000))
   }, [dispatch]);
 
   return (
     <Page title="Club: Create a new club | V League">
       <Container maxWidth={themeStretch ? false : 'lg'} >
-        {isEdit && currentClub == null ? (
+        {isEdit && clubDetail == null ? (
           <Box >
             <CircularProgress sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }} />
           </Box>
@@ -43,10 +47,10 @@ export default function ClubCreate() {
             links={[
               { name: 'Dashboard', href: PATH_DASHBOARD.root },
               { name: 'Club', href: PATH_DASHBOARD.club.root },
-              { name: !isEdit ? 'New club' : currentClub?.name }
+              { name: !isEdit ? 'New club' : clubDetail?.name }
             ]}
           />
-          <ClubNewForm isEdit={isEdit} currentClub={currentClub} />
+          <ClubNewForm isEdit={isEdit} currentClub={clubDetail} />
         </>
         )}
 

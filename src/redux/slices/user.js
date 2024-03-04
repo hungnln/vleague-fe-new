@@ -11,7 +11,15 @@ const initialState = {
   myProfile: null,
   userDetail: {},
   role: {},
-  userList: [],
+  userList: {
+    data: [],
+    pagination: {
+      pageIndex: 0,
+      pageSize: 0,
+      totalCount: 0,
+      totalPage: 0
+    }
+  },
   isOpenModal: false,
 
 };
@@ -79,8 +87,8 @@ export function getUserDetail(id) {
   return async (dispatch) => {
     dispatch(slice.actions.startLoading());
     try {
-      const response = await axios.get(`/api/accounts/${id}`);
-      dispatch(slice.actions.getUserDetail(response.data.result));
+      const response = await axios.get(`/accounts/${id}`);
+      dispatch(slice.actions.getUserDetail(response.data.data));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
     }
@@ -90,9 +98,8 @@ export function updateUserStatus(userID, isBanned, callback) {
   return async (dispatch) => {
     dispatch(slice.actions.startLoading());
     try {
-      const response = await axios.put(`/api/accounts/${userID}?isBanned=${isBanned}`);
-
-      callback({ IsError: false })
+      const response = await axios.put(`/accounts/${userID}?isBanned=${isBanned}`);
+      callback({ status: response.data.status, message: response.data.message })
       dispatch(slice.actions.editUserStatus(userID))
     } catch (error) {
       dispatch(slice.actions.hasError(error));
@@ -101,12 +108,12 @@ export function updateUserStatus(userID, isBanned, callback) {
   };
 }
 
-export function getUserList() {
+export function getUserList(pageIndex,pageSize) {
   return async (dispatch) => {
     dispatch(slice.actions.startLoading());
     try {
-      const response = await axios.get('/api/accounts');
-      dispatch(slice.actions.getUserListSuccess(response.data.result));
+      const response = await axios.get(`/accounts?pageIndex=${pageIndex}&pageSize=${pageSize}`);
+      dispatch(slice.actions.getUserListSuccess(response.data.data));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
     }

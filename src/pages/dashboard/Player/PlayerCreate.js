@@ -12,7 +12,7 @@ import useSettings from '../../../hooks/useSettings';
 // components
 import Page from '../../../components/Page';
 import HeaderBreadcrumbs from '../../../components/HeaderBreadcrumbs';
-import { getPlayerList } from 'src/redux/slices/player';
+import { getPlayerDetail, getPlayerList } from 'src/redux/slices/player';
 import PlayerNewForm from 'src/components/_dashboard/player/PlayerNewForm';
 
 // ----------------------------------------------------------------------
@@ -22,18 +22,20 @@ export default function PlayerCreate() {
   const dispatch = useDispatch();
   const { pathname } = useLocation();
   const { id } = useParams();
-  const { playerList } = useSelector((state) => state.player);
+  const { playerDetail } = useSelector((state) => state.player);
   const isEdit = pathname.includes('edit');
-  const currentPlayer = playerList.find((player) => player.id === Number(id));
+  // const currentPlayer = playerList.find((player) => player.id === Number(id));
 
   useEffect(() => {
-    dispatch(getPlayerList());
-  }, [dispatch]);
+    if(id){
+      dispatch(getPlayerDetail(id));
+    }
+  }, [dispatch,id]);
 
   return (
     <Page title="Player: Create a new player | V League">
       <Container maxWidth={themeStretch ? false : 'lg'}>
-        {isEdit && currentPlayer == null ?
+        {isEdit && playerDetail == null ?
           (<Box>
             <CircularProgress sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }} />
           </Box>)
@@ -44,11 +46,11 @@ export default function PlayerCreate() {
               links={[
                 { name: 'Dashboard', href: PATH_DASHBOARD.root },
                 { name: 'Player', href: PATH_DASHBOARD.player.root },
-                { name: !isEdit ? 'New player' : currentPlayer?.name }
+                { name: !isEdit ? 'New player' : playerDetail?.name }
               ]}
             />
 
-            <PlayerNewForm isEdit={isEdit} currentPlayer={isEdit ? currentPlayer : {}} />
+            <PlayerNewForm isEdit={isEdit} currentPlayer={isEdit ? playerDetail : {}} />
           </>)}
 
       </Container>

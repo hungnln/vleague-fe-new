@@ -95,10 +95,11 @@ export default function PlayerList() {
   const [filterName, setFilterName] = useState('');
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const { user } = useAuth()
+  const { data, pagination } = playerList;
   const isAdmin = user?.role === 'Admin'
   useEffect(() => {
-    dispatch(getPlayerList());
-  }, [dispatch]);
+    dispatch(getPlayerList(page, rowsPerPage));
+  }, [dispatch, page, rowsPerPage]);
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -108,7 +109,7 @@ export default function PlayerList() {
 
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelecteds = playerList.map((n) => n.name);
+      const newSelecteds = data.map((n) => n.name);
       setSelected(newSelecteds);
       return;
     }
@@ -149,12 +150,11 @@ export default function PlayerList() {
 
   };
 
-  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - playerList.length) : 0;
+  const emptyRows = page > 0 ? Math.max(0, rowsPerPage - data.length) : 0;
 
-  const filteredPlayers = applySortFilter(playerList, getComparator(order, orderBy), filterName);
+  const filteredPlayers = applySortFilter(data, getComparator(order, orderBy), filterName);
 
   const isPlayerNotFound = filteredPlayers.length === 0;
-
   return (
     <Page title="Player: List | V League">
       <Container maxWidth={themeStretch ? false : 'lg'}>
@@ -198,15 +198,15 @@ export default function PlayerList() {
                   order={order}
                   orderBy={orderBy}
                   headLabel={TABLE_HEAD}
-                  rowCount={playerList.length}
+                  rowCount={data.length}
                   numSelected={selected.length}
                   onRequestSort={handleRequestSort}
                   onSelectAllClick={handleSelectAllClick}
                 />
                 <TableBody>
-                  {playerList.length <= 0 &&
+                  {data.length <= 0 &&
                     <LoadingProgress />}
-                  {filteredPlayers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
+                  {filteredPlayers.map((row) => {
                     const { id, name, dateOfBirth, imageURL, isVerified } = row;
                     const isItemSelected = selected.indexOf(name) !== -1;
 
@@ -270,7 +270,7 @@ export default function PlayerList() {
           <TablePagination
             rowsPerPageOptions={[5, 10, 25]}
             component="div"
-            count={playerList.length}
+            count={pagination.totalCount}
             rowsPerPage={rowsPerPage}
             page={page}
             onPageChange={handleChangePage}

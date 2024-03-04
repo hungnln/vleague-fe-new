@@ -65,6 +65,7 @@ export default function StaffConTract() {
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const { user } = useAuth()
   const isAdmin = user?.role === 'Admin'
+  const { data, pagination } = contractList;
   useEffect(() => {
     if (isEdit) {
       dispatch(getStaffDetail(id))
@@ -83,7 +84,7 @@ export default function StaffConTract() {
 
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelecteds = contractList.map((n) => n.name);
+      const newSelecteds = data.map((n) => n.name);
       setSelected(newSelecteds);
       return;
     }
@@ -134,9 +135,9 @@ export default function StaffConTract() {
     return stabilizedThis.map((el) => el[0]);
   }
 
-  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - contractList.length) : 0;
+  const emptyRows = page > 0 ? Math.max(0, rowsPerPage - data.length) : 0;
 
-  const filteredStaffs = applySortFilter(contractList, getComparator(order, orderBy), filterName);
+  const filteredStaffs = applySortFilter(data, getComparator(order, orderBy), filterName);
 
   const isStaffNotFound = filteredStaffs.length === 0;
   const handleChangePage = (event, newPage) => {
@@ -205,15 +206,15 @@ export default function StaffConTract() {
                     order={order}
                     orderBy={orderBy}
                     headLabel={isEdit ? TABLE_HEAD_EDIT : TABLE_HEAD}
-                    rowCount={contractList.length}
+                    rowCount={data.length}
                     numSelected={selected.length}
                     onRequestSort={handleRequestSort}
                     onSelectAllClick={handleSelectAllClick}
                   />
                   <TableBody>
-                    {contractList.length <= 0 &&
+                    {data.length <= 0 &&
                       <LoadingProgress />}
-                    {filteredStaffs.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
+                    {filteredStaffs.map((row) => {
                       const { id, staff, club, salary, start, end } = row;
                       const isItemSelected = selected.indexOf(id) !== -1;
 
@@ -287,7 +288,7 @@ export default function StaffConTract() {
             <TablePagination
               rowsPerPageOptions={[5, 10, 25]}
               component="div"
-              count={contractList.length}
+              count={pagination.totalCount}
               rowsPerPage={rowsPerPage}
               page={page}
               onPageChange={handleChangePage}

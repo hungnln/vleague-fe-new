@@ -20,6 +20,7 @@ import countries from './countries';
 import { createTournament, editTournament } from 'src/redux/slices/tournament';
 import { useDispatch } from 'src/redux/store';
 import _ from 'lodash';
+import { FAILURE, SUCCESS } from 'src/config';
 
 // ----------------------------------------------------------------------
 
@@ -34,18 +35,18 @@ export default function TournamentNewForm({ onCancel, currentTournament }) {
   const [errorState, setErrorState] = useState();
   const { enqueueSnackbar } = useSnackbar();
   const NewTournamentSchema = Yup.object().shape({
-    Name: Yup.string().required('Name is required'),
-    From: Yup.mixed().required('Date begin is required'),
-    To: Yup.mixed().required('Date end is required')
+    name: Yup.string().required('Name is required'),
+    start: Yup.mixed().required('Date start is required'),
+    end: Yup.mixed().required('Date end is required')
   });
 
   const formik = useFormik({
     enableReinitialize: true,
     initialValues: {
       id: currentTournament?.id || '',
-      Name: currentTournament?.name || '',
-      From: currentTournament?.from || '',
-      To: currentTournament?.to || ''
+      name: currentTournament?.name || '',
+      start: currentTournament?.start || '',
+      end: currentTournament?.end || ''
     },
     validationSchema: NewTournamentSchema,
     onSubmit: (values, { setSubmitting, resetForm, setErrors }) => {
@@ -64,21 +65,27 @@ export default function TournamentNewForm({ onCancel, currentTournament }) {
   });
   useEffect(() => {
     if (!_.isEmpty(errorState)) {
-      if (!errorState.IsError) {
+      if (errorState.status === SUCCESS) {
         formik.resetForm();
-        enqueueSnackbar(!isEdit ? 'Create success' : 'Update success', { variant: 'success' });
+        enqueueSnackbar(errorState.message, { variant: 'success' });
         onCancel()
       }
+      else {
+        enqueueSnackbar(errorState.message, { variant: 'error' });
+        if (errorState.data !== null) {
+          formik.setSubmitting(false);
+          formik.setErrors(errorState.data);
+        }
+      }
     }
-
   }, [errorState])
 
   const { errors, values, touched, handleSubmit, isSubmitting, setFieldValue, getFieldProps } = formik;
   const disableFromDate = (date) => {
-    return new Date(date) > new Date(values.To)
+    return new Date(date) > new Date(values.end)
   }
   const disableToDate = (date) => {
-    return new Date(date) < new Date(values.From)
+    return new Date(date) < new Date(values.start)
   }
   return (
     <FormikProvider value={formik}>
@@ -89,40 +96,40 @@ export default function TournamentNewForm({ onCancel, currentTournament }) {
               <TextField
                 fullWidth
                 label="Name"
-                {...getFieldProps('Name')}
-                error={Boolean(touched.Name && errors.Name)}
-                helperText={touched.Name && errors.Name}
+                {...getFieldProps('name')}
+                error={Boolean(touched.name && errors.name)}
+                helperText={touched.name && errors.name}
               />
               <DatePicker
 
                 inputFormat='dd/MM/yyyy'
                 shouldDisableDate={(date) => disableFromDate(date)}
                 disabled={isEdit}
-                label="From"
+                label="start"
                 openTo="year"
                 views={['year', 'month', 'day']}
-                value={values.From}
+                value={values.start}
                 onChange={(newValue) => {
-                  setFieldValue('From', newValue);
+                  setFieldValue('start', newValue);
                 }}
-                renderInput={(params) => <TextField {...params} error={Boolean(touched.From && errors.From)}
-                  helperText={touched.From && errors.From} />}
+                renderInput={(params) => <TextField {...params} error={Boolean(touched.start && errors.start)}
+                  helperText={touched.start && errors.start} />}
               />
               <DatePicker
                 inputFormat='dd/MM/yyyy'
                 shouldDisableDate={(date) => disableToDate(date)}
-                label="To"
+                label="end"
                 openTo="year"
                 views={['year', 'month', 'day']}
-                value={values.To}
+                value={values.end}
                 onChange={(newValue) => {
-                  setFieldValue('To', newValue);
+                  setFieldValue('end', newValue);
                 }}
-                renderInput={(params) => <TextField {...params} error={Boolean(touched.To && errors.To)}
-                  helperText={touched.To && errors.To} />}
+                renderInput={(params) => <TextField {...params} error={Boolean(touched.end && errors.end)}
+                  helperText={touched.end && errors.end} />}
               />
             </Stack>
-            {errorState?.IsError ? <Alert severity="warning">{errorState.Message}</Alert> : ''}
+            {errorState?.status === FAILURE ? <Alert severity="warning">{errorState?.message}</Alert> : ''}
 
             <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
               <LoadingButton type="submit" variant="contained" loading={isSubmitting}>

@@ -3,12 +3,13 @@ import PropTypes from 'prop-types';
 // utils
 import axios from '../utils/axios';
 import { isValidToken, setSession } from '../utils/jwt';
-import firebase from 'firebase/app';
-import 'firebase/auth';
-import 'firebase/firestore';
-import { firebaseConfig } from '../config';
+// import firebase from 'firebase/app';
+import firebase from 'firebase/compat/app';
+import 'firebase/compat/auth';
+import { SUCCESS, firebaseConfig } from '../config';
 import { loginToServer } from 'src/redux/slices/user';
 import { useDispatch, useSelector } from 'react-redux';
+import { getStorage } from 'firebase/storage';
 
 // ----------------------------------------------------------------------
 
@@ -21,6 +22,7 @@ if (!firebase.apps.length) {
   firebase.initializeApp(firebaseConfig);
   // firebase.firestore();
 }
+export const storage = getStorage(firebase.app())
 const handlers = {
   INITIALIZE: (state, action) => {
     const { isAuthenticated, user } = action.payload;
@@ -92,11 +94,11 @@ function AuthProvider({ children }) {
         console.log("check admin token", accessToken);
         const firebaseToken = localStorage.getItem('firebaseToken')
 
-        if (accessToken && isValidToken(accessToken)) {
+        if (accessToken&& isValidToken(accessToken)) {
           setSession(accessToken);
           const x = JSON.parse(atob(accessToken.split('.')[1]))
           console.log("check admin token", x);
-          if (x?.role === "Admin") {
+          if (x?.authorities === "ADMIN") {
             dispatch({
               type: 'INITIALIZE',
               payload: {
@@ -107,9 +109,9 @@ function AuthProvider({ children }) {
           }
           else {
             console.log('check  firebase');
-            const respone = await axios.post(`/api/login/firebase`, { headers: { Authorization: `Baerer ${firebaseToken}` } })
-            const { account } = respone.data.result
-            if (respone.data.statusCode === 200) {
+            const respone = await axios.post(`/login/firebase`, { token: firebaseToken })
+            const { account } = respone.data.data
+            if (respone.data.status === SUCCESS) {
               dispatch({
                 type: 'INITIALIZE',
                 payload: { isAuthenticated: true, user: { id: account.id, displayName: account.name, email: account.email, role: 'User', photoURL: account.imageURL }, isInitialized: true }
@@ -191,10 +193,11 @@ function AuthProvider({ children }) {
       if (user) {
         user.getIdToken().then(async (token) => {
           localStorage.setItem('firebaseToken', token)
-          setSession(token)
-          const respone = await axios.post(`/api/login/firebase`)
-          if (respone.data.statusCode === 200) {
-            const { account } = respone.data.result
+          // setSession(token)
+          const respone = await axios.post(`/login/firebase`, { token })
+          if (respone.data.status === SUCCESS) {
+            const { token, account } = respone.data.data;
+            setSession(token);
             dispatch({
               type: 'LOGINGOOGLE',
               payload: { user: { id: account.id, displayName: account.name, email: account.email, role: 'User', photoURL: account.imageURL } }
@@ -212,13 +215,18 @@ function AuthProvider({ children }) {
       }
     })
   };
-  const login = async (Username, Password) => {
-    const response = await axios.post('/api/login/admin', {
-      Username,
-      Password
+  const login = async (username, password) => {
+    // if(username !== 'admin' || password !== 'admin'){
+    //   return
+    // }
+    const response = await axios.post('/login/admin', {
+      username,
+      password
     });
-    const { token, account } = response.data.result;
+    const { token, account } = response.data.data;
+    // const fakeToken='eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkFkbWluIiwiYWRtaW4iOnRydWUsImlhdCI6MTcwMDY1MDE3MiwiZXhwIjoxNzAwNjUzNzcyLCJyb2xlIjoiQWRtaW4ifQ.PBtYkUq1ZxqrvVzVpSvJPIikD4Mw2U-Ld-KDfENrEmQ'
     setSession(token);
+
     dispatch({
       type: 'LOGIN',
       payload: {

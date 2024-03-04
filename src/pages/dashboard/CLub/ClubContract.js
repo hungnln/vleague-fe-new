@@ -73,9 +73,13 @@ export default function ClubConTract() {
   const isAdmin = user?.role === 'Admin'
   useEffect(() => {
     dispatch(getClubDetail(id))
-    dispatch(getStaffContractList(id, 'staff'));
-    dispatch(getPlayerContractList(id, 'player'));
-  }, [dispatch]);
+  }, [dispatch, id]);
+  useEffect(() => {
+    dispatch(getPlayerContractList(id, pagePlayer, rowsPerPagePlayer));
+  }, [dispatch, id, pagePlayer, rowsPerPagePlayer])
+  useEffect(() => {
+    dispatch(getStaffContractList(id, pageStaff, rowsPerPageStaff));
+  }, [dispatch, id, pageStaff, rowsPerPageStaff])
   const handleRequestSortPlayer = (event, property) => {
     const isAsc = orderByPlayer === property && orderPlayer === 'asc';
     setOrderPlayer(isAsc ? 'desc' : 'asc');
@@ -103,7 +107,7 @@ export default function ClubConTract() {
     { id: '', label: 'Action', alignRight: true }
   ];
   const TABLE_HEAD_PLAYER_CONTRACT = [
-    { id: 'Player', label: 'Player', alignRight: false },
+    { id: 'player', label: 'Player', alignRight: false },
     { id: 'salary', label: 'Salary', alignRight: false },
     { id: 'start', label: 'Start', alignRight: false },
     { id: 'end', label: 'End', alignRight: false },
@@ -149,10 +153,11 @@ export default function ClubConTract() {
     return stabilizedThis.map((el) => el[0]);
   }
 
-  const emptyRows = pagePlayer > 0 ? Math.max(0, (1 + pagePlayer) * rowsPerPagePlayer - playerContractList.length) : 0;
+  const emptyRowsPlayer = pagePlayer > 0 ? Math.max(0, rowsPerPagePlayer - playerContractList.data.length) : 0;
+  const emptyRowsStaff = pageStaff > 0 ? Math.max(0, rowsPerPageStaff - staffContractList.data.length) : 0;
 
-  const filteredPlayerContract = applySortFilterPlayer(playerContractList, getComparator(orderPlayer, orderByPlayer), filterNamePlayer);
-  const filteredStaffContract = applySortFilterStaff(staffContractList, getComparator(orderStaff, orderByStaff), filterNameStaff);
+  const filteredPlayerContract = applySortFilterPlayer(playerContractList.data, getComparator(orderPlayer, orderByPlayer), filterNamePlayer);
+  const filteredStaffContract = applySortFilterStaff(staffContractList.data, getComparator(orderStaff, orderByStaff), filterNameStaff);
 
   const isPlayerContractNotFound = filteredPlayerContract.length === 0;
   const isStaffContractNotFound = filteredStaffContract.length === 0;
@@ -242,15 +247,15 @@ export default function ClubConTract() {
                     order={orderPlayer}
                     orderBy={orderByPlayer}
                     headLabel={TABLE_HEAD_PLAYER_CONTRACT}
-                    rowCount={playerContractList.length}
+                    rowCount={playerContractList.data.length}
                     numSelected={selected.length}
                     onRequestSort={handleRequestSortPlayer}
                   // onSelectAllClick={handleSelectAllClick}
                   />
                   <TableBody>
-                    {playerContractList.length <= 0 &&
+                    {playerContractList.data.length <= 0 &&
                       <LoadingProgress />}
-                    {filteredPlayerContract.slice(pagePlayer * rowsPerPagePlayer, pagePlayer * rowsPerPagePlayer + rowsPerPagePlayer).map((row) => {
+                    {filteredPlayerContract.map((row) => {
                       const { id, player, salary, start, end, number } = row;
                       const isItemSelected = selected.indexOf(id) !== -1;
 
@@ -302,8 +307,8 @@ export default function ClubConTract() {
                         </TableRow>
                       );
                     })}
-                    {emptyRows > 0 && (
-                      <TableRow style={{ height: 53 * emptyRows }}>
+                    {emptyRowsPlayer > 0 && (
+                      <TableRow style={{ height: 53 * emptyRowsPlayer }}>
                         <TableCell colSpan={6} />
                       </TableRow>
                     )}
@@ -324,7 +329,7 @@ export default function ClubConTract() {
             <TablePagination
               rowsPerPageOptions={[5, 10, 25]}
               component="div"
-              count={playerContractList.length}
+              count={playerContractList.pagination.totalCount}
               rowsPerPage={rowsPerPagePlayer}
               page={pagePlayer}
               onPageChange={handleChangePagePlayer}
@@ -351,15 +356,15 @@ export default function ClubConTract() {
                     order={orderStaff}
                     orderBy={orderByStaff}
                     headLabel={TABLE_HEAD_STAFF_CONTRACT}
-                    rowCount={staffContractList.length}
+                    rowCount={staffContractList.data.length}
                     numSelected={selected.length}
                     onRequestSort={handleRequestSortStaff}
                   // onSelectAllClick={handleSelectAllClick}
                   />
                   <TableBody>
-                    {staffContractList.length <= 0 &&
+                    {staffContractList.data.length <= 0 &&
                       <LoadingProgress />}
-                    {filteredStaffContract.slice(pageStaff * rowsPerPageStaff, pageStaff * rowsPerPageStaff + rowsPerPageStaff).map((row) => {
+                    {filteredStaffContract.map((row) => {
                       const { id, staff, salary, start, end } = row;
                       const isItemSelected = selected.indexOf(id) !== -1;
 
@@ -400,8 +405,8 @@ export default function ClubConTract() {
                         </TableRow>
                       );
                     })}
-                    {emptyRows > 0 && (
-                      <TableRow style={{ height: 53 * emptyRows }}>
+                    {emptyRowsStaff > 0 && (
+                      <TableRow style={{ height: 53 * emptyRowsStaff }}>
                         <TableCell colSpan={6} />
                       </TableRow>
                     )}
@@ -422,7 +427,7 @@ export default function ClubConTract() {
             <TablePagination
               rowsPerPageOptions={[5, 10, 25]}
               component="div"
-              count={staffContractList.length}
+              count={staffContractList.pagination.totalCount}
               rowsPerPage={rowsPerPageStaff}
               page={pageStaff}
               onPageChange={handleChangePageStaff}

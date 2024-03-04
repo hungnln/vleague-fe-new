@@ -101,33 +101,33 @@ function applySortFilter(array, comparator, query) {
     return stabilizedThis.map((el) => el[0]);
 }
 
-export default function Ranking({ tournamentID }) {
+export default function Ranking({ tournamentId }) {
     const { themeStretch } = useSettings();
     const theme = useTheme();
     const dispatch = useDispatch();
     const { ranks } = useSelector((state) => state.tournament);
-    const { Goals, RedCards, YellowCards } = ranks
+    const { goals, redCards, yellowCards } = ranks
 
     useEffect(() => {
-        dispatch(getTournamentRank(tournamentID));
+        dispatch(getTournamentRank(tournamentId));
     }, [dispatch]);
-    console.log(ranks?.Goals, 'checkGoal');
+    console.log(ranks?.goals, 'checkGoal');
     return (
         <Grid container spacing={3}>
-            {Goals.length > 0 && (
+            {goals.length > 0 && (
                 <Grid item xs={4} >
-                    <Goal list={Goals} />
+                    <Goal list={goals} />
                 </Grid>
             )}
-            {RedCards.length > 0 && (
+            {redCards.length > 0 && (
                 <Grid item xs={4} >
-                    <RedCard list={RedCards} />
+                    <RedCard list={redCards} />
                 </Grid>
             )}
 
-            {YellowCards.length > 0 && (
+            {yellowCards.length > 0 && (
                 <Grid item xs={4} >
-                    <YellowCard list={YellowCards} />
+                    <YellowCard list={yellowCards} />
                 </Grid>
             )}
         </Grid >

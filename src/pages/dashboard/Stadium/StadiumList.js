@@ -96,10 +96,11 @@ export default function StadiumList() {
   const [filterName, setFilterName] = useState('');
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const { user } = useAuth()
+  const { data, pagination } = stadiumList
   const isAdmin = user?.role === 'Admin'
   useEffect(() => {
-    dispatch(getStadiumList());
-  }, [dispatch]);
+    dispatch(getStadiumList(page, rowsPerPage));
+  }, [dispatch, page, rowsPerPage]);
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -109,7 +110,7 @@ export default function StadiumList() {
 
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelecteds = stadiumList.map((n) => n.name);
+      const newSelecteds = data.map((n) => n.name);
       setSelected(newSelecteds);
       return;
     }
@@ -150,9 +151,9 @@ export default function StadiumList() {
 
   };
 
-  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - stadiumList.length) : 0;
+  const emptyRows = page > 0 ? Math.max(0, rowsPerPage - data.length) : 0;
 
-  const filteredStadiums = applySortFilter(stadiumList, getComparator(order, orderBy), filterName);
+  const filteredStadiums = applySortFilter(data, getComparator(order, orderBy), filterName);
 
   const isStadiumNotFound = filteredStadiums.length === 0;
 
@@ -188,7 +189,7 @@ export default function StadiumList() {
                   order={order}
                   orderBy={orderBy}
                   headLabel={TABLE_HEAD}
-                  rowCount={stadiumList.length}
+                  rowCount={data.length}
                   numSelected={selected.length}
                   onRequestSort={handleRequestSort}
                   onSelectAllClick={handleSelectAllClick}
@@ -196,14 +197,14 @@ export default function StadiumList() {
                 <TableBody>
                   {stadiumList.length <= 0 &&
                     <LoadingProgress />}
-                  {filteredStadiums.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
+                  {filteredStadiums.map((row) => {
                     const { id, name, address, imageURL, isVerified } = row;
                     const isItemSelected = selected.indexOf(name) !== -1;
 
                     return (
                       <TableRow
                         hover
-                        key={id} pClub
+                        key={id}
                         tabIndex={-1}
                         role="checkbox"
                         selected={isItemSelected}
@@ -260,7 +261,7 @@ export default function StadiumList() {
           <TablePagination
             rowsPerPageOptions={[5, 10, 25]}
             component="div"
-            count={stadiumList.length}
+            count={pagination.totalCount}
             rowsPerPage={rowsPerPage}
             page={page}
             onPageChange={handleChangePage}
