@@ -10,12 +10,20 @@ const initialState = {
   error: false,
   myProfile: null,
   isOpenModal: false,
-  tournamentList: [],
+  tournamentList: {
+    data: [],
+    pagination: {
+      pageIndex: 0,
+      pageSize: 0,
+      totalCount: 0,
+      totalPage: 0
+    }
+  },
   tournamentDetail: {},
   ranks: {
-    Goals: [],
-    RedCards: [],
-    YellowCards: [],
+    goals: [],
+    redCards: [],
+    yellowCards: [],
   },
   standings: [],
 };
@@ -55,18 +63,27 @@ const slice = createSlice({
 
     addTournament(state, action) {
       state.isLoading = false;
-      const newTournamentList = [...state.tournamentList, action.payload]
-      state.tournamentList = newTournamentList
+      const { data, pagination } = state.tournamentList
+      const newTotalCount = pagination.totalCount + 1 || 1
+      const newData = [...data, action.payload]
+      const newTournamentList = {
+        data: newData,
+        pagination: {
+          ...pagination,
+          totalCount: newTotalCount
+        }
+      };
+      state.tournamentList = newTournamentList;
     },
     editTournament(state, action) {
       state.isLoading = false;
-      const newTournamentList = state.tournamentList.map(tournament => {
-        if (Number(tournament.id) === Number(action.payload.id)) {
+      const newTournamentList = state.tournamentList.data.map(tournament => {
+        if (tournament.id === action.payload.id) {
           return action.payload
         }
         return tournament
       })
-      state.tournamentList = newTournamentList
+      state.tournamentList.data = newTournamentList
     },
     getTournamentDetail(state, action) {
       state.isLoading = false;
@@ -91,12 +108,12 @@ export default slice.reducer;
 export const { onToggleFollow, deleteTournament, openModal, closeModal } = slice.actions;
 
 // ----------------------------------------------------------------------
-export function getTournamentList() {
+export function getTournamentList(pageIndex, pageSize, name, start, end) {
   return async (dispatch) => {
     dispatch(slice.actions.startLoading());
     try {
-      const response = await axios.get('/api/tournaments');
-      dispatch(slice.actions.getTournamentListSuccess(response.data.result));
+      const response = await axios.get(`/tournaments?pageIndex=${pageIndex}&pageSize=${pageSize}&name=${name}&start=${start}&end=${end}`);
+      dispatch(slice.actions.getTournamentListSuccess(response.data.data));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
     }
@@ -106,8 +123,8 @@ export function getTournamentDetail(tournamentID) {
   return async (dispatch) => {
     dispatch(slice.actions.startLoading());
     try {
-      const response = await axios.get(`/api/tournaments/${tournamentID}`);
-      dispatch(slice.actions.getTournamentDetail(response.data.result));
+      const response = await axios.get(`/tournaments/${tournamentID}`);
+      dispatch(slice.actions.getTournamentDetail(response.data.data));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
     }
@@ -117,12 +134,9 @@ export const createTournament = (data, callback) => {
   return async (dispatch) => {
     dispatch(slice.actions.startLoading());
     try {
-      const response = await axios.post('/api/tournaments', data);
-      if (response.data.statusCode === 200) {
-        dispatch(slice.actions.addTournament(response.data.result));
-        console.log('response contract', response);
-        callback({ IsError: response.data.IsError })
-      }
+      const response = await axios.post('/tournaments', data);
+      dispatch(slice.actions.addTournament(response.data.data));
+      callback({ status: response.data.status, message: response.data.message })
     } catch (error) {
       dispatch(slice.actions.hasError(error));
       callback(error.response.data)
@@ -134,12 +148,10 @@ export const editTournament = (data, callback) => {
   return async (dispatch) => {
     dispatch(slice.actions.startLoading());
     try {
-      const response = await axios.put(`/api/tournaments/${data.id}`, data);
-      if (response.data.statusCode === 200) {
-        dispatch(slice.actions.editTournament(response.data.result));
-        console.log('response contract', response);
-        callback({ IsError: response.data.IsError })
-      }
+      const response = await axios.put(`/tournaments/${data.id}`, data);
+      dispatch(slice.actions.editTournament(response.data.data));
+      callback({ status: response.data.status, message: response.data.message })
+
     } catch (error) {
       dispatch(slice.actions.hasError(error));
       callback(error.response.data)
@@ -151,7 +163,7 @@ export const removeTournament = (id) => {
   return async dispatch => {
     dispatch(slice.actions.startLoading());
     try {
-      const response = await axios.delete(`/api/tournaments/${id}`);
+      const response = await axios.delete(`/tournaments/${id}`);
       dispatch(slice.actions.deleteTournament(id))
     } catch (error) {
       dispatch(slice.actions.hasError(error));
@@ -162,10 +174,10 @@ export const getTournamentRank = (tournamentID) => {
   return async dispatch => {
     dispatch(slice.actions.startLoading());
     try {
-      const response = await axios.get(`/api/tournaments/${tournamentID}/ranks`);
-      if (response.data.statusCode === 200) {
-        dispatch(slice.actions.getTournamentRank(response.data.result));
-      }
+      const response = await axios.get(`/tournaments/${tournamentID}/ranks`);
+
+      dispatch(slice.actions.getTournamentRank(response.data.data));
+
     } catch (error) {
       dispatch(slice.actions.hasError(error));
     }
@@ -175,10 +187,8 @@ export const getTournamentStanding = (tournamentID) => {
   return async dispatch => {
     dispatch(slice.actions.startLoading());
     try {
-      const response = await axios.get(`/api/tournaments/${tournamentID}/standings`);
-      if (response.data.statusCode === 200) {
-        dispatch(slice.actions.getTournamentStanding(response.data.result));
-      }
+      const response = await axios.get(`/tournaments/${tournamentID}/standings`);
+      dispatch(slice.actions.getTournamentStanding(response.data.data));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
     }

@@ -99,11 +99,11 @@ export default function ClubList() {
   const [filterName, setFilterName] = useState('');
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const { user } = useAuth()
+  const { data, pagination } = clubList
   const isAdmin = user?.role === 'Admin'
   useEffect(() => {
-    dispatch(getClubList());
-    dispatch(getStadiumList());
-  }, [dispatch]);
+    dispatch(getClubList(page, rowsPerPage));
+  }, [dispatch, page, rowsPerPage]);
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -154,9 +154,9 @@ export default function ClubList() {
 
   };
 
-  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - clubList.length) : 0;
+  const emptyRows = page > 0 ? Math.max(0, rowsPerPage - data.length) : 0;
 
-  const filteredClubs = applySortFilter(clubList, getComparator(order, orderBy), filterName);
+  const filteredClubs = applySortFilter(data, getComparator(order, orderBy), filterName);
 
   const isClubNotFound = filteredClubs.length === 0;
   const handleLoading = () => {
@@ -198,17 +198,17 @@ export default function ClubList() {
                   order={order}
                   orderBy={orderBy}
                   headLabel={TABLE_HEAD}
-                  rowCount={clubList.length}
+                  rowCount={data.length}
                   numSelected={selected.length}
                   onRequestSort={handleRequestSort}
                   onSelectAllClick={handleSelectAllClick}
                 />
 
                 <TableBody>
-                  {clubList.length <= 0 &&
+                  {data.length <= 0 &&
                     <LoadingProgress />
                   }
-                  {filteredClubs.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
+                  {filteredClubs.map((row) => {
                     const { id, name, headQuarter, imageURL, stadium } = row;
                     const isItemSelected = selected.indexOf(name) !== -1;
 
@@ -266,7 +266,7 @@ export default function ClubList() {
           <TablePagination
             rowsPerPageOptions={[5, 10, 25]}
             component="div"
-            count={clubList.length}
+            count={pagination.totalCount}
             rowsPerPage={rowsPerPage}
             page={page}
             onPageChange={handleChangePage}

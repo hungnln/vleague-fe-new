@@ -101,6 +101,7 @@ export default function UserList() {
   const [filterName, setFilterName] = useState('');
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [currentUser, setCurrentUser] = useState({})
+  const { data, pagination } = userList
   const handleCloseModal = () => {
     dispatch(closeModal());
   };
@@ -109,8 +110,8 @@ export default function UserList() {
     dispatch(openModal());
   }
   useEffect(() => {
-    dispatch(getUserList());
-  }, [dispatch]);
+    dispatch(getUserList(page, rowsPerPage));
+  }, [dispatch,page, rowsPerPage]);
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -159,11 +160,11 @@ export default function UserList() {
     dispatch(deleteUser(userId));
   };
 
-  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - userList.length) : 0;
+  const emptyRows = page > 0 ? Math.max(0, rowsPerPage - data.length) : 0;
 
-  const filteredUsers = applySortFilter(userList, getComparator(order, orderBy), filterName);
+  const filteredUsers = applySortFilter(data, getComparator(order, orderBy), filterName);
 
-  const isUserNotFound = filteredUsers.length === 0 && userList.length > 0;
+  const isUserNotFound = filteredUsers.length === 0 && data.length > 0;
 
   return (
     <Page title="User: List | V League">
@@ -197,13 +198,13 @@ export default function UserList() {
                   order={order}
                   orderBy={orderBy}
                   headLabel={TABLE_HEAD}
-                  rowCount={userList.length}
+                  rowCount={data.length}
                   numSelected={selected.length}
                   onRequestSort={handleRequestSort}
                   onSelectAllClick={handleSelectAllClick}
                 />
                 <TableBody>
-                  {userList.length <= 0 &&
+                  {data.length <= 0 &&
                     (<TableRow sx={{ width: '100%' }}>
                       <TableCell colSpan={4}> <LinearProgress /></TableCell>
                     </TableRow>)}
@@ -273,7 +274,7 @@ export default function UserList() {
           <TablePagination
             rowsPerPageOptions={[5, 10, 25]}
             component="div"
-            count={userList.length}
+            count={pagination.totalCount}
             rowsPerPage={rowsPerPage}
             page={page}
             onPageChange={handleChangePage}

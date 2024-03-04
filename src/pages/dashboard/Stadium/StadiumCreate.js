@@ -12,7 +12,7 @@ import useSettings from '../../../hooks/useSettings';
 // components
 import Page from '../../../components/Page';
 import HeaderBreadcrumbs from '../../../components/HeaderBreadcrumbs';
-import { getStadiumList } from 'src/redux/slices/stadium';
+import { getStadiumDetail, getStadiumList } from 'src/redux/slices/stadium';
 import StadiumNewForm from 'src/components/_dashboard/stadium/StadiumNewForm';
 
 // ----------------------------------------------------------------------
@@ -22,18 +22,19 @@ export default function StadiumCreate() {
   const dispatch = useDispatch();
   const { pathname } = useLocation();
   const { id } = useParams();
-  const { stadiumList } = useSelector((state) => state.stadium);
+  const { stadiumDetail } = useSelector((state) => state.stadium);
   const isEdit = pathname.includes('edit');
-  const currentStadium = stadiumList.find((stadium) => stadium.id === Number(id));
 
   useEffect(() => {
-    dispatch(getStadiumList());
-  }, [dispatch]);
+    if (id) {
+      dispatch(getStadiumDetail(id))
+    }
+  }, [id]);
 
   return (
     <Page title="Stadium: Create a new stadium | V League">
       <Container maxWidth={themeStretch ? false : 'lg'}>
-        {isEdit && currentStadium == null ?
+        {isEdit && stadiumDetail == null ?
           (<Box >
             <CircularProgress sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }} />
           </Box>) : (<>
@@ -42,11 +43,11 @@ export default function StadiumCreate() {
               links={[
                 { name: 'Dashboard', href: PATH_DASHBOARD.root },
                 { name: 'Stadium', href: PATH_DASHBOARD.stadium.root },
-                { name: !isEdit ? 'New stadium' : currentStadium?.name }
+                { name: !isEdit ? 'New stadium' : stadiumDetail?.name }
               ]}
             />
 
-            <StadiumNewForm isEdit={isEdit} currentStadium={currentStadium} /></>)}
+            <StadiumNewForm isEdit={isEdit} currentStadium={stadiumDetail} /></>)}
 
       </Container>
     </Page >

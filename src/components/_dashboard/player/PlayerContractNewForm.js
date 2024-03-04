@@ -24,6 +24,7 @@ import Badge from '@mui/material/Badge';
 import { styled } from '@mui/material/styles';
 import { getClubList } from 'src/redux/slices/club';
 import useAuth from 'src/hooks/useAuth';
+import { FAILURE, SUCCESS } from 'src/config';
 
 // ----------------------------------------------------------------------
 
@@ -41,68 +42,77 @@ export default function PlayerContractNewForm({ isEdit, currentContract }) {
   const { playerList, error } = useSelector((state) => state.player);
   const [errorState, setErrorState] = useState()
   const NewPlayerSchema = Yup.object().shape({
-    Club: Yup.mixed().required('Club is required'),
-    Player: Yup.mixed().required('Player is required'),
-    Salary: Yup.number().required('Salary is required').min(4000000, 'Salary have more than 4,000,000 vnd'),
-    Start: Yup.mixed().required('Start date is required'),
-    End: Yup.mixed().required('End date is required'),
-    Number: Yup.number().required('Number is required').min(Number(1))
+    club: Yup.mixed().required('Club is required'),
+    player: Yup.mixed().required('Player is required'),
+    salary: Yup.number().required('Salary is required').min(4000000, 'Salary have more than 4,000,000 vnd'),
+    start: Yup.mixed().required('Start date is required'),
+    end: Yup.mixed().required('End date is required'),
+    number: Yup.number().required('Number is required').min(Number(1))
   });
   const { user } = useAuth()
   const isAdmin = user?.role === 'Admin'
   useEffect(() => {
-    dispatch(getClubList())
-    dispatch(getPlayerList())
+    dispatch(getClubList(0, 1000))
+    dispatch(getPlayerList(0, 1000))
   }, [dispatch])
   const formik = useFormik({
     enableReinitialize: true,
     initialValues: {
       id: currentContract?.id || '',
-      Salary: currentContract?.salary || '',
-      Start: currentContract?.start || '',
-      End: currentContract?.end || '',
-      Description: currentContract?.description || '',
-      Player: currentContract?.player || null,
-      Club: currentContract?.club || null,
-      Number: currentContract?.number || ''
+      salary: currentContract?.salary || '',
+      start: currentContract?.start || '',
+      end: currentContract?.end || '',
+      description: currentContract?.description || '',
+      player: currentContract?.player || null,
+      club: currentContract?.club || null,
+      number: currentContract?.number || ''
     },
     validationSchema: NewPlayerSchema,
-    onSubmit: (values, { setSubmitting, resetForm, setErrors }) => {
+    onSubmit: async (values, { setSubmitting, resetForm, setErrors }) => {
       try {
         let data = ''
         if (isEdit) {
           data = {
-            Number: values.Number,
-            Salary: values.Salary,
-            End: values.End,
-            Description: values.Description
+            number: values.number,
+            salary: values.salary,
+            end: values.end,
+            description: values.description
           }
-          dispatch(editContract(values.id, data, (value) => { setErrorState(value); console.log(value, 'check state value') }))
+         await dispatch(editContract(values.id, data, (value) => { setErrorState(value) }))
         } else {
           data = {
-            PlayerID: values.Player.id,
-            ClubID: values.Club.id,
-            Number: values.Number,
-            Salary: values.Salary,
-            Start: values.Start,
-            End: values.End,
-            Description: values.Description
+            playerId: values.player.id,
+            clubId: values.club.id,
+            number: values.number,
+            salary: values.salary,
+            start: values.start,
+            end: values.end,
+            description: values.description
           }
-          dispatch(createContract(data, (value) => { setErrorState(value); console.log(value, 'check state value') }))
+         await dispatch(createContract(data, (value) => { setErrorState(value) }))
         }
-
+        console.log('sadasdasdasdasddad');
       } catch (error) {
         setSubmitting(false);
-        setErrors(error);
+        setErrors(error.data);
+
+        console.log('errpr', error);
       }
     }
   });
   useEffect(() => {
     if (!_.isEmpty(errorState)) {
-      if (!errorState.IsError) {
+      if (errorState.status === SUCCESS) {
         formik.resetForm();
-        enqueueSnackbar(!isEdit ? 'Create success' : 'Update success', { variant: 'success' });
+        enqueueSnackbar(errorState.message, { variant: 'success' });
         navigate(PATH_DASHBOARD.player.contract);
+      }
+      else {
+        enqueueSnackbar(errorState.message, { variant: 'error' });
+        // formik.setSubmitting(false)
+        // if (errorState) {
+        //   formik.setErrors(errorState.data)
+        // }
       }
     }
 
@@ -114,10 +124,10 @@ export default function PlayerContractNewForm({ isEdit, currentContract }) {
   }));
   const { errors, values, touched, handleSubmit, isSubmitting, setFieldValue, getFieldProps } = formik;
   const disableStartDate = (date) => {
-    return new Date(date) > new Date(values.End)
+    return new Date(date) > new Date(values.end)
   }
   const disableEndDate = (date) => {
-    return new Date(date) < new Date(values.Start)
+    return new Date(date) < new Date(values.start)
   }
   return (
     <FormikProvider value={formik}>
@@ -142,10 +152,10 @@ export default function PlayerContractNewForm({ isEdit, currentContract }) {
                   overlap="circular"
                   anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
                   badgeContent={
-                    <SmallAvatar alt="Remy Sharp" src={values.Club?.imageURL} sx={{ width: 56.7, height: 56.7 }} />
+                    <SmallAvatar alt="Remy Sharp" src={values.club?.imageURL} sx={{ width: 56.7, height: 56.7 }} />
                   }
                 >
-                  <Avatar alt="Travis Howard" src={values.Player?.imageURL} sx={{ width: 126, height: 126 }} />
+                  <Avatar alt="Travis Howard" src={values.player?.imageURL} sx={{ width: 126, height: 126 }} />
                 </Badge>
               </Box>
             </Card>
@@ -158,24 +168,24 @@ export default function PlayerContractNewForm({ isEdit, currentContract }) {
                   <Autocomplete
                     isOptionEqualToValue={(option, value) => option.id === value.id}
                     fullWidth
-                    options={playerList}
+                    options={playerList.data}
                     autoHighlight
                     disabled={isEdit || !isAdmin}
-                    value={values.Player}
+                    value={values.player}
                     getOptionLabel={(option) => option.name}
                     onChange={(event, newValue) => {
-                      setFieldValue('Player', newValue);
+                      setFieldValue('player', newValue);
                     }}
                     renderOption={(props, option) => (
                       <Box component="li" sx={{ '& > img': { mr: 2, flexShrink: 0 } }} {...props}>
-                        <Avatar alt="Travis Howard" src={option?.imageURL} sx={{ width: 20, height: 20, marginRight: '5px' }} />
+                        <Avatar alt={option.name} src={option?.imageURL} sx={{ width: 20, height: 20, marginRight: '5px' }} />
                         {option.name}
                       </Box>
                     )}
                     renderInput={(params) => (
                       <TextField
-                        helperText={touched.Player && errors.Player}
-                        error={Boolean(touched.Player && errors.Player)}
+                        helperText={touched.player && errors.player}
+                        error={Boolean(touched.player && errors.player)}
                         {...params}
                         label="Player"
                         inputProps={{
@@ -188,13 +198,13 @@ export default function PlayerContractNewForm({ isEdit, currentContract }) {
                   <Autocomplete
                     isOptionEqualToValue={(option, value) => option.id === value.id}
                     fullWidth
-                    options={clubList}
+                    options={clubList.data}
                     autoHighlight
                     disabled={isEdit || !isAdmin}
-                    value={values.Club}
+                    value={values.club}
                     getOptionLabel={(option) => option.name}
                     onChange={(event, newValue) => {
-                      setFieldValue('Club', newValue);
+                      setFieldValue('club', newValue);
                     }}
                     renderOption={(props, option) => (
                       <Box component="li" sx={{ '& > img': { mr: 2, flexShrink: 0 } }} {...props}>
@@ -204,8 +214,8 @@ export default function PlayerContractNewForm({ isEdit, currentContract }) {
                     )}
                     renderInput={(params) => (
                       <TextField
-                        helperText={touched.Club && errors.Club}
-                        error={Boolean(touched.Club && errors.Club)}
+                        helperText={touched.club && errors.club}
+                        error={Boolean(touched.club && errors.club)}
                         {...params}
                         label="Club"
                         inputProps={{
@@ -227,12 +237,12 @@ export default function PlayerContractNewForm({ isEdit, currentContract }) {
                       label="Start"
                       openTo="year"
                       views={['year', 'month', 'day']}
-                      value={values.Start}
+                      value={values.start}
                       onChange={(newValue) => {
-                        setFieldValue('Start', newValue);
+                        setFieldValue('start', newValue);
                       }}
-                      renderInput={(params) => <TextField {...params} error={Boolean(touched.Start && errors.Start)}
-                        helperText={touched.Start && errors.Start} />}
+                      renderInput={(params) => <TextField {...params} error={Boolean(touched.start && errors.start)}
+                        helperText={touched.start && errors.start} />}
                     />
                     <DatePicker
                       disabled={!isAdmin}
@@ -242,12 +252,12 @@ export default function PlayerContractNewForm({ isEdit, currentContract }) {
                       label="End"
                       openTo="year"
                       views={['year', 'month', 'day']}
-                      value={values.End}
+                      value={values.end}
                       onChange={(newValue) => {
-                        setFieldValue('End', newValue);
+                        setFieldValue('end', newValue);
                       }}
-                      renderInput={(params) => <TextField {...params} error={Boolean(touched.End && errors.End)}
-                        helperText={touched.End && errors.End} />}
+                      renderInput={(params) => <TextField {...params} error={Boolean(touched.end && errors.end)}
+                        helperText={touched.end && errors.end} />}
                     />
                   </Stack>
 
@@ -258,9 +268,9 @@ export default function PlayerContractNewForm({ isEdit, currentContract }) {
                         readOnly: !isAdmin,
                       }}
                       label="Salary"
-                      {...getFieldProps('Salary')}
-                      error={Boolean(touched.Salary && errors.Salary)}
-                      helperText={touched.Salary && errors.Salary}
+                      {...getFieldProps('salary')}
+                      error={Boolean(touched.salary && errors.salary)}
+                      helperText={touched.salary && errors.salary}
                     />
                     <TextField
                       InputProps={{
@@ -270,9 +280,9 @@ export default function PlayerContractNewForm({ isEdit, currentContract }) {
                       sx={{ width: 110 }}
                       label="Number"
                       InputLabelProps={{ shrink: true }}
-                      {...getFieldProps('Number')}
-                      error={Boolean(touched.Number && errors.Number)}
-                      helperText={touched.Number && errors.Number}
+                      {...getFieldProps('number')}
+                      error={Boolean(touched.number && errors.number)}
+                      helperText={touched.number && errors.number}
                     />
                   </Stack>
                 </Stack>
@@ -286,12 +296,13 @@ export default function PlayerContractNewForm({ isEdit, currentContract }) {
                     minRows={3}
                     maxRows={5}
                     label="Description"
-                    {...getFieldProps('Description')}
-                  // error={Boolean(touched.Description && errors.Description)}
-                  // helperText={touched.Description && errors.Description}
+                    {...getFieldProps('description')}
+                  error={Boolean(touched.description && errors.description)}
+                  helperText={touched.description && errors.description}
                   />
                 </Stack>
-                {errorState?.IsError ? <Alert severity="warning">{errorState.Message}</Alert> : ''}
+                {errorState?.status === FAILURE ? <Alert severity="warning">{errorState?.message}</Alert> : ''}
+
                 {isAdmin && (<Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
                   <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
                     {!isEdit ? 'Create Contract' : 'Save Changes'}

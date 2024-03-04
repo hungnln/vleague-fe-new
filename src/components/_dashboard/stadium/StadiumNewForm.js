@@ -19,6 +19,8 @@ import { createStadium, editStadium } from 'src/redux/slices/stadium';
 import { useDispatch } from 'src/redux/store';
 import _ from 'lodash';
 import useAuth from 'src/hooks/useAuth';
+import { SUCCESS } from 'src/config';
+import handleUploadImage from 'src/utils/uploadImage';
 
 // ----------------------------------------------------------------------
 
@@ -35,43 +37,44 @@ export default function StadiumNewForm({ isEdit, currentStadium }) {
   const { user } = useAuth()
   const isAdmin = user?.role === 'Admin'
   const NewStadiumSchema = Yup.object().shape({
-    Name: Yup.string().required('Name is required'),
-    Address: Yup.string().required('Address is required'),
-    ImageURL: Yup.mixed().required('Avatar is required')
+    name: Yup.string().required('Name is required'),
+    address: Yup.string().required('Address is required'),
+    imageURL: Yup.mixed().required('Avatar is required')
   });
   useEffect(() => {
     if (!_.isEmpty(errorState)) {
-      if (!errorState.IsError) {
+      if (errorState.status === SUCCESS) {
         formik.resetForm();
-        enqueueSnackbar(!isEdit ? 'Create success' : 'Update success', { variant: 'success' });
+        enqueueSnackbar(errorState.message, { variant: 'success' });
         navigate(PATH_DASHBOARD.stadium.list);
       }
+      else {
+        enqueueSnackbar(errorState.message, { variant: 'error' });
+      }
     }
-
   }, [errorState])
   const formik = useFormik({
     enableReinitialize: true,
     initialValues: {
       id: currentStadium?.id || '',
-      Name: currentStadium?.name || '',
-      Address: currentStadium?.address || '',
-      ImageURL: currentStadium?.imageURL || null,
+      name: currentStadium?.name || '',
+      address: currentStadium?.address || '',
+      imageURL: currentStadium?.imageURL || null,
     },
     validationSchema: NewStadiumSchema,
-    onSubmit: (values, { setSubmitting, resetForm, setErrors }) => {
+    onSubmit: async (values, { setSubmitting, resetForm, setErrors }) => {
       try {
-        let data = ''
+        const url = values.imageURL?.preview !== undefined ? await handleUploadImage(values.imageURL) : values.imageURL
+        const data = {
+          id: values.id,
+          name: values.name,
+          address: values.address,
+          imageURL: url
+        }
         if (isEdit) {
-          if (values.ImageURL?.base64 == null) {
-            data = { ...values }
-          } else {
-            data = { ...values, ImageURL: values.ImageURL.base64 }
-          }
-          dispatch(editStadium(data, value => setErrorState(value)))
-
+          dispatch(editStadium(data, error => setErrorState(error)))
         } else {
-          data = { ...values, ImageURL: values.ImageURL.base64 }
-          dispatch(createStadium(data, value => setErrorState(value)))
+          dispatch(createStadium(data, error => setErrorState(error)))
         }
       } catch (error) {
         console.error(error);
@@ -84,15 +87,13 @@ export default function StadiumNewForm({ isEdit, currentStadium }) {
   const { errors, values, touched, handleSubmit, isSubmitting, setFieldValue, getFieldProps } = formik;
 
   const handleDrop = useCallback(
-    (acceptedFiles) => {
+    async (acceptedFiles) => {
       const file = acceptedFiles[0];
       if (file) {
-        toBase64(file).then(value => {
-          setFieldValue('ImageURL', {
-            ...file,
-            preview: URL.createObjectURL(file), base64: value
-          });
-        })
+        setFieldValue('imageURL',
+          Object.assign(file, {
+            preview: URL.createObjectURL(file)
+          }));
       }
     },
     [setFieldValue]
@@ -115,10 +116,10 @@ export default function StadiumNewForm({ isEdit, currentStadium }) {
               <Box sx={{ mb: 5 }}>
                 <UploadAvatar
                   accept="image/*"
-                  file={values.ImageURL}
+                  file={values.imageURL}
                   maxSize={3145728}
                   onDrop={handleDrop}
-                  error={Boolean(touched.ImageURL && errors.ImageURL)}
+                  error={Boolean(touched.imageURL && errors.imageURL)}
                   caption={
                     <Typography
                       variant="caption"
@@ -136,7 +137,7 @@ export default function StadiumNewForm({ isEdit, currentStadium }) {
                   }
                 />
                 <FormHelperText error sx={{ px: 2, textAlign: 'center' }}>
-                  {touched.ImageURL && errors.ImageURL}
+                  {touched.imageURL && errors.imageURL}
                 </FormHelperText>
               </Box>
             </Card>
@@ -152,9 +153,9 @@ export default function StadiumNewForm({ isEdit, currentStadium }) {
                     }}
                     fullWidth
                     label="Full name"
-                    {...getFieldProps('Name')}
-                    error={Boolean(touched.Name && errors.Name)}
-                    helperText={touched.Name && errors.Name}
+                    {...getFieldProps('name')}
+                    error={Boolean(touched.name && errors.name)}
+                    helperText={touched.name && errors.name}
                   />
                   <TextField
                     InputProps={{
@@ -162,12 +163,12 @@ export default function StadiumNewForm({ isEdit, currentStadium }) {
                     }}
                     fullWidth
                     label="Address"
-                    {...getFieldProps('Address')}
-                    error={Boolean(touched.Address && errors.Address)}
-                    helperText={touched.Address && errors.Address}
+                    {...getFieldProps('address')}
+                    error={Boolean(touched.address && errors.address)}
+                    helperText={touched.address && errors.address}
                   />
                 </Stack>
-                {errorState?.IsError ? <Alert severity="warning">{errorState?.Message}</Alert> : ''}
+                {errorState?.status ? <Alert severity="warning">{errorState?.message}</Alert> : ''}
                 {isAdmin && (<Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
                   <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
                     {!isEdit ? 'Create Stadium' : 'Save Changes'}

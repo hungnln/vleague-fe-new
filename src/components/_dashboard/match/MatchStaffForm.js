@@ -24,6 +24,7 @@ import { getClubList } from 'src/redux/slices/club';
 import { getStadiumList } from 'src/redux/slices/stadium';
 import { useSelector } from 'react-redux';
 import { getClubMatchContract, getMatchStaffContract } from 'src/redux/slices/staff';
+import { FAILURE, SUCCESS } from 'src/config';
 
 // ----------------------------------------------------------------------
 
@@ -33,17 +34,17 @@ MatchStaffForm.propTypes = {
   onCancel: PropTypes.func
 };
 
-export default function MatchStaffForm({ onCancel, clubId, addMember, currentStaffList }) {
+export default function MatchStaffForm({ onCancel, clubId, addMember, currentStaffList, startDate }) {
   const dispatch = useDispatch();
   const { currentMatch, matchParticiation, lineup } = useSelector((state) => state.match);
-  const { HomeStaff, AwayStaff } = lineup
+  const { homeStaff, awayStaff } = lineup
   const [errorState, setErrorState] = useState();
   const { enqueueSnackbar } = useSnackbar();
   const { clubContractList } = useSelector(state => state.staff)
   const [selectedStaff, setSelectedStaff] = useState([])
   const [selected, setSelected] = useState([])
   const NewMatchStaffSchema = Yup.object().shape({
-    HeadCoach: Yup.mixed().required('Head Coach is required'),
+    headCoach: Yup.mixed().required('Head Coach is required'),
 
   });
   const [open, setOpen] = useState(false);
@@ -55,8 +56,8 @@ export default function MatchStaffForm({ onCancel, clubId, addMember, currentSta
       return undefined;
     }
     (async () => {
-      if (active && clubContractList.length !== 0) {
-        setOptions([...clubContractList]);
+      if (active && clubContractList.data.length !== 0) {
+        setOptions([...clubContractList.data]);
       }
     })();
   }, [loading]);
@@ -68,15 +69,15 @@ export default function MatchStaffForm({ onCancel, clubId, addMember, currentSta
   }, [open]);
   const isEdit = !_.isEmpty(currentMatch)
   useEffect(() => {
-    dispatch(getClubMatchContract(clubId))
+    dispatch(getClubMatchContract(clubId, startDate, 0, 1000))
   }, [dispatch])
   console.log('selected', selectedStaff);
   const formik = useFormik({
     enableReinitialize: true,
     initialValues: {
-      HeadCoach: currentStaffList?.HeadCoach || null,
-      AssistantCoach: currentStaffList?.AssistantCoach || [],
-      MedicalTeam: currentStaffList?.MedicalTeam || [],
+      headCoach: currentStaffList?.headCoach || null,
+      assistantCoach: currentStaffList?.assistantCoach || [],
+      medicalTeam: currentStaffList?.medicalTeam || [],
     },
     validationSchema: NewMatchStaffSchema,
     onSubmit: async (values, { setSubmitting, resetForm, setErrors }) => {
@@ -92,30 +93,27 @@ export default function MatchStaffForm({ onCancel, clubId, addMember, currentSta
   });
   useEffect(() => {
     if (!_.isEmpty(errorState)) {
-      console.log('check state', errorState);
-
-      if (!errorState.isError) {
-        console.log('ko error');
+      if (errorState.status === SUCCESS) {
         formik.resetForm();
         onCancel();
-        enqueueSnackbar(currentMatch ? 'Create success' : 'Update success', { variant: 'success' });
-        // navigate(PATH_DASHBOARD.match.list);
-      } else {
-        console.log('bị error');
+        enqueueSnackbar(errorState.message, { variant: 'success' });
+      }
+      else {
+        enqueueSnackbar(errorState.message, { variant: 'error' });
       }
     }
 
   }, [errorState])
   useEffect(() => {
-    const HomeStaffSelected = !_.isEmpty(HomeStaff) ? [HomeStaff.HeadCoach, ...HomeStaff.AssistantCoach, ...HomeStaff.MedicalTeam] : []
-    setSelected([...HomeStaffSelected])
+    const homeStaffSelected = !_.isEmpty(homeStaff) ? [homeStaff.headCoach, ...homeStaff.assistantCoach, ...homeStaff.medicalTeam] : []
+    setSelected([...homeStaffSelected])
   }, [lineup])
   const disableOption = (option, field) => {
     return (!!selectedStaff?.find(element => element?.id === option?.id) || selectedStaff.length >= 11 || !!selected?.find(element => element?.id === option?.id)) && (Array.isArray(field) ? !field.find(element => element?.id === option?.id) : field?.id !== option?.id)
   }
   const { errors, values, touched, handleSubmit, isSubmitting, setFieldValue, getFieldProps } = formik;
   useEffect(() => {
-    setSelectedStaff([{ ...values.HeadCoach }, ...values.AssistantCoach, ...values.MedicalTeam])
+    setSelectedStaff([{ ...values.headCoach }, ...values.assistantCoach, ...values.medicalTeam])
   }, [values])
   return (
     <FormikProvider value={formik}>
@@ -125,7 +123,7 @@ export default function MatchStaffForm({ onCancel, clubId, addMember, currentSta
             <Stack direction='column' spacing={{ xs: 3, sm: 2 }}>
               <Autocomplete
                 isOptionEqualToValue={(option, value) => option.id === value.id}
-                value={values.HeadCoach}
+                value={values.headCoach}
                 // open={open}
                 loading={loading}
                 onOpen={() => {
@@ -140,7 +138,7 @@ export default function MatchStaffForm({ onCancel, clubId, addMember, currentSta
                 options={options}
                 getOptionDisabled={option => disableOption(option, values.HeadCoach)}
                 getOptionLabel={(option) => option?.staff?.name}
-                onChange={(event, value) => setFieldValue('HeadCoach', value)}
+                onChange={(event, value) => setFieldValue('headCoach', value)}
                 renderOption={(props, option) => (
                   <Box component="li" sx={{ '& > img': { mr: 2, flexShrink: 0 } }} {...props}>
                     <Avatar alt={option?.staff.name} src={option?.staff.imageURL} sx={{ width: 20, height: 20, marginRight: '5px' }} />
@@ -165,7 +163,7 @@ export default function MatchStaffForm({ onCancel, clubId, addMember, currentSta
               />
               <Autocomplete
                 isOptionEqualToValue={(option, value) => option.id === value.id}
-                value={values.AssistantCoach}
+                value={values.assistantCoach}
                 // open={open}
                 onOpen={() => {
                   setOpen(true);
@@ -179,8 +177,8 @@ export default function MatchStaffForm({ onCancel, clubId, addMember, currentSta
                 autoHighlight
                 options={options}
                 getOptionLabel={(option) => option.staff.name}
-                getOptionDisabled={option => disableOption(option, values.AssistantCoach)}
-                onChange={(event, value) => setFieldValue('AssistantCoach', value)}
+                getOptionDisabled={option => disableOption(option, values.assistantCoach)}
+                onChange={(event, value) => setFieldValue('assistantCoach', value)}
                 renderOption={(props, option) => (
                   <Box component="li" sx={{ '& > img': { mr: 2, flexShrink: 0 } }} {...props}>
                     <Avatar alt={option?.staff.name} src={option?.staff.imageURL} sx={{ width: 20, height: 20, marginRight: '5px' }} />
@@ -205,7 +203,7 @@ export default function MatchStaffForm({ onCancel, clubId, addMember, currentSta
               />
               <Autocomplete
                 isOptionEqualToValue={(option, value) => option.id === value.id}
-                value={values.MedicalTeam}
+                value={values.medicalTeam}
                 get
                 onOpen={() => {
                   setOpen(true);
@@ -217,11 +215,11 @@ export default function MatchStaffForm({ onCancel, clubId, addMember, currentSta
                 multiple
                 limitTags={2}
                 autoHighlight
-                options={clubContractList}
-                getOptionDisabled={option => disableOption(option, values.MedicalTeam)}
+                options={options}
+                getOptionDisabled={option => disableOption(option, values.medicalTeam)}
 
                 getOptionLabel={(option) => option.staff.name}
-                onChange={(event, value) => { setFieldValue('MedicalTeam', value) }}
+                onChange={(event, value) => { setFieldValue('medicalTeam', value) }}
                 renderOption={(props, option) => (
                   <Box component="li" sx={{ '& > img': { mr: 2, flexShrink: 0 } }} {...props}>
                     <Avatar alt={option?.staff.name} src={option?.staff.imageURL} sx={{ width: 20, height: 20, marginRight: '5px' }} />
@@ -248,7 +246,7 @@ export default function MatchStaffForm({ onCancel, clubId, addMember, currentSta
           </Grid>
 
         </Grid>
-        {errorState?.isError ? <Alert sx={{ mx: 3 }} severity="warning">{errorState.Message}</Alert> : ''}
+        {errorState?.status === FAILURE ? <Alert severity="warning" sx={{ mx: 3 }}>{errorState?.message}</Alert> : ''}
 
         <DialogActions>
           <Box sx={{ flexGrow: 1 }} />

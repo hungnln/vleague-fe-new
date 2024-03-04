@@ -25,6 +25,7 @@ import { getStadiumList } from 'src/redux/slices/stadium';
 import { useSelector } from 'react-redux';
 import { getMatchPlayerContract } from 'src/redux/slices/player';
 import { type } from '@testing-library/user-event/dist/type';
+import { FAILURE, SUCCESS } from 'src/config';
 
 // ----------------------------------------------------------------------
 
@@ -36,85 +37,86 @@ EventNewForm.propTypes = {
 export default function EventNewForm({ onCancel, isExtra, isSecondHalf }) {
   const dispatch = useDispatch();
   const { matchParticipation, currentMatch } = useSelector(state => state.match)
-  const { HomeLineUp, HomeReverse, AwayLineUp, AwayReverse } = matchParticipation
+  const { homeLineUp, homeReverse, awayLineUp, awayReverse } = matchParticipation
   const { id, homeClub, awayClub, } = currentMatch
   const [errorState, setErrorState] = useState();
   const { enqueueSnackbar } = useSnackbar();
   const { selectedHomePlayer, setSelectedHomePlayer } = useState([])
 
   const NewActivitySchema = Yup.object().shape({
-    Type: Yup.mixed().required("Type is required"),
-    MinuteInMatch: Yup.number().required("MinuteInMatch is required"),
-    Club: Yup.mixed().required("Club is required"),
-    Player: Yup.array().required("Player is required").min(1),
+    type: Yup.mixed().required("Type is required"),
+    minuteInMatch: Yup.number().required("Minute in match is required"),
+    club: Yup.mixed().required("Club is required"),
+    player: Yup.array().required("Player is required").min(1),
   });
   const NewTimeActivitySchema = Yup.object().shape({
-    Type: Yup.mixed().required("Type is required"),
-    MinuteInMatch: Yup.number().required("MinuteInMatch is required"),
+    type: Yup.mixed().required("Type is required"),
+    minuteInMatch: Yup.number().required("Minute in match is required"),
   });
-  const homePlayerLineUp = !_.isEmpty(HomeLineUp) ? _.flatten([...Object.values(HomeLineUp).map((player) => { return Array.isArray(player) ? [...player] : { ...player } })]) : []
-  const awayPlayerLineUp = !_.isEmpty(AwayLineUp) > 0 ? _.flatten([...Object.values(AwayLineUp).map((player) => { return Array.isArray(player) ? [...player] : { ...player } })]) : []
-  const homePlayerReverse = !_.isEmpty(HomeReverse) > 0 ? _.flatten([...Object.values(HomeReverse).map((player) => { return Array.isArray(player) ? [...player] : { ...player } })]) : []
-  const awayPlayerReverse = !_.isEmpty(AwayReverse) > 0 ? _.flatten([...Object.values(AwayReverse).map((player) => { return Array.isArray(player) ? [...player] : { ...player } })]) : []
-  const playerList = [].concat(homePlayerLineUp, awayPlayerLineUp)
+  const homePlayerLineUp = !_.isEmpty(homeLineUp) ? _.flatten([...Object.values(homeLineUp).map((player) => { return Array.isArray(player) ? [...player] : { ...player } })]) : []
+  const awayPlayerLineUp = !_.isEmpty(awayLineUp) > 0 ? _.flatten([...Object.values(awayLineUp).map((player) => { return Array.isArray(player) ? [...player] : { ...player } })]) : []
+  const homePlayerReverse = !_.isEmpty(homeReverse) > 0 ? _.flatten([...Object.values(homeReverse).map((player) => { return Array.isArray(player) ? [...player] : { ...player } })]) : []
+  const awayPlayerReverse = !_.isEmpty(awayReverse) > 0 ? _.flatten([...Object.values(awayReverse).map((player) => { return Array.isArray(player) ? [...player] : { ...player } })]) : []
+  const playerList = [...homePlayerLineUp, ...awayPlayerLineUp]
   const playerReverseList = [].concat(homePlayerReverse, awayPlayerReverse)
   const clubList = [{ ...homeClub }, { ...awayClub }]
+  console.log(playerList,'playerList');
   const formik = useFormik({
     enableReinitialize: true,
     initialValues:
     {
-      Type: isExtra ? 15 : 1,
-      Half: isSecondHalf ? 2 : 1,
-      MinuteInMatch: 0,
-      Club: null,
-      Player: [],
-      PlayerReverse: [],
+      type: isExtra ? 15 : 1,
+      half: isSecondHalf ? 2 : 1,
+      minuteInMatch: 0,
+      club: null,
+      player: [],
+      playerReverse: [],
     },
     validationSchema: isExtra ? NewTimeActivitySchema : NewActivitySchema,
     onSubmit: (values, { setSubmitting, resetForm, setErrors }) => {
       try {
         let data = ''
-        if (values.Type === 15) {
+        if (values.type === 15) {
           data = {
-            ID: id,
-            Type: values.Type,
-            MinuteInMatch: (!isSecondHalf ? (45 + values.MinuteInMatch) : (90 + values.MinuteInMatch)),
-            PlayerContractIDs: [],
-            StaffContractIDs: [],
-            RefereeIDs: [],
+            matchId: id,
+            type: values.type,
+            minuteInMatch: (!isSecondHalf ? (45 + values.minuteInMatch) : (90 + values.minuteInMatch)),
+            playerContractIds: [],
+            staffContractIds: [],
+            refereeIds: [],
           }
-          dispatch(addActivity(data, (value) => { if (isSecondHalf && !value.IsError) { dispatch(addActivity({ ...data, Type: 17 }, value => { setErrorState(value) })) } else { setErrorState(value) } }))
+          dispatch(addActivity(data, (value) => { if (isSecondHalf && value.status === FAILURE) { dispatch(addActivity({ ...data, type: 17 }, value => { setErrorState(value) })) } else { setErrorState(value) } }))
         } else {
-          if (values.Player.length > 0) {
-            if (values.Type !== 18) {
+          if (values.player.length > 0) {
+            if (values.type !== 18) {
               data = {
-                ID: id,
-                Type: values.Type,
-                MinuteInMatch: values.MinuteInMatch,
-                PlayerContractIDs: [...values.Player.reduce((obj, value) => { return [...obj, value.id] }, [])],
-                StaffContractIDs: [],
-                RefereeIDs: [],
+                matchId: id,
+                type: values.type,
+                minuteInMatch: values.minuteInMatch,
+                playerContractIds: [...values.player.reduce((obj, value) => { return [...obj, value.id] }, [])],
+                staffContractIds: [],
+                refereeIds: [],
               }
               // console.log("checkdata", data);
               dispatch(addActivity(data, (value) => { setErrorState(value); }))
             }
             else {
-              if (values.Player.length === values.PlayerReverse.length) {
+              if (values.player.length === values.playerReverse.length) {
                 data = {
-                  ID: id,
-                  Type: values.Type,
-                  MinuteInMatch: values.MinuteInMatch,
-                  PlayerContractIDs: [...values.Player.reduce((obj, value) => { return [...obj, value.id] }, []), ...values.PlayerReverse.reduce((obj, value) => { return [...obj, value.id] }, [])],
-                  StaffContractIDs: [],
-                  RefereeIDs: [],
+                  matchId: id,
+                  type: values.type,
+                  minuteInMatch: values.minuteInMatch,
+                  playerContractIds: [...values.player.reduce((obj, value) => { return [...obj, value.id] }, []), ...values.playerReverse.reduce((obj, value) => { return [...obj, value.id] }, [])],
+                  staffContractIds: [],
+                  refereeIds: [],
                 }
                 dispatch(addActivity(data, (value) => { setErrorState(value); }))
               } else {
-                setErrorState({ IsError: true, Message: "Lineups and Reverse must be equal" })
+                setErrorState({ status: FAILURE, message: "Lineups and Reverse must be equal" })
               }
             }
           } else {
-            setErrorState({ IsError: true, Message: "Player is required" })
+            setErrorState({ status: FAILURE, message: "Player is required" })
           }
         }
       } catch (error) {
@@ -126,10 +128,14 @@ export default function EventNewForm({ onCancel, isExtra, isSecondHalf }) {
   });
   useEffect(() => {
     if (!_.isEmpty(errorState)) {
-      if (!errorState.IsError) {
+      if (errorState.status === SUCCESS) {
         formik.resetForm();
         onCancel();
-        enqueueSnackbar('Create success', { variant: 'success' });
+        enqueueSnackbar(errorState.message, { variant: 'success' });
+      }
+      else {
+        enqueueSnackbar(errorState.message, { variant: 'error' });
+        formik.setSubmitting(false);
       }
     }
 
@@ -153,10 +159,10 @@ export default function EventNewForm({ onCancel, isExtra, isSecondHalf }) {
   ]
   const halfs = [{ id: 1, label: "First Half" }, { id: 2, label: "Second Half" }]
   const disableOption = (option, field) => {
-    return !!playerReverseList.filter(option => option.clubID === values.Club.id)?.find(element => element?.id === option?.id) && values.PlayerReverse.length >= values.Player.length && !field.find(element => element?.id === option?.id)
+    return !!playerReverseList.filter(option => option.clubId === values.club.id)?.find(element => element?.id === option?.id) && values.playerReverse.length >= values.player.length && !field.find(element => element?.id === option?.id)
   }
   const { errors, values, touched, handleSubmit, isSubmitting, setFieldValue, getFieldProps } = formik;
-  useEffect(() => { console.log("home player", values.Player); }, [values.Player])
+  useEffect(() => { console.log("home player", values.player); }, [values.player])
   return (
     <FormikProvider value={formik}>
       <Form noValidate autoComplete="off" onSubmit={handleSubmit}>
@@ -167,12 +173,12 @@ export default function EventNewForm({ onCancel, isExtra, isSecondHalf }) {
                 <InputLabel id="demo-simple-select-label">Type</InputLabel>
                 <Select
                   autoWidth
-                  value={values.Type}
+                  value={values.type}
                   disabled={isExtra}
                   label="Type"
-                  onChange={(event) => setFieldValue('Type', event.target.value)}
-                  error={Boolean(touched.Type && errors.Type)}
-                  helperText={touched.Type && errors.Type}
+                  onChange={(event) => setFieldValue('type', event.target.value)}
+                  error={Boolean(touched.type && errors.type)}
+                  helperText={touched.type && errors.type}
                 >
                   {types.map((type, index) => {
                     return <MenuItem value={type.id}>{type.label}</MenuItem>
@@ -180,18 +186,18 @@ export default function EventNewForm({ onCancel, isExtra, isSecondHalf }) {
                 </Select>
               </FormControl>
 
-              {values.Type === 15 && (
+              {values.type === 15 && (
                 <FormControl sx={{ minWidth: 80 }}>
                   <InputLabel id="demo-simple-select-label">Half</InputLabel>
                   <Select
                     disabled
                     placeholder='Choose half'
                     sx={{ width: 150 }}
-                    value={values.Half}
+                    value={values.half}
                     label="Half"
-                    onChange={(event) => setFieldValue('Half', event.target.value)}
-                    error={Boolean(touched.Half && errors.Half)}
-                    helperText={touched.Half && errors.Half}
+                    onChange={(event) => setFieldValue('half', event.target.value)}
+                    error={Boolean(touched.half && errors.half)}
+                    helperText={touched.half && errors.half}
                   >
                     {halfs.map((half, index) => {
                       return <MenuItem value={half.id}>{half.label}</MenuItem>
@@ -206,17 +212,17 @@ export default function EventNewForm({ onCancel, isExtra, isSecondHalf }) {
                 InputProps={{
                   shrink: true,
                 }}
-                onChange={(event, value) => setFieldValue('MinuteInMatch', value)}
-                {...getFieldProps('MinuteInMatch')}
-                error={Boolean(touched.MinuteInMatch && errors.MinuteInMatch)}
-                helperText={touched.MinuteInMatch && errors.MinuteInMatch}
+                onChange={(event, value) => setFieldValue('minuteInMatch', value)}
+                {...getFieldProps('minuteInMatch')}
+                error={Boolean(touched.minuteInMatch && errors.minuteInMatch)}
+                helperText={touched.minuteInMatch && errors.minuteInMatch}
               />
 
             </Stack>
 
           </Grid>
 
-          {values.Type !== 15 && (
+          {values.type !== 15 && (
             <Grid item xs={12}>
               <Stack direction='column' spacing={{ xs: 3, sm: 2 }}>
 
@@ -227,7 +233,7 @@ export default function EventNewForm({ onCancel, isExtra, isSecondHalf }) {
                   autoHighlight
                   options={clubList}
                   getOptionLabel={(option) => option.name}
-                  onChange={(event, value) => { setFieldValue('Club', value) }}
+                  onChange={(event, value) => { setFieldValue('club', value) }}
                   renderOption={(props, option) => (
                     <Box component="li" sx={{ '& > img': { mr: 2, flexShrink: 0 } }} {...props}>
                       <Avatar alt={option?.name} src={option?.imageURL} sx={{ width: 20, height: 20, marginRight: '5px' }} />
@@ -236,8 +242,8 @@ export default function EventNewForm({ onCancel, isExtra, isSecondHalf }) {
                   )}
                   renderInput={(params) => (
                     <TextField
-                      error={Boolean(touched.Club && errors.Club)}
-                      helperText={touched.Club && errors.Club}
+                      error={Boolean(touched.club && errors.club)}
+                      helperText={touched.club && errors.club}
                       {...params}
                       label="Club"
                       InputProps={{
@@ -252,10 +258,10 @@ export default function EventNewForm({ onCancel, isExtra, isSecondHalf }) {
                   multiple
                   limitTags={2}
                   autoHighlight
-                  options={playerList.filter(option => option.clubID === values.Club?.id)}
+                  options={playerList.filter(option => option.club.id === values.club?.id)}
                   getOptionLabel={(option) => option?.player.name}
                   // getOptionDisabled={option => disableOption(option, values.Forward)}
-                  onChange={(event, value) => { setFieldValue('Player', value) }}
+                  onChange={(event, value) => { setFieldValue('player', value) }}
                   renderOption={(props, option) => (
                     <Box component="li" sx={{ '& > img': { mr: 2, flexShrink: 0 } }} {...props}>
                       <Avatar alt={option?.player.name} src={option?.player.imageURL} sx={{ width: 20, height: 20, marginRight: '5px' }} />
@@ -264,8 +270,8 @@ export default function EventNewForm({ onCancel, isExtra, isSecondHalf }) {
                   )}
                   renderInput={(params) => (
                     <TextField
-                      error={Boolean(touched.Player && errors.Player)}
-                      helperText={touched.Player && errors.Player}
+                      error={Boolean(touched.player && errors.player)}
+                      helperText={touched.player && errors.player}
                       {...params}
                       label="Player"
                       InputProps={{
@@ -274,18 +280,18 @@ export default function EventNewForm({ onCancel, isExtra, isSecondHalf }) {
                       }} />
                   )}
                 />
-                {values.Type === 18 && (
+                {values.type === 18 && (
                   <Autocomplete
                     fullWidth
                     isOptionEqualToValue={(option, value) => option.id === value.id}
                     multiple
                     limitTags={2}
                     autoHighlight
-                    options={playerReverseList.filter(option => option.clubID === values.Club?.id)}
+                    options={playerReverseList.filter(option => option.club.id === values.club?.id)}
                     getOptionLabel={(option) => option?.player.name}
-                    getOptionDisabled={option => disableOption(option, values.PlayerReverse)}
+                    getOptionDisabled={option => disableOption(option, values.playerReverse)}
                     // getOptionDisabled={option => disableOption(option, values.Forward)}
-                    onChange={(event, value) => { setFieldValue('PlayerReverse', value) }}
+                    onChange={(event, value) => { setFieldValue('playerReverse', value) }}
                     renderOption={(props, option) => (
                       <Box component="li" sx={{ '& > img': { mr: 2, flexShrink: 0 } }} {...props}>
                         <Avatar alt={option?.player.name} src={option?.player.imageURL} sx={{ width: 20, height: 20, marginRight: '5px' }} />
@@ -312,7 +318,7 @@ export default function EventNewForm({ onCancel, isExtra, isSecondHalf }) {
           )}
           <Grid item xs={12}>
             <Stack direction='column' spacing={{ xs: 3, sm: 2 }}>
-              {errorState?.IsError ? <Alert severity="warning">{errorState.Message}</Alert> : ''}
+              {errorState?.status === FAILURE ? <Alert severity="warning">{errorState?.message}</Alert> : ''}
             </Stack>
           </Grid>
 

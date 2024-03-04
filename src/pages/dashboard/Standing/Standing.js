@@ -99,7 +99,7 @@ function applySortFilter(array, comparator, query) {
     return stabilizedThis.map((el) => el[0]);
 }
 
-export default function Standing({ tournamentID }) {
+export default function Standing({ tournamentId }) {
     const { themeStretch } = useSettings();
     const theme = useTheme();
     const dispatch = useDispatch();
@@ -112,7 +112,7 @@ export default function Standing({ tournamentID }) {
     const [rowsPerPage, setRowsPerPage] = useState(20);
 
     useEffect(() => {
-        dispatch(getTournamentStanding(tournamentID));
+        dispatch(getTournamentStanding(tournamentId));
     }, [dispatch]);
 
     const handleRequestSort = (event, property) => {

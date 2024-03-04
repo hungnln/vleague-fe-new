@@ -24,6 +24,7 @@ import { getClubList } from 'src/redux/slices/club';
 import { getStadiumList } from 'src/redux/slices/stadium';
 import { useSelector } from 'react-redux';
 import { getMatchPlayerContract } from 'src/redux/slices/player';
+import { SUCCESS } from 'src/config';
 
 // ----------------------------------------------------------------------
 
@@ -49,11 +50,11 @@ export default function MatchNewForm({ tournamentID, currentMatch, onCancel, rou
     return (!!selectedClub?.find(club => club?.id === option?.id)) && (!_.isEmpty(field) ? (field?.id !== option?.id) : true)
   }
   const NewMatchSchema = Yup.object().shape({
-    StartDate: Yup.string().required('StartDate is required'),
-    HomeClub: Yup.mixed().required('HomeClub is required'),
-    AwayClub: Yup.mixed().required('AwayClub is required'),
-    Stadium: Yup.mixed().required('Stadium is required'),
-    Round: Yup.mixed().required('Round is required'),
+    startDate: Yup.string().required('StartDate is required'),
+    homeClub: Yup.mixed().required('HomeClub is required'),
+    awayClub: Yup.mixed().required('AwayClub is required'),
+    stadium: Yup.mixed().required('Stadium is required'),
+    round: Yup.mixed().required('Round is required'),
 
   });
   const EditMatchSchema = Yup.object().shape({
@@ -61,8 +62,8 @@ export default function MatchNewForm({ tournamentID, currentMatch, onCancel, rou
   });
   const isEdit = !_.isEmpty(currentMatch)
   useEffect(() => {
-    dispatch(getClubList())
-    dispatch(getStadiumList())
+    dispatch(getClubList(0, 1000))
+    dispatch(getStadiumList(0, 1000))
     if (isEdit) {
       dispatch(getMatchPlayerContract(currentMatch?.homeClub.id, currentMatch?.awayClub.id))
     }
@@ -72,31 +73,31 @@ export default function MatchNewForm({ tournamentID, currentMatch, onCancel, rou
     initialValues: (isEdit ?
       {
         id: currentMatch?.id,
-        Stadium: currentMatch?.stadium,
-        HomeClub: currentMatch?.homeClub,
-        AwayClub: currentMatch?.awayClub,
-        HomePlayer: [],
-        AwayPlayer: [],
-        StaffPlayer: []
+        stadium: currentMatch?.stadium,
+        homeClub: currentMatch?.homeClub,
+        awayClub: currentMatch?.awayClub,
+        homePlayer: [],
+        awayPlayer: [],
+        staffPlayer: []
       } :
       {
         id: currentMatch?.id || '',
-        StartDate: currentMatch?.startDate || '',
-        HomeClub: currentMatch?.homeClub || null,
-        AwayClub: currentMatch?.awayClub || null,
-        Stadium: currentMatch?.stadium || null,
-        Round: currentMatch?.round || roundSelected,
+        startDate: currentMatch?.startDate || '',
+        homeClub: currentMatch?.homeClub || null,
+        awayClub: currentMatch?.awayClub || null,
+        stadium: currentMatch?.stadium || null,
+        round: currentMatch?.round || roundSelected,
       }),
     validationSchema: (isEdit ? EditMatchSchema : NewMatchSchema),
     onSubmit: (values, { setSubmitting, resetForm, setErrors }) => {
       try {
         if (!isEdit) {
           const data = {
-            StartDate: values.StartDate,
-            HomeClubID: values.HomeClub.id,
-            AwayClubID: values.AwayClub.id,
-            StadiumID: values.Stadium.id,
-            RoundID: values.Round.id
+            startDate: values.startDate,
+            homeClubId: values.homeClub.id,
+            awayClubId: values.awayClub.id,
+            stadiumId: values.stadium.id,
+            roundId: values.round.id
           }
           dispatch(createMatch(data, (value) => setErrorState(value)))
         }
@@ -108,14 +109,15 @@ export default function MatchNewForm({ tournamentID, currentMatch, onCancel, rou
   });
   useEffect(() => {
     if (!_.isEmpty(errorState)) {
-      if (!errorState.isError) {
+      if (errorState.status === SUCCESS) {
         formik.resetForm();
-        onCancel();
-        enqueueSnackbar(currentMatch ? 'Create success' : 'Update success', { variant: 'success' });
-        // navigate(PATH_DASHBOARD.match.list);
+        enqueueSnackbar(errorState.message, { variant: 'success' });
+        onCancel()
+      }
+      else {
+        enqueueSnackbar(errorState.message, { variant: 'error' });
       }
     }
-
   }, [errorState])
   const disableStartDate = (date) => {
     return new Date(date) > new Date(tournamentDetail.to) || new Date(date) < new Date(tournamentDetail.from)
@@ -126,7 +128,7 @@ export default function MatchNewForm({ tournamentID, currentMatch, onCancel, rou
   // }, [formik.values.HomePlayer])
   const { errors, values, touched, handleSubmit, isSubmitting, setFieldValue, getFieldProps } = formik;
   useEffect(() => {
-    setSelectedClub([{ ...values.HomeClub }, { ...values.AwayClub }])
+    setSelectedClub([{ ...values.homeClub }, { ...values.awayClub }])
   }, [values])
   return (
     <FormikProvider value={formik}>
@@ -135,12 +137,12 @@ export default function MatchNewForm({ tournamentID, currentMatch, onCancel, rou
           <Stack spacing={3} sx={{ p: 3 }}>
             <Autocomplete
               fullWidth
-              options={roundList}
+              options={roundList.data}
               autoHighlight
-              {...isEdit ? { value: formik.values.Round, disabled: 'true' } : {}}
+              {...isEdit ? { value: formik.values.round, disabled: 'true' } : {}}
               getOptionLabel={(option) => option.name}
               onChange={(event, newValue) => {
-                setFieldValue('Round', newValue);
+                setFieldValue('round', newValue);
               }}
               renderOption={(props, option) => (
                 <Box component="li" sx={{ '& > img': { mr: 2, flexShrink: 0 } }} {...props}>
@@ -150,8 +152,8 @@ export default function MatchNewForm({ tournamentID, currentMatch, onCancel, rou
               )}
               renderInput={(params) => (
                 <TextField
-                  helperText={touched.Round && errors.Round}
-                  error={Boolean(touched.Round && errors.Round)}
+                  helperText={touched.round && errors.round}
+                  error={Boolean(touched.round && errors.round)}
                   {...params}
                   label="Round"
                   inputProps={{
@@ -162,14 +164,14 @@ export default function MatchNewForm({ tournamentID, currentMatch, onCancel, rou
               )}
             />
             <Autocomplete
-              getOptionDisabled={option => disableOption(option, values.HomeClub)}
+              getOptionDisabled={option => disableOption(option, values.homeClub)}
               fullWidth
-              options={clubList}
+              options={clubList.data}
               autoHighlight
-              value={values.HomeClub}
+              value={values.homeClub}
               getOptionLabel={(option) => option.name}
               onChange={(event, newValue) => {
-                setFieldValue('HomeClub', newValue);
+                setFieldValue('homeClub', newValue);
               }}
               renderOption={(props, option) => (
                 <Box component="li" sx={{ '& > img': { mr: 2, flexShrink: 0 } }} {...props}>
@@ -179,8 +181,8 @@ export default function MatchNewForm({ tournamentID, currentMatch, onCancel, rou
               )}
               renderInput={(params) => (
                 <TextField
-                  helperText={touched.HomeClub && errors.HomeClub}
-                  error={Boolean(touched.HomeClub && errors.HomeClub)}
+                  helperText={touched.homeClub && errors.homeClub}
+                  error={Boolean(touched.homeClub && errors.homeClub)}
                   {...params}
                   label="HomeClub"
                   inputProps={{
@@ -191,14 +193,14 @@ export default function MatchNewForm({ tournamentID, currentMatch, onCancel, rou
               )}
             />
             <Autocomplete
-              getOptionDisabled={option => disableOption(option, values.AwayClub)}
+              getOptionDisabled={option => disableOption(option, values.awayClub)}
               fullWidth
-              options={clubList}
+              options={clubList.data}
               autoHighlight
-              value={values.AwayClub}
+              value={values.awayClub}
               getOptionLabel={(option) => option.name}
               onChange={(event, newValue) => {
-                setFieldValue('AwayClub', newValue);
+                setFieldValue('awayClub', newValue);
               }}
               renderOption={(props, option) => (
                 <Box component="li" sx={{ '& > img': { mr: 2, flexShrink: 0 } }} {...props}>
@@ -208,8 +210,8 @@ export default function MatchNewForm({ tournamentID, currentMatch, onCancel, rou
               )}
               renderInput={(params) => (
                 <TextField
-                  helperText={touched.AwayClub && errors.AwayClub}
-                  error={Boolean(touched.AwayClub && errors.AwayClub)}
+                  helperText={touched.awayClub && errors.awayClub}
+                  error={Boolean(touched.awayClub && errors.awayClub)}
                   {...params}
                   label="AwayClub"
                   inputProps={{
@@ -221,12 +223,12 @@ export default function MatchNewForm({ tournamentID, currentMatch, onCancel, rou
             />
             <Autocomplete
               fullWidth
-              options={stadiumList}
+              options={stadiumList.data}
               autoHighlight
-              {...isEdit ? { value: formik.values.Stadium, disabled: 'true' } : {}}
+              {...isEdit ? { value: formik.values.stadium, disabled: 'true' } : {}}
               getOptionLabel={(option) => option.name}
               onChange={(event, newValue) => {
-                setFieldValue('Stadium', newValue);
+                setFieldValue('stadium', newValue);
               }}
               renderOption={(props, option) => (
                 <Box component="li" sx={{ '& > img': { mr: 2, flexShrink: 0 } }} {...props}>
@@ -236,8 +238,8 @@ export default function MatchNewForm({ tournamentID, currentMatch, onCancel, rou
               )}
               renderInput={(params) => (
                 <TextField
-                  helperText={touched.Stadium && errors.Stadium}
-                  error={Boolean(touched.Stadium && errors.Stadium)}
+                  helperText={touched.stadium && errors.stadium}
+                  error={Boolean(touched.stadium && errors.stadium)}
                   {...params}
                   label="Stadium"
                   inputProps={{
@@ -250,12 +252,12 @@ export default function MatchNewForm({ tournamentID, currentMatch, onCancel, rou
             <MobileDateTimePicker
               shouldDisableDate={(date) => disableStartDate(date)}
               label="Start date"
-              value={values.StartDate}
+              value={values.startDate}
               inputFormat="dd/MM/yyyy hh:mm a"
-              onChange={(StartDate) => setFieldValue('StartDate', StartDate)}
+              onChange={(startDate) => setFieldValue('startDate', startDate)}
               renderInput={(params) => <TextField {...params} fullWidth
-                helperText={touched.StartDate && errors.StartDate}
-                error={Boolean(touched.StartDate && errors.StartDate)} />}
+                helperText={touched.startDate && errors.startDate}
+                error={Boolean(touched.startDate && errors.startDate)} />}
             />
           </Stack>
         )}
@@ -268,7 +270,7 @@ export default function MatchNewForm({ tournamentID, currentMatch, onCancel, rou
                     variant="h4"
                     sx={{ px: 3 }}
                   >
-                    {values.HomeClub.name}
+                    {values.homeClub.name}
                   </Typography>
                   <Typography
                     sx={{ px: 3, color: 'text.secondary' }}

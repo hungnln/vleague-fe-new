@@ -9,7 +9,15 @@ const initialState = {
   isLoading: false,
   error: false,
   isOpenModal: false,
-  roundList: [],
+  roundList: {
+    data: [],
+    pagination: {
+      pageIndex: 0,
+      pageSize: 0,
+      totalCount: 0,
+      totalPage: 0
+    }
+  },
   currentRound: {}
 };
 
@@ -27,11 +35,19 @@ const slice = createSlice({
       state.isLoading = false;
       state.error = action.payload;
     },
-  
+
     // DELETE USERS
     deleteRound(state, action) {
-      const deleteRound = filter(state.roundList, (round) => round.id !== action.payload);
-      state.roundList = deleteRound;
+      const { data, pagination } = state.roundList;
+      const newTotalCount = pagination.totalCount - 1 || 0;
+      const deleteRound = filter(data, (round) => round.id !== action.payload);
+      state.roundList = {
+        data: deleteRound,
+        pagination: {
+          ...pagination,
+          totalCount: newTotalCount
+        }
+      }
     },
 
     // GET MANAGE USERS
@@ -39,21 +55,30 @@ const slice = createSlice({
       state.isLoading = false;
       state.roundList = action.payload;
     },
-  
+
     addRound(state, action) {
       state.isLoading = false;
-      const newRoundList = [...state.roundList, action.payload]
-      state.roundList = newRoundList
+      const { data, pagination } = state.roundList
+      const newTotalCount = pagination.totalCount + 1 || 1
+      const newData = [...data, action.payload]
+      const newRoundList = {
+        data: newData,
+        pagination: {
+          ...pagination,
+          totalCount: newTotalCount
+        }
+      };
+      state.roundList = newRoundList;
     },
     editRound(state, action) {
       state.isLoading = false;
-      const newRoundList = state.roundList.map(round => {
-        if (Number(round.id) === Number(action.payload.id)) {
+      const newRoundList = state.roundList.data.map(round => {
+        if (round.id === action.payload.id) {
           return action.payload
         }
         return round
       })
-      state.roundList = newRoundList
+      state.roundList.data = newRoundList
     },
     getRoundDetail(state, action) {
       state.isLoading = false;
@@ -76,14 +101,13 @@ export default slice.reducer;
 // Actions
 export const { onToggleFollow, deleteRound, openModal, closeModal } = slice.actions;
 // ----------------------------------------------------------------------
-export function getRoundList(tournamentId) {
+export function getRoundList(tournamentId, pageIndex, pageSize) {
   return async (dispatch) => {
     dispatch(slice.actions.startLoading());
     try {
-      const response = await axios.get(`/api/rounds?TournamentID=${tournamentId}`);
-      dispatch(slice.actions.getRoundListSuccess(response.data.result));
+      const response = await axios.get(`/rounds?tournamentId=${tournamentId}&pageIndex=${pageIndex}&pageSize=${pageSize}`);
+      dispatch(slice.actions.getRoundListSuccess(response.data.data));
     } catch (error) {
-      console.log(error, 'error');
       dispatch(slice.actions.hasError(error));
     }
   };
@@ -92,14 +116,10 @@ export const createRound = (data, callback) => {
   return async (dispatch) => {
     dispatch(slice.actions.startLoading());
     try {
-      const response = await axios.post('/api/rounds', data);
-      if (response.data.statusCode === 200) {
-        dispatch(slice.actions.addRound(response.data.result));
-        console.log('response contract', response);
-        callback({ IsError: response.data.IsError })
-      }
+      const response = await axios.post('/rounds', data);
+      dispatch(slice.actions.addRound(response.data.data));
+      callback({ status: response.data.status, message: response.data.message })
     } catch (error) {
-      console.log(error, 'error');
       dispatch(slice.actions.hasError(error));
       callback(error.response.data)
 
@@ -110,17 +130,12 @@ export const editRound = (data, callback) => {
   return async (dispatch) => {
     dispatch(slice.actions.startLoading());
     try {
-      const response = await axios.put(`/api/rounds/${data.id}`, data);
-      if (response.data.statusCode === 200) {
-        dispatch(slice.actions.editRound(response.data.result));
-        console.log('response contract', response);
-        callback({ IsError: response.data.IsError })
-      }
+      const response = await axios.put(`/rounds/${data.id}`, data);
+      dispatch(slice.actions.editRound(response.data.data));
+      callback({ status: response.data.status, message: response.data.message })
     } catch (error) {
-      console.log(error, 'error');
       dispatch(slice.actions.hasError(error));
       callback(error.response.data)
-
     }
   }
 }
@@ -128,13 +143,9 @@ export const getRoundDetail = (roundId) => {
   return async (dispatch) => {
     dispatch(slice.actions.startLoading());
     try {
-      const response = await axios.get(`/api/rounds/${roundId}`);
-      if (response.data.statusCode === 200) {
-        dispatch(slice.actions.getRoundDetail(response.data.result));
-        console.log('response round', response);
-      }
+      const response = await axios.get(`/rounds/${roundId}`);
+      dispatch(slice.actions.getRoundDetail(response.data.data));
     } catch (error) {
-      console.log(error, 'error');
       dispatch(slice.actions.hasError(error));
     }
   }
@@ -143,10 +154,9 @@ export const removeRound = (id) => {
   return async dispatch => {
     dispatch(slice.actions.startLoading());
     try {
-      const response = await axios.delete(`/api/rounds/${id}`);
+      const response = await axios.delete(`/rounds/${id}`);
       dispatch(slice.actions.deleteRound(id))
     } catch (error) {
-      console.log(error, 'error');
       dispatch(slice.actions.hasError(error));
     }
   }

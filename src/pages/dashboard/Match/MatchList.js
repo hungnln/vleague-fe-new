@@ -59,9 +59,9 @@ import useAuth from 'src/hooks/useAuth';
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
-  { id: 'Home', label: 'Home', alignRight: false },
+  { id: 'home', label: 'Home', alignRight: false },
   { id: 'startDate', label: 'Score', alignRight: false },
-  { id: 'Away', label: 'Away', alignRight: false },
+  { id: 'away', label: 'Away', alignRight: false },
 
   { id: '', label: 'Action', alignRight: true }
 ];
@@ -118,19 +118,20 @@ export default function MatchList({ roundSelected }) {
   const [currentMatch, setCurrentMatch] = useState({})
   const { id } = useParams()
   const { user } = useAuth()
+  const { data, pagination } = matchList;
   const isAdmin = user?.role === 'Admin'
   useEffect(() => {
-    // dispatch(getTournamentDetail(id))
-    dispatch(getMatchList(tournamentDetail.id));
-    dispatch(getClubList())
-    dispatch(getStadiumList())
+    console.log(id);
+    dispatch(getMatchList(id, selectedRound, selectedStadium, page, rowsPerPage));
+    // dispatch(getClubList())
+    dispatch(getStadiumList(1, 1000))
 
-  }, [dispatch]);
+  }, [dispatch, id, selectedRound, selectedStadium, page, page, rowsPerPage]);
 
-  useEffect(() => {
-    console.log(selectedStadium, "check");
-    dispatch(getMatchList(tournamentDetail.id, selectedRound, selectedStadium));
-  }, [selectedRound, selectedStadium])
+  // useEffect(() => {
+  //   console.log(selectedStadium, "check");
+  //   dispatch(getMatchList(tournamentDetail.id, selectedRound, selectedStadium));
+  // }, [selectedRound, selectedStadium])
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
     setOrder(isAsc ? 'desc' : 'asc');
@@ -139,7 +140,7 @@ export default function MatchList({ roundSelected }) {
 
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelecteds = matchList.map((n) => n.name);
+      const newSelecteds = data.map((n) => n.name);
       setSelected(newSelecteds);
       return;
     }
@@ -197,9 +198,9 @@ export default function MatchList({ roundSelected }) {
     dispatch(closeModal());
   };
 
-  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - matchList.length) : 0;
+  const emptyRows = page > 0 ? Math.max(0, rowsPerPage - data.length) : 0;
 
-  const filteredMatchs = applySortFilter(matchList, getComparator(order, orderBy), filterName);
+  const filteredMatchs = applySortFilter(data, getComparator(order, orderBy), filterName);
 
   const isMatchNotFound = filteredMatchs.length === 0;
 
@@ -238,8 +239,8 @@ export default function MatchList({ roundSelected }) {
               <MenuItem value="">
                 <em>All</em>
               </MenuItem>
-              {roundList.map((round, index) => {
-                return <MenuItem value={round.id}>{round.name}</MenuItem>
+              {roundList.data.map((round, index) => {
+                return <MenuItem key={round.id} value={round.id}>{round.name}</MenuItem>
 
               })}
             </Select>
@@ -256,8 +257,8 @@ export default function MatchList({ roundSelected }) {
               <MenuItem value="">
                 <em>All</em>
               </MenuItem>
-              {stadiumList.map((stadium, index) => {
-                return <MenuItem value={stadium.id}>{stadium.name}</MenuItem>
+              {stadiumList.data.map((stadium, index) => {
+                return <MenuItem key={stadium.id} value={stadium.id}>{stadium.name}</MenuItem>
 
               })}
             </Select>
@@ -272,7 +273,7 @@ export default function MatchList({ roundSelected }) {
                 order={order}
                 orderBy={orderBy}
                 headLabel={TABLE_HEAD}
-                rowCount={matchList.length}
+                rowCount={data.length}
                 numSelected={selected.length}
                 onRequestSort={handleRequestSort}
                 onSelectAllClick={handleSelectAllClick}
@@ -280,12 +281,12 @@ export default function MatchList({ roundSelected }) {
               <TableBody>
                 {matchList.length <= 0 &&
                   (<LoadingProgress />)}
-                {filteredMatchs.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
-                  const { id, homeClubID, awayClubID, startDate, roundID, stadiumID, homeGoals, awayGoals } = row;
-                  const homeClub = clubList.find(club => club.id === homeClubID)
-                  const awayClub = clubList.find(club => club.id === awayClubID)
-                  const round = roundList.find(round => round.id === roundID);
-                  const stadium = stadiumList.find(stadium => stadium.id === stadiumID);
+                {filteredMatchs.map((row) => {
+                  const { id, homeClubId, homeClub, awayClubId, awayClub, startDate, roundId, round, stadiumId, stadium, homeGoals, awayGoals } = row;
+                  // const homeClub = clubList.find(club => club.id === homeClubID)
+                  // const awayClub = clubList.find(club => club.id === awayClubID)
+                  // const round = roundList.find(round => round.id === roundID);
+                  // const stadium = stadiumList.find(stadium => stadium.id === stadiumID);
                   const rowEdit = { ...row, homeClub, awayClub, round, stadium }
                   // const isItemSelected = selected.indexOf(name) !== -1;
 
@@ -307,12 +308,13 @@ export default function MatchList({ roundSelected }) {
                       </TableCell>
                       <TableCell>
                         <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                          {round?.name}
+                          Round: {round?.name}
                         </Typography>
                         {new Date(startDate) > new Date() ?
-                          <><Typography variant="subtitle2">{format(new Date(startDate), 'dd MMM yyyy')}</Typography>
+                          <>
+                            <Typography variant="subtitle2">{moment(new Date(startDate)).format('dd MMM yyyy')}</Typography>
                             <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                              {format(new Date(startDate), 'p')}
+                              {moment(new Date(startDate)).format('hh:mm')}
                             </Typography></>
                           : `${homeGoals} - ${awayGoals}`}
 
@@ -369,7 +371,7 @@ export default function MatchList({ roundSelected }) {
         <TablePagination
           rowsPerPageOptions={[5, 10, 25]}
           component="div"
-          count={matchList.length}
+          count={pagination.totalCount}
           rowsPerPage={rowsPerPage}
           page={page}
           onPageChange={handleChangePage}

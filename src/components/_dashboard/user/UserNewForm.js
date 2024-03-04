@@ -20,6 +20,8 @@ import countries from './countries';
 import { useDispatch } from 'react-redux';
 import { updateUserStatus } from 'src/redux/slices/user';
 import _ from 'lodash';
+import { SUCCESS } from 'src/config';
+import { el } from 'date-fns/locale';
 
 // ----------------------------------------------------------------------
 
@@ -68,15 +70,15 @@ export default function UserNewForm({ isEdit, currentUser, onCancel }) {
     }
   });
   useEffect(() => {
-    console.log("check errorstate", errorState);
     if (!_.isEmpty(errorState)) {
-      if (!errorState.IsError) {
+      if (errorState.status === SUCCESS) {
         formik.resetForm();
-        enqueueSnackbar(!isEdit ? 'Create success' : 'Update success', { variant: 'success' });
+        enqueueSnackbar(errorState.message, { variant: 'success' });
         onCancel()
+      }else{
+        enqueueSnackbar(errorState.message, { variant: 'error' });
       }
     }
-
   }, [errorState])
 
   const { errors, values, touched, handleSubmit, isSubmitting, setFieldValue, getFieldProps } = formik;

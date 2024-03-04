@@ -98,10 +98,11 @@ export default function StaffList() {
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const { user } = useAuth()
   const isAdmin = user?.role === 'Admin'
+  const { data, pagination } = staffList;
 
   useEffect(() => {
-    dispatch(getStaffList());
-  }, [dispatch]);
+    dispatch(getStaffList(page, rowsPerPage));
+  }, [dispatch, page, rowsPerPage]);
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -111,7 +112,7 @@ export default function StaffList() {
 
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelecteds = staffList.map((n) => n.name);
+      const newSelecteds = data.map((n) => n.name);
       setSelected(newSelecteds);
       return;
     }
@@ -151,9 +152,9 @@ export default function StaffList() {
 
   };
 
-  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - staffList.length) : 0;
+  const emptyRows = page > 0 ? Math.max(0, rowsPerPage - data.length) : 0;
 
-  const filteredStaffs = applySortFilter(staffList, getComparator(order, orderBy), filterName);
+  const filteredStaffs = applySortFilter(data, getComparator(order, orderBy), filterName);
 
   const isStaffNotFound = filteredStaffs.length === 0;
 
@@ -200,7 +201,7 @@ export default function StaffList() {
                   order={order}
                   orderBy={orderBy}
                   headLabel={TABLE_HEAD}
-                  rowCount={staffList.length}
+                  rowCount={data.length}
                   numSelected={selected.length}
                   onRequestSort={handleRequestSort}
                   onSelectAllClick={handleSelectAllClick}
@@ -208,7 +209,7 @@ export default function StaffList() {
                 <TableBody>
                   {staffList.length <= 0 &&
                     <LoadingProgress />}
-                  {filteredStaffs.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
+                  {filteredStaffs.map((row) => {
                     const { id, name, dateOfBirth, imageURL, isVerified } = row;
                     const isItemSelected = selected.indexOf(name) !== -1;
 
@@ -272,7 +273,7 @@ export default function StaffList() {
           <TablePagination
             rowsPerPageOptions={[5, 10, 25]}
             component="div"
-            count={staffList.length}
+            count={pagination.totalCount}
             rowsPerPage={rowsPerPage}
             page={page}
             onPageChange={handleChangePage}

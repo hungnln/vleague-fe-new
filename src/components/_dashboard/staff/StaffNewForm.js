@@ -19,6 +19,8 @@ import { createStaff, editStaff } from 'src/redux/slices/staff';
 import { useDispatch } from 'src/redux/store';
 import _ from 'lodash';
 import useAuth from 'src/hooks/useAuth';
+import handleUploadImage from 'src/utils/uploadImage';
+import { FAILURE, SUCCESS } from 'src/config';
 
 // ----------------------------------------------------------------------
 
@@ -35,43 +37,41 @@ export default function StaffNewForm({ isEdit, currentStaff }) {
   const { user } = useAuth()
   const isAdmin = user?.role === 'Admin'
   const NewStaffSchema = Yup.object().shape({
-    Name: Yup.string().required('Name is required'),
-    ImageURL: Yup.mixed().required('Avatar is required')
+    name: Yup.string().required('Name is required'),
+    imageURL: Yup.mixed().required('Avatar is required')
   });
   useEffect(() => {
     if (!_.isEmpty(errorState)) {
-
-      if (!errorState.IsError) {
-        console.log('ko error');
+      if (errorState.status === SUCCESS) {
         formik.resetForm();
-        enqueueSnackbar(!isEdit ? 'Create success' : 'Update success', { variant: 'success' });
+        enqueueSnackbar(errorState.message, { variant: 'success' });
         navigate(PATH_DASHBOARD.staff.list);
       }
+      else {
+        enqueueSnackbar(errorState.message, { variant: 'error' });
+      }
     }
-
   }, [errorState])
   const formik = useFormik({
     enableReinitialize: true,
     initialValues: {
       id: currentStaff?.id || '',
-      Name: currentStaff?.name || '',
-      ImageURL: currentStaff?.imageURL || null,
+      name: currentStaff?.name || '',
+      imageURL: currentStaff?.imageURL || null,
     },
     validationSchema: NewStaffSchema,
-    onSubmit: (values, { setSubmitting, resetForm, setErrors }) => {
+    onSubmit: async (values, { setSubmitting, resetForm, setErrors }) => {
       try {
-        let data = ''
+        const url = values.imageURL?.preview !== undefined ? await handleUploadImage(values.imageURL) : values.imageURL
+        const data = {
+          id: values.id,
+          name: values.name,
+          imageURL: url
+        }
         if (isEdit) {
-          if (values.ImageURL?.base64 == null) {
-            data = { ...values }
-          } else {
-            data = { ...values, ImageURL: values.ImageURL.base64 }
-          }
-          dispatch(editStaff(data, value => setErrorState(value)))
+          dispatch(editStaff(data, error => setErrorState(error)))
         } else {
-          data = { ...values, ImageURL: values.ImageURL.base64 }
-
-          dispatch(createStaff(data, value => setErrorState(value)))
+          dispatch(createStaff(data, error => setErrorState(error)))
         }
       } catch (error) {
         console.error(error);
@@ -83,16 +83,13 @@ export default function StaffNewForm({ isEdit, currentStaff }) {
 
   const { errors, values, touched, handleSubmit, isSubmitting, setFieldValue, getFieldProps } = formik;
   const handleDrop = useCallback(
-    (acceptedFiles) => {
+    async (acceptedFiles) => {
       const file = acceptedFiles[0];
       if (file) {
-        toBase64(file).then(value => {
-          setFieldValue('ImageURL', {
-            ...file,
-            base64: value,
-            preview: URL.createObjectURL(file),
-          });
-        })
+        setFieldValue('imageURL',
+          Object.assign(file, {
+            preview: URL.createObjectURL(file)
+          }));
       }
     },
     [setFieldValue]
@@ -104,22 +101,22 @@ export default function StaffNewForm({ isEdit, currentStaff }) {
         <Grid container spacing={3}>
           <Grid item xs={12} md={4}>
             <Card sx={{ py: 10, px: 3 }}>
-              {isEdit && (
+              {/* {isEdit && (
                 <Label
                   color={values.status !== 'active' ? 'error' : 'success'}
                   sx={{ textTransform: 'uppercase', position: 'absolute', top: 24, right: 24 }}
                 >
                   {values.status}
                 </Label>
-              )}
+              )} */}
 
               <Box sx={{ mb: 5 }}>
                 <UploadAvatar
                   accept="image/*"
-                  file={values.ImageURL}
+                  file={values.imageURL}
                   maxSize={3145728}
                   onDrop={handleDrop}
-                  error={Boolean(touched.ImageURL && errors.ImageURL)}
+                  error={Boolean(touched.imageURL && errors.imageURL)}
                   caption={
                     <Typography
                       variant="caption"
@@ -137,7 +134,7 @@ export default function StaffNewForm({ isEdit, currentStaff }) {
                   }
                 />
                 <FormHelperText error sx={{ px: 2, textAlign: 'center' }}>
-                  {touched.ImageURL && errors.ImageURL}
+                  {touched.imageURL && errors.imageURL}
                 </FormHelperText>
               </Box>
             </Card>
@@ -153,12 +150,12 @@ export default function StaffNewForm({ isEdit, currentStaff }) {
                     }}
                     fullWidth
                     label="Full name"
-                    {...getFieldProps('Name')}
-                    error={Boolean(touched.Name && errors.Name)}
-                    helperText={touched.Name && errors.Name}
+                    {...getFieldProps('name')}
+                    error={Boolean(touched.name && errors.name)}
+                    helperText={touched.name && errors.name}
                   />
                 </Stack>
-                {errorState?.IsError ? <Alert severity="warning">{errorState?.Message}</Alert> : ''}
+                {errorState?.status === FAILURE ? <Alert severity="warning">{errorState?.message}</Alert> : ''}
 
                 {isAdmin && (<Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
                   <LoadingButton type="submit" variant="contained" loading={isSubmitting}>

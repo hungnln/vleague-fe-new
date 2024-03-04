@@ -8,9 +8,24 @@ import axios from '../../utils/axios';
 const initialState = {
   isLoading: false,
   error: false,
-  staffList: [],
-  contractList: [],
-  staffContracts: [],
+  staffList: {
+    data: [],
+    pagination: {
+      pageIndex: 0,
+      pageSize: 0,
+      totalCount: 0,
+      totalPage: 0
+    }
+  },
+  contractList: {
+    data: [],
+    pagination: {
+      pageIndex: 0,
+      pageSize: 0,
+      totalCount: 0,
+      totalPage: 0
+    }
+  },
   staffDetail: null,
   currentContract: {},
   clubContractList: [],
@@ -36,24 +51,42 @@ const slice = createSlice({
 
     addStaff(state, action) {
       state.isLoading = false;
-      const newStaffList = [...state.staffList, action.payload]
-      state.staffList = newStaffList
+      state.error = false;
+      const { data, pagination } = state.staffList
+      const newTotalCount = pagination.totalCount + 1 || 1
+      const newData = [...data, action.payload]
+      const newStaffList = {
+        data: newData,
+        pagination: {
+          ...pagination,
+          totalCount: newTotalCount
+        }
+      };
+      state.staffList = newStaffList;
     },
 
     editStaff(state, action) {
       state.isLoading = false;
-      const newStaffList = state.staffList.map(staff => {
-        if (Number(staff.id) === Number(action.payload.id)) {
-          return action.payload
+      const newStaffList = state.staffList.data.map(staff => {
+        if (staff.id === action.payload.id) {
+          return action.payload;
         }
-        return staff
+        return staff;
       })
-      state.staffList = newStaffList
+      state.staffList.data = newStaffList;
     },
 
     deleteStaff(state, action) {
-      const deleteStaff = filter(state.staffList, (staff) => staff.id !== action.payload);
-      state.staffList = deleteStaff;
+      const { data, pagination } = state.staffList;
+      const newTotalCount = pagination.totalCount - 1 || 0;
+      const deleteStaff = filter(data, (staff) => staff.id !== action.payload);
+      state.staffList = {
+        data: deleteStaff,
+        pagination: {
+          ...pagination,
+          totalCount: newTotalCount
+        }
+      }
     },
 
     getContractList(state, action) {
@@ -64,19 +97,41 @@ const slice = createSlice({
 
     addContract(state, action) {
       state.isLoading = false;
-      const newContractList = [...state.contractList, action.payload]
-      state.contractList = newContractList
+      state.error = false;
+      const { data, pagination } = state.contractList
+      const newTotalCount = pagination.totalCount + 1 || 1
+      const newData = [...data, action.payload]
+      const newContractList = {
+        data: newData,
+        pagination: {
+          ...pagination,
+          totalCount: newTotalCount
+        }
+      };
+      state.contractList = newContractList;
     },
 
     editContract(state, action) {
       state.isLoading = false;
-      const newContractList = state.contractList.map(contract => {
-        if (Number(contract.id) === Number(action.payload.id)) {
+      const newContractList = state.contractList.data.map(contract => {
+        if (contract.id === action.payload.id) {
           return action.payload
         }
         return contract
       })
-      state.contractList = newContractList
+      state.contractList.data = newContractList
+    },
+    deleteContract(state, action) {
+      const { data, pagination } = state.contractList;
+      const newTotalCount = pagination.totalCount - 1 || 0;
+      const deleteContract = filter(data, (contract) => contract.id !== action.payload);
+      state.contractList = {
+        data: deleteContract,
+        pagination: {
+          ...pagination,
+          totalCount: newTotalCount
+        }
+      }
     },
     getClubContractList(state, action) {
       state.isLoading = false;
@@ -107,12 +162,12 @@ export default slice.reducer;
 export const { onToggleFollow, deleteStaff } = slice.actions;
 
 // ----------------------------------------------------------------------
-export function getStaffList() {
+export function getStaffList(pageIndex, pageSize) {
   return async (dispatch) => {
     dispatch(slice.actions.startLoading());
     try {
-      const response = await axios.get('/api/staffs');
-      dispatch(slice.actions.getStaffListSuccess(response.data.result));
+      const response = await axios.get(`/staffs?pageIndex=${pageIndex}&pageSize=${pageSize}`);
+      dispatch(slice.actions.getStaffListSuccess(response.data.data));
     } catch (error) {
       dispatch(slice.actions.hasError(error.response.data));
     }
@@ -122,11 +177,9 @@ export const createStaff = (data, callback) => {
   return async (dispatch) => {
     dispatch(slice.actions.startLoading());
     try {
-      const response = await axios.post('/api/staffs', data);
-      if (response.data.statusCode === 200) {
-        dispatch(slice.actions.addStaff(response.data.result));
-        callback({ IsError: response.data.IsError })
-      }
+      const response = await axios.post('/staffs', data);
+      dispatch(slice.actions.addStaff(response.data.data));
+      callback({ status: response.data.status, message: response.data.message })
     } catch (error) {
       dispatch(slice.actions.hasError(error.response.data));
       callback(error.response.data)
@@ -137,11 +190,10 @@ export const editStaff = (data, callback) => {
   return async (dispatch) => {
     dispatch(slice.actions.startLoading());
     try {
-      const response = await axios.put(`/api/staffs/${data.id}`, data);
-      if (response.data.statusCode === 200) {
-        callback({ IsError: response.data.IsError })
-        dispatch(slice.actions.editStaff(response.data.result));
-      }
+      const response = await axios.put(`/staffs/${data.id}`, data);
+      dispatch(slice.actions.editStaff(response.data.data));
+      callback({ status: response.data.status, message: response.data.message })
+
     } catch (error) {
       dispatch(slice.actions.hasError(error.response.data));
       callback(error.response.data)
@@ -153,13 +205,9 @@ export const createContract = (data, callback) => {
   return async (dispatch) => {
     dispatch(slice.actions.startLoading());
     try {
-      const response = await axios.post('/api/staff-contracts', data);
-      if (response.data.statusCode === 200) {
-        const contractResponse = await axios.get(`/api/staff-contracts/${response.data.result.id}?Include=staff, club`);
-        dispatch(slice.actions.addContract(contractResponse.data.result));
-        callback({ IsError: response.data.IsError })
-
-      }
+      const response = await axios.post('/staff-contracts', data);
+      dispatch(slice.actions.addContract(response.data.data));
+      callback({ status: response.data.status, message: response.data.message })
     } catch (error) {
       dispatch(slice.actions.hasError(error.response.data));
       callback(error.response.data)
@@ -170,12 +218,9 @@ export const editContract = (id, data, callback) => {
   return async (dispatch) => {
     dispatch(slice.actions.startLoading());
     try {
-      const response = await axios.put(`/api/staff-contracts/${id}`, data);
-      if (response.data.statusCode === 200) {
-        const contractResponse = await axios.get(`/api/staff-contracts/${response.data.result.id}?Include=staff, club`);
-        dispatch(slice.actions.editContract(contractResponse.data.result));
-        callback({ IsError: response.data.IsError })
-      }
+      const response = await axios.put(`/staff-contracts/${id}`, data);
+      dispatch(slice.actions.editContract(response.data.data));
+      callback({ status: response.data.status, message: response.data.message })
     } catch (error) {
       dispatch(slice.actions.hasError(error.response.data));
       callback(error.response.data)
@@ -188,7 +233,7 @@ export const removeStaff = (id) => {
   return async dispatch => {
     dispatch(slice.actions.startLoading());
     try {
-      const response = await axios.delete(`/api/staffs/${id}`);
+      const response = await axios.delete(`/staffs/${id}`);
       dispatch(slice.actions.deleteStaff(id))
     } catch (error) {
       dispatch(slice.actions.hasError(error.response.data));
@@ -199,8 +244,8 @@ export const removeContract = (id) => {
   return async dispatch => {
     dispatch(slice.actions.startLoading());
     try {
-      const response = await axios.delete(`/api/staff-contracts/${id}`);
-      dispatch(getContractList('', 'staff, club'))
+      const response = await axios.delete(`/staff-contracts/${id}`);
+      dispatch(slice.actions.deleteContract(id))
     } catch (error) {
       dispatch(slice.actions.hasError(error.response.data));
 
@@ -211,8 +256,8 @@ export const getContract = (id, include) => {
   return async dispatch => {
     dispatch(slice.actions.startLoading());
     try {
-      const response = await axios.get(`/api/staff-contracts/${id}?Include=${include}`);
-      dispatch(slice.actions.getCurrentContract(response.data.result))
+      const response = await axios.get(`/staff-contracts/${id}?Include=${include}`);
+      dispatch(slice.actions.getCurrentContract(response.data.data))
     } catch (error) {
       dispatch(slice.actions.hasError(error.response.data));
 
@@ -223,8 +268,8 @@ export const getContractList = (id, include) => {
   return async dispatch => {
     dispatch(slice.actions.startLoading());
     try {
-      const response = await axios.get(`/api/staff-contracts?StaffID=${id}&Include=${include}`);
-      dispatch(slice.actions.getContractList(response.data.result))
+      const response = await axios.get(`/staff-contracts?staffId=${id}&Include=${include}`);
+      dispatch(slice.actions.getContractList(response.data.data))
     } catch (error) {
       dispatch(slice.actions.hasError(error));
     }
@@ -235,20 +280,20 @@ export const getStaffDetail = (id) => {
   return async dispatch => {
     dispatch(slice.actions.startLoading());
     try {
-      const response = await axios.get(`/api/staffs/${id}`);
-      dispatch(slice.actions.getStaffDetail(response.data.result))
+      const response = await axios.get(`/staffs/${id}`);
+      dispatch(slice.actions.getStaffDetail(response.data.data))
     } catch (error) {
       console.log(error, 'error');
       dispatch(slice.actions.hasError(error));
     }
   }
 }
-export const getClubMatchContract = (ClubID, start) => {
+export const getClubMatchContract = (ClubID, start,pageIndex,pageSize) => {
   return async dispatch => {
     dispatch(slice.actions.startLoading());
     try {
-      const response = await axios.get(`/api/staff-contracts?ClubID=${ClubID}&IncludeEndedContracts=false&Include=staff&Start=${start}`);
-      dispatch(slice.actions.getClubContractList(response.data.result))
+      const response = await axios.get(`/staff-contracts?clubId=${ClubID}&includeEndedContracts=false&Include=staff&matchDate=${start}pageIndex=${pageIndex}&pageSize=${pageSize}`);
+      dispatch(slice.actions.getClubContractList(response.data.data))
     }
     catch (error) {
       dispatch(slice.actions.hasError(error.response.data));

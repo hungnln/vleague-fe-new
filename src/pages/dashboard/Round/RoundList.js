@@ -106,10 +106,11 @@ export default function RoundList() {
   const [rankModal, setRankModal] = useState(false)
   const { user } = useAuth()
   const { id } = useParams()
+  const { data, pagination } = roundList;
   useEffect(() => {
     dispatch(getTournamentDetail(id))
-    dispatch(getRoundList(id));
-  }, [dispatch]);
+    dispatch(getRoundList(id, page, rowsPerPage));
+  }, [dispatch, id, page, rowsPerPage]);
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -179,9 +180,9 @@ export default function RoundList() {
     setRankModal(false)
   }
 
-  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - roundList.length) : 0;
+  const emptyRows = page > 0 ? Math.max(0, rowsPerPage - data.length) : 0;
 
-  const filteredRounds = applySortFilter(roundList, getComparator(order, orderBy), filterName);
+  const filteredRounds = applySortFilter(data, getComparator(order, orderBy), filterName);
 
   const isRoundNotFound = filteredRounds.length === 0;
 
@@ -230,16 +231,16 @@ export default function RoundList() {
                         order={order}
                         orderBy={orderBy}
                         headLabel={TABLE_HEAD}
-                        rowCount={roundList.length}
+                        rowCount={data.length}
                         numSelected={selected.length}
                         onRequestSort={handleRequestSort}
                         onSelectAllClick={handleSelectAllClick}
                       />
                       <TableBody>
-                        {roundList.length <= 0 &&
+                        {roundList.data.length <= 0 &&
                           <LoadingProgress />}
-                        {filteredRounds.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
-                          const { id, name, tournamentID } = row;
+                        {filteredRounds.map((row) => {
+                          const { id, name, tournamentId } = row;
                           const isItemSelected = selected.indexOf(name) !== -1;
 
                           return (
@@ -302,7 +303,7 @@ export default function RoundList() {
                 <TablePagination
                   rowsPerPageOptions={[5, 10, 25]}
                   component="div"
-                  count={roundList.length}
+                  count={pagination.totalCount}
                   rowsPerPage={rowsPerPage}
                   page={page}
                   onPageChange={handleChangePage}
@@ -318,8 +319,8 @@ export default function RoundList() {
           <DialogAnimate width='lg' open={rankModal} onClose={handleCloseRankModal} scroll='body'>
             <Stack spacing={3} sx={{ p: 3 }}>
               <Grid container spacing={3}>
-                <Grid item xs={12} md={12}><Standing tournamentID={tournamentDetail.id} /></Grid>
-                <Grid item xs={12} md={12}><Ranking tournamentID={tournamentDetail.id} /></Grid>
+                <Grid item xs={12} md={12}><Standing tournamentId={tournamentDetail.id} /></Grid>
+                <Grid item xs={12} md={12}><Ranking tournamentId={tournamentDetail.id} /></Grid>
               </Grid>
             </Stack>
           </DialogAnimate>

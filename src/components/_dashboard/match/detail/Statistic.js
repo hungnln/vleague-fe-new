@@ -43,12 +43,12 @@ export default function Statistic() {
         // "BackHeel": <></>,
     }
     const { matchStatistic, currentMatch } = useSelector(state => state.match);
-    const { homeClub, awayClub, homeClubID, awayClubID } = currentMatch;
+    const { homeClub, awayClub, homeClubId, awayClubId } = currentMatch;
     const renderStatistic = () => {
         return Object.entries(listIcon).map(([key, value]) => {
             return <>
                 <Grid item xs={5} textAlign="right">
-                    {matchStatistic[homeClubID][key]}
+                    {matchStatistic[homeClubId][key]}
                 </Grid>
                 <Grid item xs={2} textAlign="center">
                     {value}
@@ -58,7 +58,7 @@ export default function Statistic() {
 
                 </Grid>
                 <Grid item xs={5} textAlign="left">
-                    {matchStatistic[awayClubID][key]}
+                    {matchStatistic[awayClubId][key]}
                 </Grid>
             </>
         }

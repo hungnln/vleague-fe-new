@@ -96,9 +96,10 @@ export default function RefereeList() {
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const { user } = useAuth()
   const isAdmin = user?.role === 'Admin'
+  const { data, pagination } = refereeList;
   useEffect(() => {
-    dispatch(getRefereeList());
-  }, [dispatch]);
+    dispatch(getRefereeList(page, rowsPerPage));
+  }, [dispatch, page, rowsPerPage]);
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -108,7 +109,7 @@ export default function RefereeList() {
 
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelecteds = refereeList.map((n) => n.name);
+      const newSelecteds = data.map((n) => n.name);
       setSelected(newSelecteds);
       return;
     }
@@ -149,9 +150,9 @@ export default function RefereeList() {
 
   };
 
-  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - refereeList.length) : 0;
+  const emptyRows = page > 0 ? Math.max(0, rowsPerPage - data.length) : 0;
 
-  const filteredReferees = applySortFilter(refereeList, getComparator(order, orderBy), filterName);
+  const filteredReferees = applySortFilter(data, getComparator(order, orderBy), filterName);
 
   const isRefereeNotFound = filteredReferees.length === 0;
 
@@ -187,15 +188,15 @@ export default function RefereeList() {
                   order={order}
                   orderBy={orderBy}
                   headLabel={TABLE_HEAD}
-                  rowCount={refereeList.length}
+                  rowCount={data.length}
                   numSelected={selected.length}
                   onRequestSort={handleRequestSort}
                   onSelectAllClick={handleSelectAllClick}
                 />
                 <TableBody>
-                  {refereeList.length <= 0 &&
+                  {data.length <= 0 &&
                     <LoadingProgress />}
-                  {filteredReferees.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
+                  {filteredReferees.map((row) => {
                     const { id, name, dateOfBirth, imageURL, isVerified } = row;
                     const isItemSelected = selected.indexOf(name) !== -1;
 
@@ -259,7 +260,7 @@ export default function RefereeList() {
           <TablePagination
             rowsPerPageOptions={[5, 10, 25]}
             component="div"
-            count={refereeList.length}
+            count={pagination.totalCount}
             rowsPerPage={rowsPerPage}
             page={page}
             onPageChange={handleChangePage}

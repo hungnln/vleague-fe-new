@@ -20,6 +20,7 @@ import countries from './countries';
 import { createRound, editRound } from 'src/redux/slices/round';
 import { useDispatch } from 'src/redux/store';
 import _ from 'lodash';
+import { SUCCESS } from 'src/config';
 
 // ----------------------------------------------------------------------
 
@@ -35,7 +36,7 @@ export default function RoundNewForm({ tournamentID, currentRound, onCancel }) {
   const [errorState, setErrorState] = useState();
   const { enqueueSnackbar } = useSnackbar();
   const NewRoundSchema = Yup.object().shape({
-    Name: Yup.string().required('Name is required'),
+    name: Yup.string().required('Name is required'),
   });
   const isEdit = !_.isEmpty(currentRound) ? 1 : 0
 
@@ -43,8 +44,8 @@ export default function RoundNewForm({ tournamentID, currentRound, onCancel }) {
     enableReinitialize: true,
     initialValues: {
       id: currentRound?.id || '',
-      TournamentID: currentRound?.tournamentID || tournamentID,
-      Name: currentRound?.name || '',
+      tournamentId: currentRound?.tournamentId || tournamentID,
+      name: currentRound?.name || '',
     },
     validationSchema: NewRoundSchema,
     onSubmit: (values, { setSubmitting, resetForm, setErrors }) => {
@@ -63,19 +64,15 @@ export default function RoundNewForm({ tournamentID, currentRound, onCancel }) {
   });
   useEffect(() => {
     if (!_.isEmpty(errorState)) {
-      console.log('check state', errorState);
-
-      if (!errorState.IsError) {
-        console.log('ko error');
+      if (errorState.status === SUCCESS) {
+        enqueueSnackbar(errorState.message, { variant: 'success' });
         formik.resetForm();
         onCancel();
-        enqueueSnackbar(currentRound ? 'Create success' : 'Update success', { variant: 'success' });
-        // navigate(PATH_DASHBOARD.round.list);
-      } else {
-        console.log('bị error');
+      }
+      else {
+        enqueueSnackbar(errorState.message, { variant: 'error' });
       }
     }
-
   }, [errorState])
   const { errors, values, touched, handleSubmit, isSubmitting, setFieldValue, getFieldProps } = formik;
   return (
@@ -85,9 +82,9 @@ export default function RoundNewForm({ tournamentID, currentRound, onCancel }) {
           <TextField
             fullWidth
             label="Name"
-            {...getFieldProps('Name')}
-            error={Boolean(touched.Name && errors.Name)}
-            helperText={touched.Name && errors.Name}
+            {...getFieldProps('name')}
+            error={Boolean(touched.name && errors.name)}
+            helperText={touched.name && errors.name}
           />
         </Stack>
         <DialogActions>

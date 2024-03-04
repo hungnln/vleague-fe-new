@@ -12,7 +12,7 @@ import useSettings from '../../../hooks/useSettings';
 // components
 import Page from '../../../components/Page';
 import HeaderBreadcrumbs from '../../../components/HeaderBreadcrumbs';
-import { getStaffList } from 'src/redux/slices/staff';
+import { getStaffDetail, getStaffList } from 'src/redux/slices/staff';
 import StaffNewForm from 'src/components/_dashboard/staff/StaffNewForm';
 
 // ----------------------------------------------------------------------
@@ -22,19 +22,19 @@ export default function StaffCreate() {
   const dispatch = useDispatch();
   const { pathname } = useLocation();
   const { id } = useParams();
-  const { staffList } = useSelector((state) => state.staff);
   const isEdit = pathname.includes('edit');
-  const currentStaff = staffList.find((staff) => staff.id === Number(id));
-
+  const { staffDetail } = useSelector((state) => state.staff);
   useEffect(() => {
-    dispatch(getStaffList());
+    if(id){
+      dispatch(getStaffDetail(id));
+    }
   }, [dispatch]);
 
 
   return (
     <Page title="Staff: Create a new staff | V League">
       <Container maxWidth={themeStretch ? false : 'lg'}>
-        {isEdit && currentStaff == null ?
+        {isEdit && staffDetail == null ?
           (<Box >
             <CircularProgress sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }} />
           </Box>) : (<>
@@ -43,10 +43,10 @@ export default function StaffCreate() {
               links={[
                 { name: 'Dashboard', href: PATH_DASHBOARD.root },
                 { name: 'Staff', href: PATH_DASHBOARD.staff.root },
-                { name: !isEdit ? 'New staff' : currentStaff?.name }
+                { name: !isEdit ? 'New staff' : staffDetail?.name }
               ]}
             />
-            <StaffNewForm isEdit={isEdit} currentStaff={currentStaff} />
+            <StaffNewForm isEdit={isEdit} currentStaff={staffDetail} />
           </>)}
 
       </Container>

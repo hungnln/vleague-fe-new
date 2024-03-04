@@ -8,17 +8,16 @@ import axios from '../../utils/axios';
 const initialState = {
   isLoading: false,
   error: false,
-  myProfile: null,
-  posts: [],
-  referees: [],
-  refereeList: [],
-  followers: [],
-  friends: [],
-  gallery: [],
-  cards: null,
-  addressBook: [],
-  invoices: [],
-  notifications: null
+  refereeList: {
+    data: [],
+    pagination: {
+      pageIndex: 0,
+      pageSize: 0,
+      totalCount: 0,
+      totalPage: 0
+    }
+  },
+  refereeDetail: null,
 };
 
 const slice = createSlice({
@@ -55,24 +54,46 @@ const slice = createSlice({
     },
     addReferee(state, action) {
       state.isLoading = false;
-      const newRefereeList = [...state.refereeList, action.payload]
-      state.refereeList = newRefereeList
+      state.error = false;
+      const { data, pagination } = state.refereeList
+      const newTotalCount = pagination.totalCount + 1 || 1
+      const newData = [...data, action.payload]
+      const newRefereeList = {
+        data: newData,
+        pagination: {
+          ...pagination,
+          totalCount: newTotalCount
+        }
+      };
+      state.refereeList = newRefereeList;
     },
     editReferee(state, action) {
       state.isLoading = false;
-      const newRefereeList = state.refereeList.map(referee => {
-        if (Number(referee.id) === Number(action.payload.id)) {
+      const newRefereeList = state.refereeList.data.map(referee => {
+        if (referee.id === action.payload.id) {
           return action.payload
         }
         return referee
       })
-      state.refereeList = newRefereeList
+      state.refereeList.data = newRefereeList
+    },
+    getRefereeDetail(state, action) {
+      state.isLoading = false;
+      state.refereeDetail = action.payload;
     },
 
     // DELETE USERS
     deleteReferee(state, action) {
-      const deleteReferee = filter(state.refereeList, (referee) => referee.id !== action.payload);
-      state.refereeList = deleteReferee;
+      const { data, pagination } = state.refereeList;
+      const newTotalCount = pagination.totalCount - 1 || 0;
+      const deleteReferee = filter(data, (referee) => referee.id !== action.payload);
+      state.refereeList = {
+        data: deleteReferee,
+        pagination: {
+          ...pagination,
+          totalCount: newTotalCount
+        }
+      }
     },
 
     // GET FOLLOWERS
@@ -150,96 +171,36 @@ export const { onToggleFollow, deleteReferee } = slice.actions;
 
 // ----------------------------------------------------------------------
 
-export function getProfile() {
+// ----------------------------------------------------------------------
+export function getRefereeList(pageIndex, pageSize) {
   return async (dispatch) => {
     dispatch(slice.actions.startLoading());
     try {
-      const response = await axios.get('/api/referee/profile');
-      dispatch(slice.actions.getProfileSuccess(response.data.profile));
+      const response = await axios.get(`/referees?pageIndex=${pageIndex}&pageSize=${pageSize}`);
+      dispatch(slice.actions.getRefereeListSuccess(response.data.data));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
     }
   };
 }
-
-// ----------------------------------------------------------------------
-
-export function getPosts() {
-  return async (dispatch) => {
+export const getRefereeDetail = (id) => {
+  return async dispatch => {
     dispatch(slice.actions.startLoading());
     try {
-      const response = await axios.get('/api/referee/posts');
-      dispatch(slice.actions.getPostsSuccess(response.data.posts));
+      const response = await axios.get(`/referees/${id}`);
+      dispatch(slice.actions.getRefereeDetail(response.data.data))
     } catch (error) {
       dispatch(slice.actions.hasError(error));
     }
-  };
-}
-
-// ----------------------------------------------------------------------
-
-export function getFollowers() {
-  return async (dispatch) => {
-    dispatch(slice.actions.startLoading());
-    try {
-      const response = await axios.get('/api/referee/social/followers');
-      dispatch(slice.actions.getFollowersSuccess(response.data.followers));
-    } catch (error) {
-      dispatch(slice.actions.hasError(error));
-    }
-  };
-}
-
-// ----------------------------------------------------------------------
-
-export function getFriends() {
-  return async (dispatch) => {
-    dispatch(slice.actions.startLoading());
-    try {
-      const response = await axios.get('/api/referee/social/friends');
-      dispatch(slice.actions.getFriendsSuccess(response.data.friends));
-    } catch (error) {
-      dispatch(slice.actions.hasError(error));
-    }
-  };
-}
-
-// ----------------------------------------------------------------------
-
-export function getGallery() {
-  return async (dispatch) => {
-    dispatch(slice.actions.startLoading());
-    try {
-      const response = await axios.get('/api/referee/social/gallery');
-      dispatch(slice.actions.getGallerySuccess(response.data.gallery));
-    } catch (error) {
-      dispatch(slice.actions.hasError(error));
-    }
-  };
-}
-
-// ----------------------------------------------------------------------
-export function getRefereeList() {
-  return async (dispatch) => {
-    dispatch(slice.actions.startLoading());
-    try {
-      const response = await axios.get('/api/referees');
-      dispatch(slice.actions.getRefereeListSuccess(response.data.result));
-    } catch (error) {
-      console.log(error, 'error');
-      dispatch(slice.actions.hasError(error));
-    }
-  };
+  }
 }
 export const createReferee = (data, callback) => {
   return async (dispatch) => {
     dispatch(slice.actions.startLoading());
     try {
-      const response = await axios.post('/api/referees', data);
-      if (response.data.statusCode === 200) {
-        dispatch(slice.actions.addReferee(response.data.result));
-        callback({ IsError: response.data.IsError })
-      }
+      const response = await axios.post('/referees', data);
+      dispatch(slice.actions.addReferee(response.data.data));
+      callback({ status: response.data.status, message: response.data.message })
     } catch (error) {
       callback(error.response.data)
       dispatch(slice.actions.hasError(error));
@@ -250,11 +211,10 @@ export const editReferee = (data, callback) => {
   return async (dispatch) => {
     dispatch(slice.actions.startLoading());
     try {
-      const response = await axios.put(`/api/referees/${data.id}`, data);
-      if (response.data.statusCode === 200) {
-        dispatch(slice.actions.editReferee(response.data.result));
-        callback({ IsError: response.data.IsError })
-      }
+      const response = await axios.put(`/referees/${data.id}`, data);
+      dispatch(slice.actions.editReferee(response.data.data));
+      callback({ status: response.data.status, message: response.data.message })
+
     } catch (error) {
       callback(error.response.data)
       dispatch(slice.actions.hasError(error));
@@ -265,7 +225,7 @@ export const removeReferee = (id) => {
   return async dispatch => {
     dispatch(slice.actions.startLoading());
     try {
-      const response = await axios.delete(`/api/referees/${id}`);
+      const response = await axios.delete(`/referees/${id}`);
       dispatch(slice.actions.deleteReferee(id))
     } catch (error) {
       console.log(error, 'error');
@@ -274,72 +234,4 @@ export const removeReferee = (id) => {
   }
 }
 
-// ----------------------------------------------------------------------
 
-export function getCards() {
-  return async (dispatch) => {
-    dispatch(slice.actions.startLoading());
-    try {
-      const response = await axios.get('/api/referee/account/cards');
-      dispatch(slice.actions.getCardsSuccess(response.data.cards));
-    } catch (error) {
-      dispatch(slice.actions.hasError(error));
-    }
-  };
-}
-
-// ----------------------------------------------------------------------
-
-export function getAddressBook() {
-  return async (dispatch) => {
-    dispatch(slice.actions.startLoading());
-    try {
-      const response = await axios.get('/api/referee/account/address-book');
-      dispatch(slice.actions.getAddressBookSuccess(response.data.addressBook));
-    } catch (error) {
-      dispatch(slice.actions.hasError(error));
-    }
-  };
-}
-
-// ----------------------------------------------------------------------
-
-export function getInvoices() {
-  return async (dispatch) => {
-    dispatch(slice.actions.startLoading());
-    try {
-      const response = await axios.get('/api/referee/account/invoices');
-      dispatch(slice.actions.getInvoicesSuccess(response.data.invoices));
-    } catch (error) {
-      dispatch(slice.actions.hasError(error));
-    }
-  };
-}
-
-// ----------------------------------------------------------------------
-
-export function getNotifications() {
-  return async (dispatch) => {
-    dispatch(slice.actions.startLoading());
-    try {
-      const response = await axios.get('/api/referee/account/notifications-settings');
-      dispatch(slice.actions.getNotificationsSuccess(response.data.notifications));
-    } catch (error) {
-      dispatch(slice.actions.hasError(error));
-    }
-  };
-}
-
-// ----------------------------------------------------------------------
-
-export function getReferees() {
-  return async (dispatch) => {
-    dispatch(slice.actions.startLoading());
-    try {
-      const response = await axios.get('/api/referee/all');
-      dispatch(slice.actions.getRefereesSuccess(response.data.referees));
-    } catch (error) {
-      dispatch(slice.actions.hasError(error));
-    }
-  };
-}
