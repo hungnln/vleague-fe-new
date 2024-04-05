@@ -86,7 +86,6 @@ function AuthProvider({ children }) {
   const dispatchUser = useDispatch()
   // const accessToken = window.localStorage.getItem('accessToken');
 
-
   useEffect(() => {
     const initialize = async () => {
       try {
@@ -94,7 +93,7 @@ function AuthProvider({ children }) {
         console.log("check admin token", accessToken);
         const firebaseToken = localStorage.getItem('firebaseToken')
 
-        if (accessToken&& isValidToken(accessToken)) {
+        if (accessToken && isValidToken(accessToken)) {
           setSession(accessToken);
           const x = JSON.parse(atob(accessToken.split('.')[1]))
           console.log("check admin token", x);
@@ -133,6 +132,7 @@ function AuthProvider({ children }) {
         // const response = await axios.post('/api/login/admin');
 
         else {
+          localStorage.removeItem('accessToken')
           dispatch({
             type: 'INITIALIZE',
             payload: {

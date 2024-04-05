@@ -36,6 +36,8 @@ import { createPost, editPost } from 'src/redux/slices/blog';
 import _ from 'lodash';
 import { useNavigate, useParams } from 'react-router';
 import { PATH_DASHBOARD } from 'src/routes/paths';
+import { FAILURE, SUCCESS } from 'src/config';
+import handleUploadImage from 'src/utils/uploadImage';
 
 // ---------------------------------------------------------------------
 
@@ -65,82 +67,76 @@ export default function BlogNewPostForm({ isEdit, currentPost }) {
   };
 
   const NewBlogSchema = Yup.object().shape({
-    Title: Yup.string().required('Title is required'),
+    title: Yup.string().required('Title is required'),
     // description: Yup.string().required('Description is required'),
-    Content: Yup.string().required('Content is required'),
-    ThumbnailImageURL: Yup.mixed().required('Cover is required')
+    content: Yup.string().required('Content is required'),
+    thumbnailImageURL: Yup.mixed().required('Cover is required')
   });
 
   const formik = useFormik({
     enableReinitialize: true,
     initialValues: {
       id: currentPost?.id || '',
-      Title: currentPost?.title || '',
-      Content: currentPost?.content || '',
-      ThumbnailImageURL: currentPost?.thumbnailImageURL || null,
-      PlayerIDs: currentPost?.players || [],
-      ClubIDs: currentPost?.clubs || [],
+      title: currentPost?.title || '',
+      content: currentPost?.content || '',
+      thumbnailImageURL: currentPost?.thumbnailImageURL || null,
+      playerIds: currentPost?.players?.data || [],
+      clubIds: currentPost?.clubs?.data || [],
     },
     validationSchema: NewBlogSchema,
-    onSubmit: (values, { setSubmitting, resetForm }) => {
+    onSubmit: async (values, { setSubmitting, resetForm, setErrors }) => {
       try {
+        const url = values.thumbnailImageURL?.preview !== undefined ? await handleUploadImage(values.thumbnailImageURL) : values.thumbnailImageURL
+        const data = {
+          id: values.id,
+          playerIds: values.playerIds.reduce((obj, item) => [...obj, item.id], []),
+          clubIds: values.clubIds.reduce((obj, item) => [...obj, item.id], []),
+          title: values.title,
+          content: values.content,
+          thumbnailImageURL: url,
+        }
         if (!isEdit) {
-          const data = {
-            ...values, ThumbnailImageURL: values.ThumbnailImageURL.base64, PlayerIDs: values.PlayerIDs.reduce((obj, item) => [...obj, item.id], []), ClubIDs: values.ClubIDs.reduce((obj, item) => [...obj, item.id], [])
-          }
-          dispatch(createPost(data, (value) => { setErrorState(value); }))
+          await dispatch(createPost(data, (value) => { setErrorState(value); }))
         } else {
-          let data = ''
-          if (values.ThumbnailImageURL?.base64 == null) {
-            data = {
-              ...values, PlayerIDs: values.PlayerIDs.reduce((obj, item) => [...obj, item.id], []), ClubIDs: values.ClubIDs.reduce((obj, item) => [...obj, item.id], [])
-            }
-          } else {
-            data = {
-              ...values, ThumbnailImageURL: values.ThumbnailImageURL.base64, PlayerIDs: values.PlayerIDs.reduce((obj, item) => [...obj, item.id], []), ClubIDs: values.ClubIDs.reduce((obj, item) => [...obj, item.id], [])
-            }
-          }
-          dispatch(editPost(data, (value) => { setErrorState(value); }))
+          await dispatch(editPost(data, (value) => { setErrorState(value); }))
         }
         // await fakeRequest(500);
         // resetForm();
         handleClosePreview();
-        setSubmitting(false);
+        // setSubmitting(false);
       } catch (error) {
         console.error(error);
         setSubmitting(false);
+        setErrors(error)
       }
     }
   });
   useEffect(() => {
-    dispatch(getPlayerList())
-    dispatch(getClubList())
+    dispatch(getPlayerList(0, 1000))
+    dispatch(getClubList(0, 1000))
   }, [dispatch])
+
   useEffect(() => {
     if (!_.isEmpty(errorState)) {
-      if (!errorState.IsError) {
+      if (errorState.status === SUCCESS) {
         formik.resetForm();
-        enqueueSnackbar(!isEdit ? 'Create success' : 'Update success', { variant: 'success' });
+        enqueueSnackbar(errorState.message, { variant: 'success' });
         navigate(PATH_DASHBOARD.blog.root)
-      } else {
-        enqueueSnackbar(!isEdit ? 'Create error' : 'Update error', { variant: 'error' });
+      }
+      else {
+        enqueueSnackbar(errorState.message, { variant: 'error' });
       }
     }
-
   }, [errorState])
   const { errors, values, touched, handleSubmit, isSubmitting, setFieldValue, getFieldProps } = formik;
-
   const handleDrop = useCallback(
-    (acceptedFiles) => {
+    async (acceptedFiles) => {
       const file = acceptedFiles[0];
       if (file) {
-        toBase64(file).then(value => {
-          setFieldValue('ThumbnailImageURL', {
-            ...file,
-            base64: value,
+        setFieldValue('thumbnailImageURL',
+          Object.assign(file, {
             preview: URL.createObjectURL(file)
-          });
-        })
+          }));
       }
     },
     [setFieldValue]
@@ -157,9 +153,9 @@ export default function BlogNewPostForm({ isEdit, currentPost }) {
                   <TextField
                     fullWidth
                     label="Post Title"
-                    {...getFieldProps('Title')}
-                    error={Boolean(touched.Title && errors.Title)}
-                    helperText={touched.Title && errors.Title}
+                    {...getFieldProps('title')}
+                    error={Boolean(touched.title && errors.title)}
+                    helperText={touched.title && errors.title}
                   />
 
                   {/* <TextField
@@ -177,13 +173,13 @@ export default function BlogNewPostForm({ isEdit, currentPost }) {
                     <LabelStyle>Content</LabelStyle>
                     <QuillEditor
                       id="post-Content"
-                      value={values.Content}
-                      onChange={(val) => setFieldValue('Content', val)}
-                      error={Boolean(touched.Content && errors.Content)}
+                      value={values.content}
+                      onChange={(val) => setFieldValue('content', val)}
+                      error={Boolean(touched.content && errors.content)}
                     />
-                    {touched.Content && errors.Content && (
+                    {touched.content && errors.content && (
                       <FormHelperText error sx={{ px: 2, textTransform: 'capitalize' }}>
-                        {touched.Content && errors.Content}
+                        {touched.content && errors.content}
                       </FormHelperText>
                     )}
                   </div>
@@ -193,13 +189,13 @@ export default function BlogNewPostForm({ isEdit, currentPost }) {
                     <UploadSingleFile
                       maxSize={3145728}
                       accept="image/*"
-                      file={values.ThumbnailImageURL}
+                      file={values.thumbnailImageURL}
                       onDrop={handleDrop}
-                      error={Boolean(touched.ThumbnailImageURL && errors.ThumbnailImageURL)}
+                      error={Boolean(touched.thumbnailImageURL && errors.thumbnailImageURL)}
                     />
-                    {touched.ThumbnailImageURL && errors.ThumbnailImageURL && (
+                    {touched.thumbnailImageURL && errors.thumbnailImageURL && (
                       <FormHelperText error sx={{ px: 2 }}>
-                        {touched.ThumbnailImageURL && errors.ThumbnailImageURL}
+                        {touched.thumbnailImageURL && errors.thumbnailImageURL}
                       </FormHelperText>
                     )}
                   </div>
@@ -231,9 +227,9 @@ export default function BlogNewPostForm({ isEdit, currentPost }) {
                     autoHighlight
                     multiple
                     limitTags={2}
-                    value={values.PlayerIDs}
+                    value={values.playerIds}
                     onChange={(event, newValue) => {
-                      setFieldValue('PlayerIDs', newValue);
+                      setFieldValue('playerIds', newValue);
                     }}
                     getOptionLabel={(option) => option.name}
                     renderOption={(props, option) => (
@@ -242,7 +238,7 @@ export default function BlogNewPostForm({ isEdit, currentPost }) {
                         {option.name}
                       </Box>
                     )}
-                    options={playerList}
+                    options={playerList.data}
                     renderInput={(params) => <TextField {...params} label="Player tag" InputProps={{
                       ...params.InputProps,
                       autoComplete: 'new-password', // disable autocomplete and autofill
@@ -265,12 +261,12 @@ export default function BlogNewPostForm({ isEdit, currentPost }) {
                     autoHighlight
                     multiple
                     limitTags={2}
-                    value={values.ClubIDs}
+                    value={values.clubIds}
                     onChange={(event, newValue) => {
-                      setFieldValue('ClubIDs', newValue);
+                      setFieldValue('clubIds', newValue);
                     }}
                     getOptionLabel={(option) => option.name}
-                    options={clubList}
+                    options={clubList.data}
                     renderOption={(props, option) => (
                       <Box component="li" sx={{ '& > img': { mr: 2, flexShrink: 0 } }} {...props}>
                         <Avatar alt={option?.name} src={option?.imageURL} sx={{ width: 20, height: 20, marginRight: '5px' }} />
@@ -282,7 +278,8 @@ export default function BlogNewPostForm({ isEdit, currentPost }) {
                       autoComplete: 'new-password', // disable autocomplete and autofill
                     }} />}
                   />
-                  {errorState?.IsError ? <Alert severity="warning">{errorState.Message}</Alert> : ''}
+                  {errorState?.status === FAILURE ? <Alert severity="warning">{errorState?.message}</Alert> : ''}
+
 
                 </Stack>
               </Card>

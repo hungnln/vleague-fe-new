@@ -2,6 +2,7 @@ import { createSlice } from '@reduxjs/toolkit';
 import { filter } from 'lodash';
 // utils
 import axios from '../../utils/axios';
+import { SUCCESS } from 'src/config';
 
 // ----------------------------------------------------------------------
 
@@ -163,11 +164,12 @@ export function createPost(values, callback) {
     dispatch(slice.actions.startLoading());
     try {
       const response = await axios.post('/news', values);
-      if (response.data.statusCode === 200) {
+      if (response.data.status === SUCCESS) {
         const { id } = response.data.data
         const responsePost = await axios.get(`/news/${id}?Include=players,clubs`);
         dispatch(slice.actions.addPost(responsePost.data.data));
-        callback({ IsError: response.data.IsError })
+        callback({ status: response.data.status, message: response.data.message })
+
       }
 
     } catch (error) {
@@ -182,11 +184,12 @@ export function editPost(values, callback) {
   return async (dispatch) => {
     dispatch(slice.actions.startLoading());
     try {
-      const response = await axios.put(`/api/news/${values.id}`, values);
-      if (response.data.statusCode === 200) {
-        const responsePost = await axios.get(`/api/news/${values.id}?Include=players,clubs`);
+      const response = await axios.put(`/news/${values.id}`, values);
+      if (response.data.status === SUCCESS) {
+        const responsePost = await axios.get(`/news/${values.id}?Include=players,clubs`);
         dispatch(slice.actions.editPost(responsePost.data.data))
-        callback({ IsError: response.data.IsError })
+        callback({ status: response.data.status, message: response.data.message })
+
       }
     } catch (error) {
       dispatch(slice.actions.hasError(error));
