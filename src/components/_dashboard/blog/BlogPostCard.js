@@ -15,6 +15,7 @@ import { fDate, fDateTime } from '../../../utils/formatTime';
 import { fShortenNumber } from '../../../utils/formatNumber';
 //
 import SvgIconStyle from '../../SvgIconStyle';
+import moment from 'moment';
 
 // ----------------------------------------------------------------------
 
@@ -145,7 +146,7 @@ export default function BlogPostCard({ post, index }) {
           }}
         >
           <Typography gutterBottom variant="caption" sx={{ color: 'text.disabled', display: 'block' }}>
-            {fDateTime(createdAt)}
+            {moment(new Date(createdAt)).format('d MMM yyyy HH:mm')}
           </Typography>
 
           <TitleStyle

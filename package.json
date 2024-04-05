@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "start": "react-scripts --openssl-legacy-provider start",
-    "build": "react-scripts --openssl-legacy-provider start",
+    "build": "react-scripts --openssl-legacy-provider build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "lint": "eslint --ext .js,.jsx ./src",
@@ -19,7 +19,7 @@
   },
   "babel": {
     "presets": [
-      "@babel/preset-react", "@babel/preset-env"
+      "@babel/preset-react"
     ]
   },
   "browserslist": {
@@ -92,6 +92,7 @@
     "lodash": "^4.17.21",
     "mapbox-gl": "^2.4.1",
     "moment": "^2.29.3",
+    "netlify-cli": "^17.17.2",
     "notistack": "^1.0.6-next.3",
     "nprogress": "^0.2.0",
     "numeral": "^2.0.6",

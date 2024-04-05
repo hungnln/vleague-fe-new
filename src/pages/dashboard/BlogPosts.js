@@ -72,20 +72,20 @@ export default function BlogPosts() {
   const formik = useFormik({
     enableReinitialize: true,
     initialValues: {
-      PlayerIDs: [],
-      ClubIDs: [],
+      playerIds: [],
+      clubIds: [],
     },
   })
   const { errors, values, touched, handleSubmit, isSubmitting, setFieldValue, getFieldProps } = formik;
   useEffect(() => {
-    dispatch(getAllPosts(step, values.PlayerIDs, values.ClubIDs));
+    dispatch(getAllPosts(step, values.playerIds, values.clubIds));
   }, [dispatch, step]);
-  useEffect(() => { dispatch(getAllPosts(1, values.PlayerIDs, values.ClubIDs)) }, [values])
+  useEffect(() => { dispatch(getAllPosts(1, values.playerIds, values.clubIds)) }, [values])
   const handleChangeSort = (event) => {
     setFilters(event.target.value);
   };
   useEffect(() => {
-    dispatch(getPlayerList())
+    dispatch(getPlayerList(0,1000))
     dispatch(getClubList(0,100))
   }, [])
 
@@ -144,12 +144,12 @@ export default function BlogPosts() {
                     autoHighlight
                     multiple
                     limitTags={1}
-                    value={values.PlayerIDs}
+                    value={values.playerIds}
                     onChange={(event, newValue) => {
-                      setFieldValue('PlayerIDs', newValue);
+                      setFieldValue('playerIds', newValue);
                     }}
                     getOptionLabel={(option) => option.name}
-                    options={playerList}
+                    options={playerList.data}
                     renderOption={(props, option) => (
                       <Box component="li" sx={{ '& > img': { mr: 2, flexShrink: 0 } }} {...props}>
                         <Avatar alt={option?.name} src={option?.imageURL} sx={{ width: 20, height: 20, marginRight: '5px' }} />
@@ -169,12 +169,12 @@ export default function BlogPosts() {
                     autoHighlight
                     multiple
                     limitTags={1}
-                    value={values.ClubIDs}
+                    value={values.clubIds}
                     onChange={(event, newValue) => {
-                      setFieldValue('ClubIDs', newValue);
+                      setFieldValue('clubIds', newValue);
                     }}
                     getOptionLabel={(option) => option.name}
-                    options={clubList}
+                    options={clubList.data}
                     renderOption={(props, option) => (
                       <Box component="li" sx={{ '& > img': { mr: 2, flexShrink: 0 } }} {...props}>
                         <Avatar alt={option?.name} src={option?.imageURL} sx={{ width: 20, height: 20, marginRight: '5px' }} />

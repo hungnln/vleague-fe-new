@@ -67,8 +67,9 @@ export default function BlogPostsSearch({ sx }) {
       const { value } = event.target;
       setSearchQuery(value)
       if (value.trim().length > 0) {
-        const response = await axios.get(`/api/news?SearchText=${value}`);
-        setSearchResults(response.data.result);
+        const response = await axios.get(`/news?title=${value}`);
+        console.log(response.data.data.data);
+        setSearchResults(response.data.data.data);
       } else {
         setSearchResults([]);
       }
